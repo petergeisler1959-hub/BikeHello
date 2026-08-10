@@ -1,0 +1,53 @@
+name: Build BikeHello iOS
+
+on:
+workflow_dispatch:
+
+jobs:
+build-ios:
+runs-on: macos-latest
+
+steps:
+- name: Checkout repository
+uses: actions/checkout@v4
+
+- name: Setup Node.js
+uses: actions/setup-node@v4
+with:
+node-version: 22
+cache: npm
+
+- name: Install dependencies
+run: npm ci
+
+- name: Build web app
+run: npm run build
+
+- name: Sync Capacitor iOS
+run: npx cap sync ios
+
+- name: Build iOS app
+run: |
+cd ios/App
+xcodebuild \
+-workspace App.xcworkspace \
+-scheme App \
+-configuration Release \
+-sdk iphoneos \
+-archivePath $PWD/build/App.xcarchive \
+archive \
+CODE_SIGNING_ALLOWED=NO
+
+- name: Create IPA
+run: |
+mkdir -p ios/App/build/Payload
+mkdir -p ios/App/build/Payload/App.app
+cp -R ios/App/build/App.xcarchive/Products/Applications/App.app ios/App/build/Payload/
+cd ios/App/build
+zip -r BikeHello.ipa Payload
+
+- name: Upload IPA
+uses: actions/upload-artifact@v4
+with:
+name: BikeHello-IPA
+path: ios/App/build/BikeHello.ipa
