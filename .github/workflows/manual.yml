@@ -1,75 +1,52 @@
 name: Build BikeHello iOS
 
 on:
-workflow_dispatch:
+  workflow_dispatch:
 
 jobs:
-build-ios:
-runs-on: macos-latest
+  build-ios:
+    runs-on: macos-latest
 
-steps:
-- name: Checkout repository
-uses: actions/checkout@v4
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-- name: Setup Node.js
-uses: actions/setup-node@v4
-with:
-node-version: 22
-cache: npm
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
 
-- name: Install dependencies
-run: npm ci
+      - name: Install dependencies
+        run: npm ci
 
-- name: Build web app
-run: npm run build
+      - name: Build web app
+        run: npm run build
 
-- name: Sync Capacitor iOS
-run: npx cap sync ios
+      - name: Sync Capacitor iOS
+        run: npx cap sync ios
 
-- name: Build iOS app
-run: |
-cd ios/App
-xcodebuild \
--workspace App.xcworkspace \
--scheme App \
--configuration Release \
--sdk iphoneos \
--archivePath $PWD/build/App.xcarchive \
-archive \
-CODE_SIGNING_ALLOWED=NO
+      - name: Build iOS app
+        run: |
+          cd ios/App
+          xcodebuild \
+            -workspace App.xcworkspace \
+            -scheme App \
+            -configuration Release \
+            -sdk iphoneos \
+            -archivePath $PWD/build/App.xcarchive \
+            archive \
+            CODE_SIGNING_ALLOWED=NO
 
-- name: Create IPA
-run: |
-mkdir -p ios/App/build/Payload
-cp -R ios/App/build/App.xcarchive/Products/Applications/App.app ios/App/build/Payload/
-cd ios/App/build
-zip -r BikeHello.ipa Payload
+      - name: Create IPA
+        run: |
+          mkdir -p ios/App/build/Payload
+          cp -R ios/App/build/App.xcarchive/Products/Applications/App.app ios/App/build/Payload/
+          cd ios/App/build
+          zip -r BikeHello.ipa Payload
 
-- name: Upload IPA
-uses: actions/upload-artifact@v4
-with:
-name: BikeHello-IPA
-path: ios/App/build/BikeHello.ipa
-
-
-Peter Geisler <peter.geisler1959@gmail.com> schrieb am Mo. 10. Aug. 2026 um 16:51:
-runs-on: macos-latest
-
-steps:
-- name: Checkout repository
-uses: actions/checkout@v4
-
- Check failure on line 13 in .github/workflows/manual.yml
-
-
-GitHub Actions
-/ .github/workflows/manual.yml
-Invalid workflow file
-
-You have an error in your yaml syntax on line 13
-- name: Setup Node.js
-uses: actions/setup-node@v4
-with:
-node-version: 22
-cache: npm
-
+      - name: Upload IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: BikeHello-IPA
+          path: ios/App/build/BikeHello.ipa
