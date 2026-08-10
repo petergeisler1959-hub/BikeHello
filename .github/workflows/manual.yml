@@ -41,7 +41,6 @@ CODE_SIGNING_ALLOWED=NO
 - name: Create IPA
 run: |
 mkdir -p ios/App/build/Payload
-mkdir -p ios/App/build/Payload/App.app
 cp -R ios/App/build/App.xcarchive/Products/Applications/App.app ios/App/build/Payload/
 cd ios/App/build
 zip -r BikeHello.ipa Payload
@@ -51,3 +50,26 @@ uses: actions/upload-artifact@v4
 with:
 name: BikeHello-IPA
 path: ios/App/build/BikeHello.ipa
+
+
+Peter Geisler <peter.geisler1959@gmail.com> schrieb am Mo. 10. Aug. 2026 um 16:51:
+runs-on: macos-latest
+
+steps:
+- name: Checkout repository
+uses: actions/checkout@v4
+
+ Check failure on line 13 in .github/workflows/manual.yml
+
+
+GitHub Actions
+/ .github/workflows/manual.yml
+Invalid workflow file
+
+You have an error in your yaml syntax on line 13
+- name: Setup Node.js
+uses: actions/setup-node@v4
+with:
+node-version: 22
+cache: npm
+
