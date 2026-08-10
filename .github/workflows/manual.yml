@@ -21,9 +21,6 @@ jobs:
         run: npm ci
 
       - name: Sync Capacitor iOS
-        run: npm cap sync ios
-
-      - name: Sync Capacitor iOS
         run: npx cap sync ios
 
       - name: Build iOS app
