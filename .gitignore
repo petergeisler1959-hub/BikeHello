@@ -1,3 +1,5 @@
 node_modules/
 .DS_Store
 *.log
+ios_old/
+ios/App/Payload/
