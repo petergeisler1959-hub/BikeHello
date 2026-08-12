@@ -17,6 +17,8 @@ private let motionManager = CMMotionManager()
 
 @objc func start(_ call: CAPPluginCall) {
 
+print("BIKEHELLO: Magnetometer.start() called")
+
 guard motionManager.isMagnetometerAvailable else {
 call.reject("Magnetometer is not available")
 return
@@ -34,6 +36,8 @@ return
 guard let magneticField = data?.magneticField else {
 return
 }
+
+print("BIKEHELLO: \(magneticField.x), \(magneticField.y), \(magneticField.z)")
 
 self?.notifyListeners("magnetometerData", data: [
 "x": magneticField.x,
