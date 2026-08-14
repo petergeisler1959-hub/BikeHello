@@ -41,7 +41,7 @@ return
 }
 
 print("BIKEHELLO: \(magneticField.x), \(magneticField.y), \(magneticField.z)")
-notifyListeners("magnetometerDebug", data: [
+self?.notifyListeners("magnetometerDebug", data: [
     "message": "SWIFT: Magnetometer liefert Daten"
 ])
 
