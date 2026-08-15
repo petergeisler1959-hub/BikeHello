@@ -263,7 +263,7 @@ ECHTE iPHONE-MAGNETOMETER-ANBINDUNG
 ====================================================
 */
 
-debugMessage("CAPACITOR KEYS - Version 0018: " + Object.keys(Capacitor).join(","));
+debugMessage("REGISTER CHECK - Version 0019: " + ("registerPlugin" in Capacitor) + " / " + (typeof Capacitor.registerPlugin));
 
 
 /*
@@ -369,6 +369,7 @@ console.error("Magnetometer stop error:", error);
 
 </body>
 </html>
+
 
 
 
