@@ -108,7 +108,9 @@ DEBUG: App gestartet - Version 0011
 
 </div>
 
-<script>
+<script type="module">
+import { registerPlugin } from "./capacitor-core.js";
+const Magnetometer = registerPlugin("Magnetometer");
 const canvas = document.getElementById("chart");
 const ctx = canvas.getContext("2d");
 
@@ -369,6 +371,7 @@ console.error("Magnetometer stop error:", error);
 
 </body>
 </html>
+
 
 
 
