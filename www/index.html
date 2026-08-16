@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -41,7 +41,7 @@ font-weight: bold;
 
 #chart {
 width: 100%;
-flex: 1;
+height: 40vh;
 background: #111;
 border: 1px solid #555;
 box-sizing: border-box;
@@ -99,6 +99,22 @@ DEBUG: App gestartet - Version 0011
 <div class="value" id="bValue" style="color:#ffffff;">|B|: --</div>
 </div>
 
+<div id="gpsValues" style="
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:4px 12px;
+font-size:13px;
+font-family:monospace;
+margin-bottom:8px;
+">
+<div id="gpsLat">LAT: --</div>
+<div id="gpsLon">LON: --</div>
+<div id="gpsSpeed">SPEED: --</div>
+<div id="gpsCourse">COURSE: --</div>
+<div id="gpsAccuracy">ACC: --</div>
+<div id="gpsAltitude">ALT: --</div>
+</div>
+
 <canvas id="chart"></canvas>
 
 <div id="controls">
@@ -111,6 +127,7 @@ DEBUG: App gestartet - Version 0011
 <script type="module">
 import { registerPlugin } from "./capacitor-core.js";
 const Magnetometer = registerPlugin("Magnetometer");
+const GPS = registerPlugin("GPS");
 const canvas = document.getElementById("chart");
 const ctx = canvas.getContext("2d");
 
@@ -118,6 +135,13 @@ const xValue = document.getElementById("xValue");
 const yValue = document.getElementById("yValue");
 const zValue = document.getElementById("zValue");
 const bValue = document.getElementById("bValue");
+
+const gpsLat = document.getElementById("gpsLat");
+const gpsLon = document.getElementById("gpsLon");
+const gpsSpeed = document.getElementById("gpsSpeed");
+const gpsCourse = document.getElementById("gpsCourse");
+const gpsAccuracy = document.getElementById("gpsAccuracy");
+const gpsAltitude = document.getElementById("gpsAltitude");
 
 const startButton = document.getElementById("start");
 const stopButton = document.getElementById("stop");
@@ -271,25 +295,32 @@ debugMessage("REGISTER GLOBAL - Version 0021: " + (typeof registerPlugin));
 /*
 Magnetometer-Daten vom Swift-Plugin empfangen
 */
-/*
-Magnetometer.addListener("magnetometerDebug", (data) => {
+/
+
+GPS.addListener("gpsDebug", (data) => {
     debugMessage(data.message);
 });
 
-Magnetometer.addListener("magnetometerData", (data) => {
+GPS.addListener("gpsData", (data) => {
 
-if (!running) {
-return;
-}
+    gpsLat.textContent =
+        "LAT: " + data.lat.toFixed(6);
 
-addSample(
-data.x,
-data.y,
-data.z
-);
+    gpsLon.textContent =
+        "LON: " + data.lon.toFixed(6);
+
+    gpsSpeed.textContent =
+        "SPEED: " + (data.speed * 3.6).toFixed(1) + " km/h";
+
+    gpsCourse.textContent =
+        "COURSE: " + data.course.toFixed(1) + "°";
+
+    gpsAccuracy.textContent =
+        "ACC: " + data.horizontalAccuracy.toFixed(1) + " m";
+
+    gpsAltitude.textContent =
+        "ALT: " + data.altitude.toFixed(1) + " m";
 });
-*/
-
 Magnetometer.addListener("magnetometerDebug", (data) => {
     debugMessage(data.message);
 });
@@ -335,6 +366,7 @@ zData = [];
 bData = [];
 
 await Magnetometer.start();
+await GPS.start();
 
 draw();
 
@@ -360,6 +392,7 @@ try {
 running = false;
 
 await Magnetometer.stop();
+await GPS.stop();
 
 } catch (error) {
 
@@ -371,17 +404,3 @@ console.error("Magnetometer stop error:", error);
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
