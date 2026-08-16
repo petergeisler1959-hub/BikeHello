@@ -3,382 +3,283 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>BikeHello Magnetometer</title>
+<title>Bike Navigation</title>
+
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
-body {
-margin: 0;
-background: #000;
-color: #fff;
-font-family: Arial, sans-serif;
-overflow: hidden;
+html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    font-family: Arial, sans-serif;
 }
 
-#app {
-height: 100vh;
-display: flex;
-flex-direction: column;
-padding: 12px;
-box-sizing: border-box;
+#container {
+    display: flex;
+    width: 100%;
+    height: 50vh;
+    padding: 10px;
+    box-sizing: border-box;
+    gap: 10px;
 }
 
-h1 {
-margin: 4px 0 8px;
-text-align: center;
-font-size: 22px;
+#mapWrapper {
+    flex: 1;
+    min-width: 0;
 }
 
-#values {
-display: flex;
-justify-content: space-around;
-font-size: 14px;
-margin-bottom: 8px;
+#map {
+    width: 100%;
+    height: 100%;
+    border-radius: 8px;
 }
 
-.value {
-font-weight: bold;
+#buttonColumn {
+    width: 70px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
 }
 
-#chart {
-width: 100%;
-height: 40vh;
-background: #111;
-border: 1px solid #555;
-box-sizing: border-box;
+.button {
+    width: 70px;
+    height: 50px;
+    border-radius: 12px;
+    background: #C3E2C8;
+    border: 1px solid rgba(0,0,0,0.25);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
 }
 
-#controls {
-display: flex;
-gap: 12px;
-margin-top: 10px;
+.route {
+    font-size: 36px;
 }
 
-button {
-flex: 1;
-padding: 14px;
-font-size: 18px;
-border: none;
-border-radius: 8px;
+.nav-icon {
+    font-size: 42px;
 }
 
-#start {
-background: #1db954;
-color: white;
+.btn-txt {
+    font-size: 21px;
+    font-weight: bold;
 }
 
-#stop {
-background: #d32f2f;
-color: white;
+/* Unterer Bereich */
+
+#bottomPanel {
+    height: 50vh;
+    width: 100%;
+    display: flex;
+    box-sizing: border-box;
+    padding: 20px;
+    gap: 20px;
+    background: rgba(255,255,255,0.9);
+}
+
+#vitaldaten {
+    width: 55%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+#sensorBottom {
+    width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.vital-item,
+.sensor-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.vital-label,
+.sensor-label {
+    font-size: 14px;
+    color: #666;
+    font-weight: 300;
+}
+
+.vital-value,
+.sensor-value {
+    font-size: 28px;
+    font-weight: 600;
+    margin-top: 4px;
+}
+
+/* Route-Hinweis */
+
+#routeHint {
+    display: none;
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #333;
+    color: white;
+    padding: 10px 16px;
+    border-radius: 8px;
+    z-index: 9999;
 }
 </style>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
 <body>
 
-<div id="app">
+<div id="routeHint">Fahre zur angezeigten Route</div>
 
-<h1>BikeHello Magnetometer</h1>
+<!-- =====================================================
+     KARTE + BUTTONS
+===================================================== -->
 
-<div id="debug" style="
-background:#222;
-border:1px solid #666;
-padding:8px;
-margin-bottom:8px;
-font-size:13px;
-font-family:monospace;
-color:#fff;
-">
-DEBUG: App gestartet - Version 0011
-</div>
+<div id="container">
 
+    <div id="mapWrapper">
+        <div id="map"></div>
+    </div>
 
-<div id="values">
-<div class="value" id="xValue" style="color:#ff3b30;">X: --</div>
-<div class="value" id="yValue" style="color:#34c759;">Y: --</div>
-<div class="value" id="zValue" style="color:#007aff;">Z: --</div>
-<div class="value" id="bValue" style="color:#ffffff;">|B|: --</div>
-</div>
+    <div id="buttonColumn">
 
-<div id="gpsValues" style="
-display:grid;
-grid-template-columns:1fr 1fr;
-gap:4px 12px;
-font-size:13px;
-font-family:monospace;
-margin-bottom:8px;
-">
-<div id="gpsLat">LAT: --</div>
-<div id="gpsLon">LON: --</div>
-<div id="gpsSpeed">SPEED: --</div>
-<div id="gpsCourse">COURSE: --</div>
-<div id="gpsAccuracy">ACC: --</div>
-<div id="gpsAltitude">ALT: --</div>
-</div>
+        <div id="btnRoute" class="button route">
+            ?
+        </div>
 
-<canvas id="chart"></canvas>
+        <div id="btnNav" class="button">
+            <span class="nav-icon">?</span>
+        </div>
 
-<div id="controls">
-<button id="start">START</button>
-<button id="stop">STOPP</button>
-</div>
+        <div id="btnToggle" class="button">
+            <span id="iconGo" class="btn-txt">Go</span>
+            <span id="iconBreak" class="btn-txt" style="display:none;">Break</span>
+        </div>
+
+        <div id="btnExit" class="button">
+            <span class="btn-txt">Exit</span>
+        </div>
+
+    </div>
 
 </div>
 
-<script type="module">
-import { registerPlugin } from "./capacitor-core.js";
-const Magnetometer = registerPlugin("Magnetometer");
-const GPS = registerPlugin("GPS");
-const canvas = document.getElementById("chart");
-const ctx = canvas.getContext("2d");
 
-const xValue = document.getElementById("xValue");
-const yValue = document.getElementById("yValue");
-const zValue = document.getElementById("zValue");
-const bValue = document.getElementById("bValue");
+<!-- =====================================================
+     UNTERER BEREICH
+===================================================== -->
 
-const gpsLat = document.getElementById("gpsLat");
-const gpsLon = document.getElementById("gpsLon");
-const gpsSpeed = document.getElementById("gpsSpeed");
-const gpsCourse = document.getElementById("gpsCourse");
-const gpsAccuracy = document.getElementById("gpsAccuracy");
-const gpsAltitude = document.getElementById("gpsAltitude");
+<div id="bottomPanel">
 
-const startButton = document.getElementById("start");
-const stopButton = document.getElementById("stop");
+    <div id="vitaldaten">
 
-let running = false;
+        <div class="vital-item">
+            <span class="vital-label">Speed (km/h)</span>
+            <span class="vital-value" id="vSpeed">22.5</span>
+        </div>
 
-const debug = document.getElementById("debug");
+        <div class="vital-item">
+            <span class="vital-label">Distance left (km)</span>
+            <span class="vital-value" id="vDistLeft">38.8</span>
+        </div>
 
-function debugMessage(message) {
-    debug.textContent = "DEBUG: " + message;
-}
+        <div class="vital-item">
+            <span class="vital-label">Time left (h)</span>
+            <span class="vital-value" id="vTimeLeft">3:50</span>
+        </div>
 
-let xData = [];
-let yData = [];
-let zData = [];
-let bData = [];
+        <div class="vital-item">
+            <span class="vital-label">Done (km, h)</span>
+            <span class="vital-value" id="vDone">13.5, 2:01</span>
+        </div>
 
-const maxPoints = 300;
-
-function resizeCanvas() {
-canvas.width = canvas.clientWidth;
-canvas.height = canvas.clientHeight;
-}
-
-window.addEventListener("resize", resizeCanvas);
-resizeCanvas();
-debugMessage("JS BIS RESIZE OK - Version 0013");
-
-function drawGrid() {
-ctx.strokeStyle = "#333";
-ctx.lineWidth = 1;
-
-const width = canvas.width;
-const height = canvas.height;
-
-for (let i = 0; i <= 10; i++) {
-const x = (width / 10) * i;
-
-ctx.beginPath();
-ctx.moveTo(x, 0);
-ctx.lineTo(x, height);
-ctx.stroke();
-}
-
-for (let i = 0; i <= 8; i++) {
-const y = (height / 8) * i;
-
-ctx.beginPath();
-ctx.moveTo(0, y);
-ctx.lineTo(width, y);
-ctx.stroke();
-}
-}
-
-function drawLine(data, color, min, max) {
-if (data.length < 2) {
-return;
-}
-
-ctx.strokeStyle = color;
-ctx.lineWidth = 2;
-ctx.beginPath();
-
-const width = canvas.width;
-const height = canvas.height;
-
-for (let i = 0; i < data.length; i++) {
-const x = (i / (maxPoints - 1)) * width;
-
-const normalized = (data[i] - min) / (max - min);
-const y = height - normalized * height;
-
-if (i === 0) {
-ctx.moveTo(x, y);
-} else {
-ctx.lineTo(x, y);
-}
-}
-
-ctx.stroke();
-}
-
-function draw() {
-if (!running) {
-return;
-}
-
-ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-drawGrid();
-
-const allData = [...xData, ...yData, ...zData, ...bData];
-
-if (allData.length > 0) {
-let min = Math.min(...allData);
-let max = Math.max(...allData);
-
-if (min === max) {
-min -= 1;
-max += 1;
-}
-
-const margin = (max - min) * 0.1;
-
-min -= margin;
-max += margin;
-
-drawLine(xData, "#ff3b30", min, max);
-drawLine(yData, "#34c759", min, max);
-drawLine(zData, "#007aff", min, max);
-drawLine(bData, "#ffffff", min, max);
-}
-
-requestAnimationFrame(draw);
-}
-
-function addSample(x, y, z) {
-
-const b = Math.sqrt(
-x * x +
-y * y +
-z * z
-);
-
-xData.push(x);
-yData.push(y);
-zData.push(z);
-bData.push(b);
-
-if (xData.length > maxPoints) xData.shift();
-if (yData.length > maxPoints) yData.shift();
-if (zData.length > maxPoints) zData.shift();
-if (bData.length > maxPoints) bData.shift();
-
-xValue.textContent = "X: " + x.toFixed(2);
-yValue.textContent = "Y: " + y.toFixed(2);
-zValue.textContent = "Z: " + z.toFixed(2);
-bValue.textContent = "|B|: " + b.toFixed(2);
-}
+    </div>
 
 
-/*
-====================================================
-ECHTE iPHONE-MAGNETOMETER-ANBINDUNG
-====================================================
-*/
+    <div id="sensorBottom">
 
-debugMessage("REGISTER GLOBAL - Version 0021: " + (typeof registerPlugin));
+        <div class="sensor-item">
+            <span class="sensor-label">Speed (km/h)</span>
+            <span class="sensor-value" id="smoothSpeed">22.5</span>
+        </div>
+
+        <div class="sensor-item">
+            <span class="sensor-label">Heading (°)</span>
+            <span class="sensor-value" id="smoothHeading">127</span>
+        </div>
+
+    </div>
+
+</div>
 
 
-/*
-Magnetometer-Daten vom Swift-Plugin empfangen
-*/
+<script>
 
-GPS.addListener("gpsDebug", (data) => { debugMessage(data.message); }); GPS.addListener("gpsData", (data) => { gpsLat.textContent = "LAT: " + data.lat.toFixed(6); gpsLon.textContent = "LON: " + data.lon.toFixed(6); gpsSpeed.textContent = "SPEED: " + (data.speed * 3.6).toFixed(1) + " km/h"; gpsCourse.textContent = "COURSE: " + data.course.toFixed(1) + "°"; gpsAccuracy.textContent = "ACC: " + data.horizontalAccuracy.toFixed(1) + " m"; gpsAltitude.textContent = "ALT: " + data.altitude.toFixed(1) + " m"; }); Magnetometer.addListener("magnetometerDebug", (data) => {
-    debugMessage(data.message);
+/* =====================================================
+   LEAFLET KARTE
+===================================================== */
+
+const map = L.map("map", {
+    zoomControl: false
+}).setView([49.806, 8.738], 13);
+
+L.tileLayer(
+    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {
+        maxZoom: 19,
+        attribution: "© OpenStreetMap"
+    }
+).addTo(map);
+
+
+/* =====================================================
+   TEST-MARKER
+===================================================== */
+
+const testMarker = L.marker([49.806, 8.738])
+    .addTo(map)
+    .bindPopup("Testposition");
+
+
+/* =====================================================
+   BUTTONS
+===================================================== */
+
+document.getElementById("btnRoute").addEventListener("click", () => {
+    console.log("Route Button");
 });
 
-Magnetometer.addListener("magnetometerData", (data) => {
-
-debugMessage(
-    "JS: Daten empfangen X=" +
-    data.x.toFixed(2) +
-    " Y=" +
-    data.y.toFixed(2) +
-    " Z=" +
-    data.z.toFixed(2)
-);
-
-if (!running) {
-    return;
-}
-
-addSample(
-    data.x,
-    data.y,
-    data.z
-);
+document.getElementById("btnNav").addEventListener("click", () => {
+    map.setView(testMarker.getLatLng(), 16);
 });
 
-/*
-START
-*/
+document.getElementById("btnToggle").addEventListener("click", () => {
 
-debugMessage("HANDLER REGISTRIERT - Version 0012");
-startButton.addEventListener("click", async () => {
+    const go = document.getElementById("iconGo");
+    const br = document.getElementById("iconBreak");
 
-try {
-
-debugMessage("BUTTON CLICK OK");
-
-running = true;
-
-xData = [];
-yData = [];
-zData = [];
-bData = [];
-
-await Magnetometer.start();
-await GPS.start();
-
-draw();
-
-} catch (error) {
-
-console.error("Magnetometer start error:", error);
-
-running = false;
-
-alert("Magnetometer konnte nicht gestartet werden.");
-}
+    if (go.style.display !== "none") {
+        go.style.display = "none";
+        br.style.display = "inline";
+    } else {
+        go.style.display = "inline";
+        br.style.display = "none";
+    }
 });
 
-
-/*
-STOPP
-*/
-
-stopButton.addEventListener("click", async () => {
-
-try {
-
-running = false;
-
-await Magnetometer.stop();
-await GPS.stop();
-
-} catch (error) {
-
-console.error("Magnetometer stop error:", error);
-}
+document.getElementById("btnExit").addEventListener("click", () => {
+    console.log("Exit");
 });
 
 </script>
 
 </body>
 </html>
-
-
-
