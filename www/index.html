@@ -296,7 +296,7 @@ debugMessage("REGISTER GLOBAL - Version 0021: " + (typeof registerPlugin));
 Magnetometer-Daten vom Swift-Plugin empfangen
 */
 
-Magnetometer.addListener("magnetometerDebug", (data) => {
+GPS.addListener("gpsDebug", (data) => { debugMessage(data.message); }); GPS.addListener("gpsData", (data) => { gpsLat.textContent = "LAT: " + data.lat.toFixed(6); gpsLon.textContent = "LON: " + data.lon.toFixed(6); gpsSpeed.textContent = "SPEED: " + (data.speed * 3.6).toFixed(1) + " km/h"; gpsCourse.textContent = "COURSE: " + data.course.toFixed(1) + "°"; gpsAccuracy.textContent = "ACC: " + data.horizontalAccuracy.toFixed(1) + " m"; gpsAltitude.textContent = "ALT: " + data.altitude.toFixed(1) + " m"; }); Magnetometer.addListener("magnetometerDebug", (data) => {
     debugMessage(data.message);
 });
 
@@ -379,5 +379,6 @@ console.error("Magnetometer stop error:", error);
 
 </body>
 </html>
+
 
 
