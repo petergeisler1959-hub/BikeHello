@@ -84,6 +84,42 @@ html, body {
     cursor: pointer;
 }
 
+.status-box {
+    width: 70px;
+    height: 62px;
+    border-radius: 12px;
+    background: #F5F5F5;
+    border: 1px solid rgba(0,0,0,0.25);
+    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
+
+.status-label {
+    font-size: 8px;
+    font-weight: bold;
+    margin-bottom: 2px;
+}
+
+.status-icon {
+    font-size: 27px;
+    line-height: 27px;
+}
+
+.status-box.not-started {
+    background: #FFD6D6;
+}
+
+.status-box.active {
+    background: #C3E2C8;
+}
+
+.status-box.paused {
+    background: #FFF0B3;
+}
+
 .button.route {
     font-size: 50px;
     display: flex;
@@ -110,6 +146,10 @@ html, body {
 .btn-txt {
     font-size: 21px;
     font-weight: bold;
+}
+
+.btn-view {
+    margin-top: 10px;
 }
 
 
@@ -248,33 +288,35 @@ html, body {
 
         <div id="buttonColumn">
 
-            <div id="btnRoute" class="button route">
-                 <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png"
-                      class="marker-icon">
-                 <span class="route-line">↝</span>
-                 <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png"
-                       class="marker-icon">
-            </div>
-
-            <div id="btnNav" class="button">
-                <span class="nav-icon">◮</span>
-            </div>
-
-            <div id="btnToggle" class="button">
-                <span id="iconGo" class="btn-txt">Go</span>
-                <span id="iconBreak" class="btn-txt" style="display:none;">Break</span>
-            </div>
-
-            <div id="btnExit" class="button">
-                <span class="btn-txt">Exit</span>
-            </div>
-
-        </div>
-
+    <div id="navStatus" class="status-box not-started">
+        <div class="status-label">Status: not started</div>
+        <div class="status-icon">O</div>
     </div>
 
+    <div id="btnToggle" class="button">
+        <span id="iconGo" class="btn-txt">Go</span>
+        <span id="iconBreak" class="btn-txt" style="display:none;">Break</span>
+    </div>
 
-    <!-- =================================================
+    <div id="btnExit" class="button">
+        <span class="btn-txt">Stop</span>
+    </div>
+
+    <div style="height:10px;"></div>
+
+    <div id="btnRoute" class="button route">
+        <span class="btn-txt">ROUTE</span>
+    </div>
+
+    <div id="btnNav" class="button">
+        <span class="btn-txt">GPS</span>
+    </div>
+    <div id="btnView" class="button btn-view">
+        <span class="btn-txt">View</span>
+    </div>
+
+</div>
+<!-- =================================================
          UNTERER BEREICH
     ================================================= -->
 
@@ -391,7 +433,7 @@ const gpsDotIcon = L.divIcon({
 /* Pfeil fuer fahrendes Fahrrad */
 const gpsArrowIcon = L.divIcon({
     className: "gps-arrow",
-    html: '<div>▲</div>',
+    html: '<div>ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬ÃƒÂ¢Ã¢â‚¬Å¾Ã‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã‚Â¦ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã¢â‚¬Å“ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã¢â‚¬Â ÃƒÂ¢Ã¢â€šÂ¬Ã¢â€žÂ¢ÃƒÆ’Ã†â€™Ãƒâ€šÃ‚Â¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡Ãƒâ€šÃ‚Â¬ÃƒÆ’Ã¢â‚¬Â¦Ãƒâ€šÃ‚Â¡ÃƒÆ’Ã†â€™Ãƒâ€ Ã¢â‚¬â„¢ÃƒÆ’Ã‚Â¢ÃƒÂ¢Ã¢â‚¬Å¡Ã‚Â¬Ãƒâ€¦Ã‚Â¡ÃƒÆ’Ã†â€™ÃƒÂ¢Ã¢â€šÂ¬Ã…Â¡ÃƒÆ’Ã¢â‚¬Å¡Ãƒâ€šÃ‚Â²</div>',
     iconSize: [30, 30],
     iconAnchor: [15, 15]
 });
@@ -601,5 +643,3 @@ btnExit.addEventListener("click", async () => {
 
 </body>
 </html>
-
-
