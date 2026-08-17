@@ -29,8 +29,13 @@ public class GPSPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManagerDelegate {
             "message": "GPS: start() erreicht"
         ])
 
-        locationManager.requestWhenInUseAuthorization()
-        locationManager.startUpdatingLocation()
+        let status = locationManager.authorizationStatus
+
+        if status == .notDetermined {
+            locationManager.requestWhenInUseAuthorization()
+        } else if status == .authorizedWhenInUse || status == .authorizedAlways {
+            locationManager.startUpdatingLocation()
+        }
 
         call.resolve()
     }
@@ -44,6 +49,25 @@ public class GPSPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManagerDelegate {
         ])
 
         call.resolve()
+    }
+
+    public func locationManagerDidChangeAuthorization(
+        _ manager: CLLocationManager
+    ) {
+
+        let status = manager.authorizationStatus
+
+        notifyListeners("gpsDebug", data: [
+            "message": "GPS Berechtigung: \(status.rawValue)"
+        ])
+
+        if status == .authorizedWhenInUse || status == .authorizedAlways {
+            manager.startUpdatingLocation()
+
+            notifyListeners("gpsDebug", data: [
+                "message": "GPS: Standortaktualisierung gestartet"
+            ])
+        }
     }
 
     public func locationManager(
@@ -82,4 +106,3 @@ public class GPSPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManagerDelegate {
         ])
     }
 }
-
