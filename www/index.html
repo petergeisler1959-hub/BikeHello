@@ -84,8 +84,23 @@ html, body {
     cursor: pointer;
 }
 
-.route {
-    font-size: 36px;
+.button.route {
+    font-size: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+}
+
+.marker-icon {
+    width: 18px;
+    height: auto;
+}
+
+.route-line {
+    font-size: 40px;
+    font-weight: 300;
+    opacity: 0.8;
 }
 
 .nav-icon {
@@ -202,11 +217,15 @@ html, body {
         <div id="buttonColumn">
 
             <div id="btnRoute" class="button route">
-                ?
+                 <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png"
+                      class="marker-icon">
+                 <span class="route-line">↝</span>
+                 <img src="https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png"
+                       class="marker-icon">
             </div>
 
             <div id="btnNav" class="button">
-                <span class="nav-icon">?</span>
+                <span class="nav-icon">◮</span>
             </div>
 
             <div id="btnToggle" class="button">
@@ -306,7 +325,7 @@ L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
         maxZoom: 19,
-        attribution: "� OpenStreetMap"
+        attribution: "© OpenStreetMap"
     }
 ).addTo(map);
 
