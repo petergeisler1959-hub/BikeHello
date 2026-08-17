@@ -396,6 +396,7 @@ html, body {
 import { registerPlugin } from "./capacitor-core.js";
 
 const GPS = registerPlugin("GPS");
+let gpsActive = false;
 
 
 /* =====================================================
@@ -413,6 +414,10 @@ L.tileLayer(
         attribution: "  OpenStreetMap"
     }
 ).addTo(map);
+
+setTimeout(() => {
+    map.invalidateSize();
+}, 300);
 
 
 /* =====================================================
@@ -591,7 +596,10 @@ btnToggle.addEventListener("click", async () => {
 
             /* GO */
 
-            await GPS.start();
+            if (!gpsActive) {
+                await GPS.start();
+                gpsActive = true;
+            }
 
             go.style.display = "none";
             br.style.display = "inline";
@@ -603,6 +611,7 @@ btnToggle.addEventListener("click", async () => {
             /* BREAK */
 
             await GPS.stop();
+            gpsActive = false;
 
             go.style.display = "inline";
             br.style.display = "none";
@@ -623,11 +632,34 @@ btnToggle.addEventListener("click", async () => {
    EXIT
 ===================================================== */
 
+/* =====================================================
+   GPS BEIM APP-START
+===================================================== */
+
+setTimeout(async () => {
+
+    try {
+
+        await GPS.start();
+        gpsActive = true;
+
+        console.log("GPS beim App-Start gestartet");
+
+    } catch (error) {
+
+        console.error("GPS Startfehler:", error);
+
+    }
+
+}, 500);
+
+
 btnExit.addEventListener("click", async () => {
 
     try {
 
         await GPS.stop();
+        gpsActive = false;
 
     } catch (error) {
 
