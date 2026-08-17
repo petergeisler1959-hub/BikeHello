@@ -2,12 +2,13 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Bike Navigation</title>
 
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
 <style>
+
 html, body {
     margin: 0;
     padding: 0;
@@ -23,6 +24,22 @@ html, body {
     box-sizing: border-box;
 }
 
+
+/* =====================================================
+   APP-BEREICH
+===================================================== */
+
+#app {
+    width: 100%;
+    height: 100%;
+    padding-top: env(safe-area-inset-top);
+    background: white;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+
 /* =====================================================
    OBERER BEREICH
 ===================================================== */
@@ -33,6 +50,7 @@ html, body {
     height: 50vh;
     padding: 10px;
     gap: 10px;
+    flex-shrink: 0;
 }
 
 #mapWrapper {
@@ -63,6 +81,7 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
+    cursor: pointer;
 }
 
 .route {
@@ -84,12 +103,14 @@ html, body {
 ===================================================== */
 
 #bottomPanel {
-    height: 50vh;
+    flex: 1;
+    min-height: 0;
     width: 100%;
     display: flex;
     padding: 20px;
     gap: 20px;
     background: rgba(255,255,255,0.9);
+    overflow: hidden;
 }
 
 #vitaldaten {
@@ -97,6 +118,7 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    overflow: hidden;
 }
 
 #sensorBottom {
@@ -104,6 +126,7 @@ html, body {
     display: flex;
     flex-direction: column;
     gap: 15px;
+    overflow: hidden;
 }
 
 
@@ -131,25 +154,11 @@ html, body {
     margin-top: 3px;
 }
 
-
-/* Kleine Gesamtwerte in Klammern */
-
 .secondary-value {
     font-size: 18px;
     color: #888;
     font-weight: 400;
     margin-left: 6px;
-}
-
-
-/* =====================================================
-   SAFE AREA
-===================================================== */
-
-#safeArea {
-    height: env(safe-area-inset-top);
-    min-height: 0;
-    background: white;
 }
 
 
@@ -169,122 +178,113 @@ html, body {
     border-radius: 8px;
     z-index: 9999;
 }
+
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 </head>
 
+
 <body>
 
-<!-- =====================================================
-     WEISSER BEREICH FÜR iPHONE STATUSLEISTE
-===================================================== -->
-
-<div id="safeArea"></div>
-
-
-<div id="routeHint">Fahre zur angezeigten Route</div>
-
-
-<!-- =====================================================
-     KARTE + BUTTONS
-===================================================== -->
-
-<div id="container">
-
-    <div id="mapWrapper">
-        <div id="map"></div>
-    </div>
-
-    <div id="buttonColumn">
-
-        <div id="btnRoute" class="button route">
-            ?
-        </div>
-
-        <div id="btnNav" class="button">
-            <span class="nav-icon">?</span>
-        </div>
-
-        <div id="btnToggle" class="button">
-            <span id="iconGo" class="btn-txt">Go</span>
-            <span id="iconBreak" class="btn-txt" style="display:none;">Break</span>
-        </div>
-
-        <div id="btnExit" class="button">
-            <span class="btn-txt">Exit</span>
-        </div>
-
-    </div>
-
-</div>
-
-
-<!-- =====================================================
-     UNTERER BEREICH
-===================================================== -->
-
-<div id="bottomPanel">
+<div id="app">
 
     <!-- =================================================
-         LINKE SEITE: NAVIGATION
+         KARTE + BUTTONS
     ================================================= -->
 
-    <div id="vitaldaten">
+    <div id="container">
 
-        <div class="vital-item">
-            <span class="vital-label">Speed (km/h)</span>
-            <span class="vital-value" id="vSpeed">22.5</span>
+        <div id="mapWrapper">
+            <div id="map"></div>
         </div>
 
-        <div class="vital-item">
-            <span class="vital-label">Distance</span>
-            <span class="vital-value">
-                <span id="vDistLeft">38.8 km</span>
-                <span class="secondary-value" id="vDistTotal">(52.3 km)</span>
-            </span>
-        </div>
+        <div id="buttonColumn">
 
-        <div class="vital-item">
-            <span class="vital-label">Time</span>
-            <span class="vital-value">
-                <span id="vTimeLeft">3:50</span>
-                <span class="secondary-value" id="vTimeTotal">(5:12)</span>
-            </span>
-        </div>
+            <div id="btnRoute" class="button route">
+                ?
+            </div>
 
-        <div class="vital-item">
-            <span class="vital-label">Altitude (m)</span>
-            <span class="vital-value" id="vAltitude">236</span>
-        </div>
+            <div id="btnNav" class="button">
+                <span class="nav-icon">?</span>
+            </div>
 
-        <div class="vital-item">
-            <span class="vital-label">Course (Grad)</span>
-            <span class="vital-value" id="vCourse">127</span>
+            <div id="btnToggle" class="button">
+                <span id="iconGo" class="btn-txt">Go</span>
+                <span id="iconBreak" class="btn-txt" style="display:none;">Break</span>
+            </div>
+
+            <div id="btnExit" class="button">
+                <span class="btn-txt">Exit</span>
+            </div>
+
         </div>
 
     </div>
 
 
     <!-- =================================================
-         RECHTE SEITE: E-BIKE
+         UNTERER BEREICH
     ================================================= -->
 
-    <div id="sensorBottom">
+    <div id="bottomPanel">
 
-        <div class="sensor-item">
-            <span class="sensor-label">Power (W)</span>
-            <span class="sensor-value" id="vPower">245</span>
+        <!-- =============================================
+             LINKE SEITE: NAVIGATION
+        ============================================== -->
+
+        <div id="vitaldaten">
+
+            <div class="vital-item">
+                <span class="vital-label">Speed (km/h)</span>
+                <span class="vital-value" id="vSpeed">22.5</span>
+            </div>
+
+            <div class="vital-item">
+                <span class="vital-label">Distance</span>
+                <span class="vital-value">
+                    <span id="vDistLeft">38.8 km</span>
+                    <span class="secondary-value" id="vDistTotal">(52.3 km)</span>
+                </span>
+            </div>
+
+            <div class="vital-item">
+                <span class="vital-label">Time</span>
+                <span class="vital-value">
+                    <span id="vTimeLeft">3:50</span>
+                    <span class="secondary-value" id="vTimeTotal">(5:12)</span>
+                </span>
+            </div>
+
+            <div class="vital-item">
+                <span class="vital-label">Altitude (m)</span>
+                <span class="vital-value" id="vAltitude">236</span>
+            </div>
+
         </div>
 
-        <div class="sensor-item">
-            <span class="sensor-label">Battery (%)</span>
-            <span class="sensor-value" id="vBattery">67</span>
-        </div>
 
-        <div class="sensor-item">
-            <span class="sensor-label">Range (km)</span>
-            <span class="sensor-value" id="vRange">54</span>
+        <!-- =============================================
+             RECHTE SEITE: E-BIKE
+        ============================================== -->
+
+        <div id="sensorBottom">
+
+            <div class="sensor-item">
+                <span class="sensor-label">Power (W)</span>
+                <span class="sensor-value" id="vPower">245</span>
+            </div>
+
+            <div class="sensor-item">
+                <span class="sensor-label">Battery (%)</span>
+                <span class="sensor-value" id="vBattery">67</span>
+            </div>
+
+            <div class="sensor-item">
+                <span class="sensor-label">Range (km)</span>
+                <span class="sensor-value" id="vRange">54</span>
+            </div>
+
         </div>
 
     </div>
@@ -354,4 +354,3 @@ document.getElementById("btnExit").addEventListener("click", () => {
 
 </body>
 </html>
-
