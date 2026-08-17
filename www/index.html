@@ -84,6 +84,12 @@ html, body {
     cursor: pointer;
 }
 
+.button.disabled {
+    opacity: 0.35;
+    filter: grayscale(100%);
+    cursor: default;
+    pointer-events: none;
+}
 .status-box {
     width: 70px;
     height: 62px;
@@ -289,7 +295,7 @@ html, body {
         <div id="buttonColumn">
 
     <div id="navStatus" class="status-box not-started">
-        <div class="status-label">Status: not started</div>
+        <div class="status-label">not started</div>
         <div class="status-icon">O</div>
     </div>
 
@@ -549,6 +555,10 @@ const btnRoute = document.getElementById("btnRoute");
 const btnNav = document.getElementById("btnNav");
 const btnToggle = document.getElementById("btnToggle");
 const btnExit = document.getElementById("btnExit");
+const btnView = document.getElementById("btnView");
+
+btnExit.classList.add("disabled");
+btnView.classList.add("disabled");
 
 const go = document.getElementById("iconGo");
 const br = document.getElementById("iconBreak");
@@ -618,6 +628,8 @@ btnToggle.addEventListener("click", async () => {
             go.style.display = "none";
             br.style.display = "inline";
 
+            btnExit.classList.remove("disabled");
+
             console.log("Navigation gestartet");
 
         } else {
@@ -684,6 +696,9 @@ btnExit.addEventListener("click", async () => {
     go.style.display = "inline";
     br.style.display = "none";
 
+    btnExit.classList.add("disabled");
+    btnView.classList.add("disabled");
+
     console.log("Navigation beendet");
 });
 
@@ -691,6 +706,11 @@ btnExit.addEventListener("click", async () => {
 
 </body>
 </html>
+
+
+
+
+
 
 
 
