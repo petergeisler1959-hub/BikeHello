@@ -1,4 +1,4 @@
-﻿import Foundation
+import Foundation
 import Capacitor
 import CoreLocation
 
@@ -56,13 +56,15 @@ public class GPSPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManagerDelegate {
         }
 
         let speed = location.speed >= 0 ? location.speed : 0
-        let course = location.course >= 0 ? location.course : 0
+        let courseValid = location.course >= 0
+        let course = courseValid ? location.course : 0
 
         notifyListeners("gpsData", data: [
             "lat": location.coordinate.latitude,
             "lon": location.coordinate.longitude,
             "speed": speed,
             "course": course,
+            "courseValid": courseValid,
             "horizontalAccuracy": location.horizontalAccuracy,
             "altitude": location.altitude,
             "verticalAccuracy": location.verticalAccuracy,
@@ -80,3 +82,4 @@ public class GPSPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManagerDelegate {
         ])
     }
 }
+

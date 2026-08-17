@@ -194,6 +194,38 @@ html, body {
     z-index: 9999;
 }
 
+/* =====================================================
+   GPS-MARKER
+===================================================== */
+
+.gps-dot {
+    background: transparent;
+    border: none;
+}
+
+.gps-dot div {
+    width: 18px;
+    height: 18px;
+    background: #2E7D32;
+    border-radius: 50%;
+    border: 2px solid white;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+}
+
+.gps-arrow {
+    background: transparent;
+    border: none;
+}
+
+.gps-arrow div {
+    font-size: 30px;
+    line-height: 30px;
+    color: #2E7D32;
+    text-shadow:
+        0 1px 2px white,
+        0 0 2px white;
+}
+
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -311,7 +343,16 @@ html, body {
 </div>
 
 
-<script>
+<script type="module">
+
+/* =====================================================
+   CAPACITOR / GPS
+===================================================== */
+
+import { registerPlugin } from "./capacitor-core.js";
+
+const GPS = registerPlugin("GPS");
+
 
 /* =====================================================
    LEAFLET KARTE
@@ -325,7 +366,7 @@ L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
         maxZoom: 19,
-        attribution: "© OpenStreetMap"
+        attribution: "  OpenStreetMap"
     }
 ).addTo(map);
 
@@ -337,39 +378,219 @@ L.tileLayer(
 const testMarker = L.marker([49.806, 8.738])
     .addTo(map)
     .bindPopup("Testposition");
+/* =====================================================
+   GPS-POSITION AUF DER KARTE
+===================================================== */
 
+let gpsMarker = null;
+let lastGpsData = null;
+
+
+/* Punkt fuer stehendes Fahrrad */
+const gpsDotIcon = L.divIcon({
+    className: "gps-dot",
+    html: '<div></div>',
+    iconSize: [18, 18],
+    iconAnchor: [9, 9]
+});
+
+
+/* Pfeil fuer fahrendes Fahrrad */
+const gpsArrowIcon = L.divIcon({
+    className: "gps-arrow",
+    html: '<div>▲</div>',
+    iconSize: [30, 30],
+    iconAnchor: [15, 15]
+});
+
+
+/* =====================================================
+   WERTE
+===================================================== */
+
+const vSpeed = document.getElementById("vSpeed");
+const vAltitude = document.getElementById("vAltitude");
+
+
+/* =====================================================
+   GPS-DATEN
+===================================================== */
+
+GPS.addListener("gpsDebug", (data) => {
+    console.log(data.message);
+});
+
+GPS.addListener("gpsData", (data) => {
+
+    /* =================================================
+       SPEED + ALTITUDE
+    ================================================= */
+
+    vSpeed.textContent =
+        (data.speed * 3.6).toFixed(1);
+
+    vAltitude.textContent =
+        data.altitude.toFixed(0);
+
+
+    /* =================================================
+       GPS-POSITION AUF DER KARTE
+    ================================================= */
+
+    const position = [
+        data.lat,
+        data.lon
+    ];
+
+    const courseValid = data.courseValid === true;
+
+
+    /* =================================================
+       MARKER ERSTELLEN
+    ================================================= */
+
+    if (!gpsMarker) {
+
+        gpsMarker = L.marker(
+            position,
+            {
+                icon: courseValid
+                    ? gpsArrowIcon
+                    : gpsDotIcon,
+
+                zIndexOffset: 1000
+            }
+        ).addTo(map);
+
+    } else {
+
+        /* Position aktualisieren */
+        gpsMarker.setLatLng(position);
+
+        /* Punkt oder Pfeil */
+        gpsMarker.setIcon(
+            courseValid
+                ? gpsArrowIcon
+                : gpsDotIcon
+        );
+    }
+
+
+    /* Letzte GPS-Daten merken */
+    lastGpsData = data;
+
+
+    console.log(
+        "GPS:",
+        data.lat,
+        data.lon,
+        "Speed:",
+        data.speed,
+        "Course:",
+        data.course,
+        "valid:",
+        data.courseValid,
+        "Altitude:",
+        data.altitude
+    );
+});
 
 /* =====================================================
    BUTTONS
 ===================================================== */
 
-document.getElementById("btnRoute").addEventListener("click", () => {
+const btnRoute = document.getElementById("btnRoute");
+const btnNav = document.getElementById("btnNav");
+const btnToggle = document.getElementById("btnToggle");
+const btnExit = document.getElementById("btnExit");
+
+const go = document.getElementById("iconGo");
+const br = document.getElementById("iconBreak");
+
+
+/* =====================================================
+   ROUTE BUTTON
+===================================================== */
+
+btnRoute.addEventListener("click", () => {
     console.log("Route Button");
 });
 
-document.getElementById("btnNav").addEventListener("click", () => {
+
+/* =====================================================
+   NAVIGATION / KARTE
+===================================================== */
+
+btnNav.addEventListener("click", () => {
     map.setView(testMarker.getLatLng(), 16);
 });
 
-document.getElementById("btnToggle").addEventListener("click", () => {
 
-    const go = document.getElementById("iconGo");
-    const br = document.getElementById("iconBreak");
+/* =====================================================
+   GO / BREAK
+===================================================== */
 
-    if (go.style.display !== "none") {
-        go.style.display = "none";
-        br.style.display = "inline";
-    } else {
-        go.style.display = "inline";
-        br.style.display = "none";
+btnToggle.addEventListener("click", async () => {
+
+    try {
+
+        if (go.style.display !== "none") {
+
+            /* GO */
+
+            await GPS.start();
+
+            go.style.display = "none";
+            br.style.display = "inline";
+
+            console.log("Navigation gestartet");
+
+        } else {
+
+            /* BREAK */
+
+            await GPS.stop();
+
+            go.style.display = "inline";
+            br.style.display = "none";
+
+            console.log("Navigation pausiert");
+        }
+
+    } catch (error) {
+
+        console.error("GPS Fehler:", error);
+
     }
+
 });
 
-document.getElementById("btnExit").addEventListener("click", () => {
-    console.log("Exit");
+
+/* =====================================================
+   EXIT
+===================================================== */
+
+btnExit.addEventListener("click", async () => {
+
+    try {
+
+        await GPS.stop();
+
+    } catch (error) {
+
+        console.error("GPS Stop Fehler:", error);
+
+    }
+
+    go.style.display = "inline";
+    br.style.display = "none";
+
+    console.log("Navigation beendet");
 });
 
 </script>
 
 </body>
 </html>
+
+
