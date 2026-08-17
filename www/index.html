@@ -434,6 +434,7 @@ window.addEventListener("load", () => {
 
 let gpsMarker = null;
 let lastGpsData = null;
+let mapCenteredOnGps = false;
 
 
 /* Punkt fuer stehendes Fahrrad */
@@ -513,6 +514,11 @@ GPS.addListener("gpsData", (data) => {
 } else {
 
     gpsMarker.setLatLng(position);
+
+    if (!mapCenteredOnGps) {
+        map.setView(position, 16);
+        mapCenteredOnGps = true;
+    }
 }
 
 
@@ -685,3 +691,7 @@ btnExit.addEventListener("click", async () => {
 
 </body>
 </html>
+
+
+
+
