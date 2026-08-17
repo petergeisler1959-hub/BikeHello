@@ -372,13 +372,6 @@ L.tileLayer(
 
 
 /* =====================================================
-   TEST-MARKER
-===================================================== */
-
-const testMarker = L.marker([49.806, 8.738])
-    .addTo(map)
-    .bindPopup("Testposition");
-/* =====================================================
    GPS-POSITION AUF DER KARTE
 ===================================================== */
 
@@ -469,10 +462,6 @@ GPS.addListener("gpsData", (data) => {
     /* Letzte GPS-Daten merken */
     lastGpsData = data;
 
-if (gpsMarker && map.getZoom() < 15) {
-    map.setView(position, 16);
-}
-
 
     console.log(
         "GPS:",
@@ -507,7 +496,26 @@ const br = document.getElementById("iconBreak");
 ===================================================== */
 
 btnRoute.addEventListener("click", () => {
-    console.log("Route Button");
+
+    if (!lastGpsData) {
+        return;
+    }
+
+    const center = [
+        lastGpsData.lat,
+        lastGpsData.lon
+    ];
+
+    const radiusKm = 10;
+
+    const radiusMeters = radiusKm * 1000;
+
+    const bounds = L.latLng(center).toBounds(radiusMeters);
+
+    map.fitBounds(bounds, {
+        padding: [20, 20]
+    });
+
 });
 
 
