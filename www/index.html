@@ -516,7 +516,14 @@ btnRoute.addEventListener("click", () => {
 ===================================================== */
 
 btnNav.addEventListener("click", () => {
-    map.setView(testMarker.getLatLng(), 16);
+
+    if (lastGpsData) {
+        map.setView(
+            [lastGpsData.lat, lastGpsData.lon],
+            16
+        );
+    }
+
 });
 
 
