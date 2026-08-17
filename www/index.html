@@ -415,9 +415,17 @@ L.tileLayer(
     }
 ).addTo(map);
 
-setTimeout(() => {
-    map.invalidateSize();
-}, 300);
+window.addEventListener("load", () => {
+    map.invalidateSize(true);
+
+    setTimeout(() => {
+        map.invalidateSize(true);
+    }, 500);
+
+    setTimeout(() => {
+        map.invalidateSize(true);
+    }, 1000);
+});
 
 
 /* =====================================================
