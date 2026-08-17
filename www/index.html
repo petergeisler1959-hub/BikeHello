@@ -451,33 +451,27 @@ GPS.addListener("gpsData", (data) => {
 
     if (!gpsMarker) {
 
-        gpsMarker = L.marker(
-            position,
-            {
-                icon: courseValid
-                    ? gpsArrowIcon
-                    : gpsDotIcon,
+    gpsMarker = L.circleMarker(position, {
+        radius: 8,
+        color: "#ffffff",
+        weight: 2,
+        fillColor: "#2E7D32",
+        fillOpacity: 1,
+        zIndexOffset: 1000
+    }).addTo(map);
 
-                zIndexOffset: 1000
-            }
-        ).addTo(map);
+} else {
 
-    } else {
-
-        /* Position aktualisieren */
-        gpsMarker.setLatLng(position);
-
-        /* Punkt oder Pfeil */
-        gpsMarker.setIcon(
-            courseValid
-                ? gpsArrowIcon
-                : gpsDotIcon
-        );
-    }
+    gpsMarker.setLatLng(position);
+}
 
 
     /* Letzte GPS-Daten merken */
     lastGpsData = data;
+
+if (gpsMarker && map.getZoom() < 15) {
+    map.setView(position, 16);
+}
 
 
     console.log(
