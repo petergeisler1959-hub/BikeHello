@@ -411,7 +411,7 @@ let gpsActive = false;
 
 const map = L.map("map", {
     zoomControl: false
-}).setView([49.806, 8.738], 13);
+}).setView([20, 0], 2);
 
 L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
@@ -520,11 +520,14 @@ GPS.addListener("gpsData", (data) => {
 } else {
 
     gpsMarker.setLatLng(position);
+}
 
-    if (!mapCenteredOnGps) {
+if (!mapCenteredOnGps) {
+    mapCenteredOnGps = true;
+
+    setTimeout(() => {
         map.setView(position, 16);
-        mapCenteredOnGps = true;
-    }
+    }, 1000);
 }
 
 
@@ -706,12 +709,3 @@ btnExit.addEventListener("click", async () => {
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
