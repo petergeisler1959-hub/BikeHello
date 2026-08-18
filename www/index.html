@@ -256,6 +256,7 @@ html, body {
     border-radius: 50%;
     border: 2px solid white;
     box-shadow: 0 1px 4px rgba(0,0,0,0.5);
+      transform-origin: center center;
 }
 
 .gps-arrow {
@@ -513,6 +514,18 @@ GPS.addListener("gpsData", (data) => {
             gpsMarker.setIcon(gpsArrowIcon);
         } else {
             gpsMarker.setIcon(gpsDotIcon);
+        }
+
+        if (courseValid) {
+            const markerElement = gpsMarker.getElement();
+            const iconElement = markerElement
+                ? markerElement.querySelector("div")
+                : null;
+
+            if (iconElement) {
+                iconElement.style.transform =
+                    `rotate(${data.course}deg)`;
+            }
         }
     }
 
