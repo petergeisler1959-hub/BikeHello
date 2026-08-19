@@ -578,6 +578,7 @@ if (!mapCenteredOnGps) {
 const btnToggle = document.getElementById("btnToggle");
 const btnExit = document.getElementById("btnExit");
 const btnView = document.getElementById("btnView");
+const btnNewRoute = document.getElementById("btnNewRoute");
 
 btnExit.classList.add("disabled");
 btnView.classList.remove("disabled");
@@ -590,7 +591,7 @@ const br = document.getElementById("iconBreak");
 ===================================================== */
 
 let operatingStatus = "Stop";       // Go / Break / Stop
-let mapView = "GPS";                // Route / GPS
+let mapView = "Zoom";               // Zoom / Wide
 let routeAvailable = false;         // true / false
 
 
@@ -600,31 +601,52 @@ let routeAvailable = false;         // true / false
 
 function updateMapDisplay() {
 
-    if (operatingStatus === "Stop") {
+    /* =================================================
+       KEINE ROUTE VORHANDEN
+       GPS = Standort zoom
+       Route = Standort weit
+    ================================================= */
 
-        if (mapView === "Route") {
+    if (!routeAvailable) {
+
+        if (!lastGpsData) {
+            return;
+        }
+
+        const position = [
+            lastGpsData.lat,
+            lastGpsData.lon
+        ];
+
+        if (gpsMarker) {
+            gpsMarker.setIcon(gpsDotIcon);
+        }
+
+        if (mapView === "Wide") {
+
+            /* Standort weit */
+            map.setView(position, 15, {
+                animate: false
+            });
+
             console.log("Karte: Standort weit");
+
         } else {
 
-            if (lastGpsData) {
+            /* Standort zoom */
+            map.setView(position, 16, {
+                animate: false
+            });
 
-                const position = [
-                    lastGpsData.lat,
-                    lastGpsData.lon
-                ];
-
-                if (gpsMarker) {
-                    gpsMarker.setIcon(gpsDotIcon);
-                }
-
-                map.setView(position, 15, {
-                    animate: false
-                });
-            }
+            console.log("Karte: Standort zoom");
         }
 
         return;
     }
+
+    /* =================================================
+       ROUTE VORHANDEN
+    ================================================= */
 
     if (mapView === "Route") {
         console.log("Karte: Route");
@@ -652,11 +674,14 @@ function updateUI() {
     /* Stop / New Route */
     if (operatingStatus === "Stop") {
         btnExit.classList.add("disabled");
-        btnView.classList.remove("disabled");
+        btnNewRoute.classList.remove("disabled");
     } else {
         btnExit.classList.remove("disabled");
-        btnView.classList.add("disabled");
+        btnNewRoute.classList.add("disabled");
     }
+
+    /* VIEW bleibt immer aktiv */
+    btnView.classList.remove("disabled");
 }
 
 
@@ -668,12 +693,12 @@ updateUI();
 
 btnView.addEventListener("click", () => {
 
-    if (mapView === "GPS") {
-        mapView = "Route";
-        console.log("VIEW: Route");
+    if (mapView === "Zoom") {
+        mapView = "Wide";
+        console.log("VIEW: Standort weit");
     } else {
-        mapView = "GPS";
-        console.log("VIEW: GPS");
+        mapView = "Zoom";
+        console.log("VIEW: Standort zoom");
     }
 
     updateUI();
@@ -749,6 +774,11 @@ btnExit.addEventListener("click", () => {
 
 </body>
 </html>
+
+
+
+
+
 
 
 
