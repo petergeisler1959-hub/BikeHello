@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -319,7 +319,7 @@ html, body {
         <span class="btn-txt">GPS</span>
     </div>
     <div id="btnView" class="button btn-view">
-        <span class="btn-txt">View</span>
+        <span class="btn-txt">New Route</span>
     </div>
 
 </div>
@@ -585,17 +585,95 @@ const btnExit = document.getElementById("btnExit");
 const btnView = document.getElementById("btnView");
 
 btnExit.classList.add("disabled");
-btnView.classList.add("disabled");
+btnView.classList.remove("disabled");
 
 const go = document.getElementById("iconGo");
 const br = document.getElementById("iconBreak");
+
+/* =====================================================
+   BIKEHELLO ZUSTAND
+===================================================== */
+
+let operatingStatus = "Stop";       // Go / Break / Stop
+let mapView = "GPS";                // Route / GPS
+let routeAvailable = false;         // true / false
+
+
+/* =====================================================
+   ZUSTAND -> BUTTON-ANZEIGE
+===================================================== */
+
+function updateMapDisplay() {
+
+    if (operatingStatus === "Stop") {
+
+        if (mapView === "Route") {
+            console.log("Karte: Standort weit");
+        } else {
+
+            if (lastGpsData) {
+
+                const position = [
+                    lastGpsData.lat,
+                    lastGpsData.lon
+                ];
+
+                if (gpsMarker) {
+                    gpsMarker.setIcon(gpsDotIcon);
+                }
+
+                map.setView(position, 15, {
+                    animate: false
+                });
+            }
+        }
+
+        return;
+    }
+
+    if (mapView === "Route") {
+        console.log("Karte: Route");
+        return;
+    }
+
+    if (mapView === "GPS") {
+        console.log("Karte: Navigation");
+        return;
+    }
+}
+function updateUI() {
+
+    updateMapDisplay();
+
+    /* Go / Break */
+    if (operatingStatus === "Go") {
+        go.style.display = "none";
+        br.style.display = "inline";
+    } else {
+        go.style.display = "inline";
+        br.style.display = "none";
+    }
+
+    /* Stop / New Route */
+    if (operatingStatus === "Stop") {
+        btnExit.classList.add("disabled");
+        btnView.classList.remove("disabled");
+    } else {
+        btnExit.classList.remove("disabled");
+        btnView.classList.add("disabled");
+    }
+}
 
 
 /* =====================================================
    ROUTE BUTTON
 ===================================================== */
 
+updateUI();
+
 btnRoute.addEventListener("click", () => {
+
+    mapView = "Route";
 
     if (!lastGpsData) {
         return;
@@ -625,6 +703,8 @@ btnRoute.addEventListener("click", () => {
 
 btnNav.addEventListener("click", () => {
 
+    mapView = "GPS";
+
     if (lastGpsData) {
         map.setView(
             [lastGpsData.lat, lastGpsData.lon],
@@ -639,44 +719,17 @@ btnNav.addEventListener("click", () => {
    GO / BREAK
 ===================================================== */
 
-btnToggle.addEventListener("click", async () => {
+btnToggle.addEventListener("click", () => {
 
-    try {
-
-        if (go.style.display !== "none") {
-
-            /* GO */
-
-            if (!gpsActive) {
-                await GPS.start();
-                gpsActive = true;
-            }
-
-            go.style.display = "none";
-            br.style.display = "inline";
-
-            btnExit.classList.remove("disabled");
-
-            console.log("Navigation gestartet");
-
-        } else {
-
-            /* BREAK */
-
-            await GPS.stop();
-            gpsActive = false;
-
-            go.style.display = "inline";
-            br.style.display = "none";
-
-            console.log("Navigation pausiert");
-        }
-
-    } catch (error) {
-
-        console.error("GPS Fehler:", error);
-
+    if (operatingStatus === "Go") {
+        operatingStatus = "Break";
+        console.log("Betriebsstatus: BREAK");
+    } else {
+        operatingStatus = "Go";
+        console.log("Betriebsstatus: GO");
     }
+
+    updateUI();
 
 });
 
@@ -707,30 +760,45 @@ setTimeout(async () => {
 }, 500);
 
 
-btnExit.addEventListener("click", async () => {
+btnExit.addEventListener("click", () => {
 
-    try {
+    operatingStatus = "Stop";
+    routeAvailable = false;
 
-        await GPS.stop();
-        gpsActive = false;
-
-    } catch (error) {
-
-        console.error("GPS Stop Fehler:", error);
-
+    if (mapView === "Route") {
+        console.log("STOP -> Standort weit");
+    } else {
+        console.log("STOP -> Standort zoom");
     }
 
-    go.style.display = "inline";
-    br.style.display = "none";
+    console.log("Betriebsstatus: STOP");
 
-    btnExit.classList.add("disabled");
-    btnView.classList.add("disabled");
+    updateUI();
 
-    console.log("Navigation beendet");
 });
 
 </script>
 
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
