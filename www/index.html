@@ -311,14 +311,11 @@ html, body {
 
     <div style="height:10px;"></div>
 
-    <div id="btnRoute" class="button route">
-        <span class="btn-txt">ROUTE</span>
+    <div id="btnView" class="button btn-view">
+        <span class="btn-txt">VIEW</span>
     </div>
 
-    <div id="btnNav" class="button">
-        <span class="btn-txt">GPS</span>
-    </div>
-    <div id="btnView" class="button btn-view">
+    <div id="btnNewRoute" class="button route">
         <span class="btn-txt">New Route</span>
     </div>
 
@@ -578,8 +575,6 @@ if (!mapCenteredOnGps) {
    BUTTONS
 ===================================================== */
 
-const btnRoute = document.getElementById("btnRoute");
-const btnNav = document.getElementById("btnNav");
 const btnToggle = document.getElementById("btnToggle");
 const btnExit = document.getElementById("btnExit");
 const btnView = document.getElementById("btnView");
@@ -666,57 +661,30 @@ function updateUI() {
 
 
 /* =====================================================
-   ROUTE BUTTON
+   VIEW BUTTON
 ===================================================== */
 
 updateUI();
 
-btnRoute.addEventListener("click", () => {
+btnView.addEventListener("click", () => {
 
-    mapView = "Route";
-
-    if (!lastGpsData) {
-        return;
+    if (mapView === "GPS") {
+        mapView = "Route";
+        console.log("VIEW: Route");
+    } else {
+        mapView = "GPS";
+        console.log("VIEW: GPS");
     }
 
-    const center = [
-        lastGpsData.lat,
-        lastGpsData.lon
-    ];
-
-    const radiusKm = 10;
-
-    const radiusMeters = radiusKm * 1000;
-
-    const bounds = L.latLng(center).toBounds(radiusMeters);
-
-    map.fitBounds(bounds, {
-        padding: [20, 20]
-    });
-
-});
-
-
-/* =====================================================
-   NAVIGATION / KARTE
-===================================================== */
-
-btnNav.addEventListener("click", () => {
-
-    mapView = "GPS";
-
-    if (lastGpsData) {
-        map.setView(
-            [lastGpsData.lat, lastGpsData.lon],
-            16
-        );
-    }
+    updateUI();
 
 });
 
 
 /* =====================================================
    GO / BREAK
+=====================================================
+
 ===================================================== */
 
 btnToggle.addEventListener("click", () => {
@@ -781,6 +749,9 @@ btnExit.addEventListener("click", () => {
 
 </body>
 </html>
+
+
+
 
 
 
