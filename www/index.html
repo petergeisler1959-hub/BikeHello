@@ -273,6 +273,144 @@ html, body {
       filter: drop-shadow(0 1px 2px white);
   }
 
+
+/* =====================================================
+   NEUES BIKEHELLO COCKPIT
+===================================================== */
+
+/* Hauptbereich */
+#app {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+/* Karte volle Breite */
+#mapWrapper {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    position: relative;
+}
+
+#map {
+    width: 100%;
+    height: 100%;
+}
+
+/* Datenbereich */
+#bottomPanel {
+    width: 100%;
+    flex: none;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    padding: 12px 18px;
+    gap: 24px;
+    background: rgba(255,255,255,0.95);
+    overflow: hidden;
+    box-sizing: border-box;
+}
+
+/* Linke und rechte Datenspalte */
+#vitaldaten,
+#sensorBottom {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+/* Einzelne Werte */
+.vital-item,
+.sensor-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.vital-label,
+.sensor-label {
+    font-size: 13px;
+    color: #666;
+    font-weight: 400;
+}
+
+.vital-value,
+.sensor-value {
+    font-size: 24px;
+    font-weight: 600;
+    margin-top: 1px;
+}
+
+.secondary-value {
+    font-size: 16px;
+    color: #888;
+    font-weight: 400;
+    margin-left: 5px;
+}
+
+/* =====================================================
+   BEDIENLEISTE
+===================================================== */
+
+#controlBar {
+    width: 100%;
+    flex: none;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    padding: 10px 12px 14px 12px;
+    background: rgba(255,255,255,0.98);
+    box-sizing: border-box;
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 5px;
+}
+
+.control-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: #666;
+    letter-spacing: 0.5px;
+}
+
+.control-group .button {
+    width: 100%;
+    min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+}
+
+.control-group .btn-txt {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* Alte rechte Button-Spalte nicht mehr verwenden */
+#buttonColumn {
+    display: none;
+}
+
+/* Alte Container-Struktur neutralisieren */
+#container {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+    display: block;
+}
+
+/* Alte VIEW-Abstände entfernen */
+.btn-view {
+    margin-top: 0;
+}
+
 </style>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
@@ -284,63 +422,36 @@ html, body {
 <div id="app">
 
     <!-- =================================================
-         KARTE + BUTTONS
+         KARTE
     ================================================= -->
 
-    <div id="container">
-
-        <div id="mapWrapper">
-            <div id="map"></div>
-        </div>
-
-        <div id="buttonColumn">
-
-    <div id="navStatus" class="status-box not-started">
-        <div class="status-label">not started</div>
-        <div class="status-icon">O</div>
+    <div id="mapWrapper">
+        <div id="map"></div>
     </div>
 
-    <div id="btnToggle" class="button">
-        <span id="iconGo" class="btn-txt">Go</span>
-        <span id="iconBreak" class="btn-txt" style="display:none;">Break</span>
-    </div>
 
-    <div id="btnExit" class="button">
-        <span class="btn-txt">Stop</span>
-    </div>
-
-    <div style="height:10px;"></div>
-
-    <div id="btnView" class="button btn-view">
-        <span class="btn-txt">VIEW</span>
-    </div>
-
-    <div id="btnNewRoute" class="button route">
-        <span class="btn-txt">New Route</span>
-    </div>
-
-</div>
-
-</div>
-<!-- =================================================
-         UNTERER BEREICH
+    <!-- =================================================
+         DATEN
     ================================================= -->
 
     <div id="bottomPanel">
 
-        <!-- =============================================
-             LINKE SEITE: NAVIGATION
-        ============================================== -->
+        <!-- FAHRDATEN -->
 
         <div id="vitaldaten">
 
             <div class="vital-item">
-                <span class="vital-label">Speed (km/h)</span>
-                <span class="vital-value" id="vSpeed">22.5</span>
+                <span class="vital-label">Speed</span>
+                <span class="vital-value" id="vSpeed">22.5 km/h</span>
             </div>
 
             <div class="vital-item">
-                <span class="vital-label">Distance (km)</span>
+                <span class="vital-label">Altitude</span>
+                <span class="vital-value" id="vAltitude">236 m</span>
+            </div>
+
+            <div class="vital-item">
+                <span class="vital-label">Distance</span>
                 <span class="vital-value">
                     <span id="vDistLeft">38.8</span>
                     <span class="secondary-value" id="vDistTotal">(52.3)</span>
@@ -348,40 +459,81 @@ html, body {
             </div>
 
             <div class="vital-item">
-                <span class="vital-label">Time (h)</span>
+                <span class="vital-label">Time</span>
                 <span class="vital-value">
                     <span id="vTimeLeft">3:50</span>
                     <span class="secondary-value" id="vTimeTotal">(5:12)</span>
                 </span>
             </div>
 
-            <div class="vital-item">
-                <span class="vital-label">Altitude (m)</span>
-                <span class="vital-value" id="vAltitude">236</span>
+        </div>
+
+
+        <!-- E-BIKE-DATEN -->
+
+        <div id="sensorBottom">
+
+            <div class="sensor-item">
+                <span class="sensor-label">Power</span>
+                <span class="sensor-value" id="vPower">245 W</span>
+            </div>
+
+            <div class="sensor-item">
+                <span class="sensor-label">Battery</span>
+                <span class="sensor-value" id="vBattery">67 %</span>
+            </div>
+
+            <div class="sensor-item">
+                <span class="sensor-label">Range</span>
+                <span class="sensor-value" id="vRange">54 km</span>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- =================================================
+         BEDIENLEISTE
+    ================================================= -->
+
+    <div id="controlBar">
+
+        <!-- ROUTE -->
+
+        <div class="control-group">
+
+            <div class="control-label">ROUTE</div>
+
+            <div id="btnNewRoute" class="button route">
+                <span class="btn-txt">New</span>
             </div>
 
         </div>
 
 
-        <!-- =============================================
-             RECHTE SEITE: E-BIKE
-        ============================================== -->
+        <!-- STATUS -->
 
-        <div id="sensorBottom">
+        <div class="control-group">
 
-            <div class="sensor-item">
-                <span class="sensor-label">Power (W)</span>
-                <span class="sensor-value" id="vPower">245</span>
+            <div class="control-label">STATUS</div>
+
+            <div id="btnToggle" class="button">
+                <span id="iconGo" class="btn-txt">Ride</span>
+                <span id="iconBreak" class="btn-txt" style="display:none;">Break</span>
             </div>
 
-            <div class="sensor-item">
-                <span class="sensor-label">Battery (%)</span>
-                <span class="sensor-value" id="vBattery">67</span>
-            </div>
+        </div>
 
-            <div class="sensor-item">
-                <span class="sensor-label">Range (km)</span>
-                <span class="sensor-value" id="vRange">54</span>
+
+        <!-- KARTE -->
+
+        <div class="control-group">
+
+            <div class="control-label">KARTE</div>
+
+            <div id="btnView" class="button btn-view">
+                <span class="btn-txt">Wide</span>
             </div>
 
         </div>
@@ -389,8 +541,6 @@ html, body {
     </div>
 
 </div>
-
-
 <script type="module">
 
 /* =====================================================
@@ -774,6 +924,8 @@ btnExit.addEventListener("click", () => {
 
 </body>
 </html>
+
+
 
 
 
