@@ -360,7 +360,7 @@ html, body {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 10px;
-    padding: 10px 12px 14px 12px;
+    padding: 10px 12px calc(14px + env(safe-area-inset-bottom)) 12px;
     background: rgba(255,255,255,0.98);
     box-sizing: border-box;
 }
@@ -369,7 +369,7 @@ html, body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 5px;
+    gap: 6px;
 }
 
 .control-label {
@@ -381,16 +381,49 @@ html, body {
 
 .control-group .button {
     width: 100%;
+    height: 52px;
     min-height: 52px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    border-radius: 9px;
+}
+
+.control-group .btn-txt {
+    font-size: 18px;
+    font-weight: bold;
+}
+
+/* STATUS: optisch Statusanzeige, technisch weiterhin klickbar */
+#btnToggle {
+    border-radius: 9px;
+    background: rgba(245,245,245,0.95);
+    border: 1px solid #d0d0d0;
+}
+
+/* ROUTE und MAP: klar erkennbare Aktionsflächen */
+#btnNewRoute,
+#btnView {
+    border-radius: 9px;
+}
+
+/* STATUS: Fahrrad als zentrale Statusanzeige */
+.status-display {
+    min-height: 52px;
+    height: 52px;
+    border-radius: 9px;
+    border: 1px solid #d0d0d0;
+    background: rgba(245,245,245,0.95);
     display: flex;
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
 }
 
-.control-group .btn-txt {
-    font-size: 18px;
-    font-weight: bold;
+.status-bike {
+    font-size: 34px;
+    line-height: 1;
 }
 
 /* Alte rechte Button-Spalte nicht mehr verwenden */
@@ -519,8 +552,8 @@ html, body {
             <div class="control-label">STATUS</div>
 
             <div id="btnToggle" class="button">
-                <span id="iconGo" class="btn-txt">Ride</span>
-                <span id="iconBreak" class="btn-txt" style="display:none;">Break</span>
+                <span id="iconGo" class="status-bike">&#128692;</span>
+                <span id="iconBreak" class="status-bike" style="display:none;">&#128693;</span>
             </div>
 
         </div>
@@ -530,7 +563,7 @@ html, body {
 
         <div class="control-group">
 
-            <div class="control-label">KARTE</div>
+            <div class="control-label">MAP</div>
 
             <div id="btnView" class="button btn-view">
                 <span class="btn-txt">Wide</span>
@@ -924,6 +957,9 @@ btnExit.addEventListener("click", () => {
 
 </body>
 </html>
+
+
+
 
 
 
