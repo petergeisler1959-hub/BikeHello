@@ -566,7 +566,7 @@ html, body {
             <div class="control-label">MAP</div>
 
             <div id="btnView" class="button btn-view">
-                <span class="btn-txt">Wide</span>
+                <span class="btn-txt">Zoom</span>
             </div>
 
         </div>
@@ -863,13 +863,19 @@ function updateUI() {
         btnNewRoute.classList.add("disabled");
     }
 
-    /* VIEW bleibt immer aktiv */
+    /* MAP bleibt immer aktiv und zeigt den aktuellen Zustand */
     btnView.classList.remove("disabled");
+
+    if (mapView === "Zoom") {
+        btnView.querySelector(".btn-txt").textContent = "Zoom";
+    } else {
+        btnView.querySelector(".btn-txt").textContent = "Wide";
+    }
 }
 
 
 /* =====================================================
-   VIEW BUTTON
+   MAP BUTTON
 ===================================================== */
 
 updateUI();
@@ -957,6 +963,9 @@ btnExit.addEventListener("click", () => {
 
 </body>
 </html>
+
+
+
 
 
 
