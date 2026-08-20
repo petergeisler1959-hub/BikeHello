@@ -926,16 +926,19 @@ btnToggle.addEventListener("click", () => {
 
 setTimeout(async () => {
 
+    const powerField = document.getElementById("vPower");
+    powerField.textContent = "GPS...";
+
     try {
 
         await GPS.start();
         gpsActive = true;
 
-        console.log("GPS beim App-Start gestartet");
+        powerField.textContent = "GPS OK";
 
     } catch (error) {
 
-        console.error("GPS Startfehler:", error);
+        powerField.textContent = "GPS ERR";
 
     }
 
@@ -963,6 +966,7 @@ btnExit.addEventListener("click", () => {
 
 </body>
 </html>
+
 
 
 
