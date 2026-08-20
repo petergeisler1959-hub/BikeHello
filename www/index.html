@@ -879,6 +879,8 @@ function updateUI() {
    MAP BUTTON
 ===================================================== */
 
+
+document.getElementById("vPower").textContent = "UI START";
 updateUI();
 
 btnView.addEventListener("click", () => {
@@ -891,7 +893,8 @@ btnView.addEventListener("click", () => {
         console.log("VIEW: Standort zoom");
     }
 
-    updateUI();
+
+updateUI();
 
 });
 
@@ -912,7 +915,8 @@ btnToggle.addEventListener("click", () => {
         console.log("Betriebsstatus: GO");
     }
 
-    updateUI();
+
+updateUI();
 
 });
 
@@ -959,7 +963,8 @@ btnExit.addEventListener("click", () => {
 
     console.log("Betriebsstatus: STOP");
 
-    updateUI();
+
+updateUI();
 
 });
 
@@ -967,6 +972,8 @@ btnExit.addEventListener("click", () => {
 
 </body>
 </html>
+
+
 
 
 
