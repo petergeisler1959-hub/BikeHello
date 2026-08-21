@@ -508,7 +508,7 @@ html, body {
 
             <div class="sensor-item">
                 <span class="sensor-label">Power</span>
-                <span class="sensor-value" id="vPower">TEST</span>
+                <span class="sensor-value" id="vPower">245 W</span>
             </div>
 
             <div class="sensor-item">
@@ -583,7 +583,6 @@ html, body {
 import { registerPlugin } from "./capacitor-core.js";
 
 const GPS = registerPlugin("GPS");
-document.getElementById("vPower").textContent = "JS OK";
 let gpsActive = false;
 
 
@@ -655,11 +654,9 @@ const vAltitude = document.getElementById("vAltitude");
    GPS-DATEN
 ===================================================== */
 
-/*
 GPS.addListener("gpsDebug", (data) => {
     console.log(data.message);
 });
-*/
 
 GPS.addListener("gpsData", (data) => {
 
@@ -881,8 +878,6 @@ function updateUI() {
    MAP BUTTON
 ===================================================== */
 
-
-document.getElementById("vPower").textContent = "UI START";
 updateUI();
 
 btnView.addEventListener("click", () => {
@@ -895,8 +890,7 @@ btnView.addEventListener("click", () => {
         console.log("VIEW: Standort zoom");
     }
 
-
-updateUI();
+    updateUI();
 
 });
 
@@ -917,8 +911,7 @@ btnToggle.addEventListener("click", () => {
         console.log("Betriebsstatus: GO");
     }
 
-
-updateUI();
+    updateUI();
 
 });
 
@@ -933,19 +926,16 @@ updateUI();
 
 setTimeout(async () => {
 
-    const powerField = document.getElementById("vPower");
-    powerField.textContent = "GPS...";
-
     try {
 
         await GPS.start();
         gpsActive = true;
 
-        powerField.textContent = "GPS OK";
+        console.log("GPS beim App-Start gestartet");
 
     } catch (error) {
 
-        powerField.textContent = "GPS ERR";
+        console.error("GPS Startfehler:", error);
 
     }
 
@@ -965,8 +955,7 @@ btnExit.addEventListener("click", () => {
 
     console.log("Betriebsstatus: STOP");
 
-
-updateUI();
+    updateUI();
 
 });
 
@@ -974,12 +963,6 @@ updateUI();
 
 </body>
 </html>
-
-
-
-
-
-
 
 
 
