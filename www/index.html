@@ -1,4 +1,4 @@
-ï»¿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="de">
 <head>
 <meta charset="UTF-8">
@@ -402,7 +402,7 @@ html, body {
     border: 1px solid #d0d0d0;
 }
 
-/* ROUTE und MAP: klar erkennbare AktionsflÃ¤chen */
+/* ROUTE und MAP: klar erkennbare Aktionsflächen */
 #btnNewRoute,
 #btnView {
     border-radius: 9px;
@@ -439,7 +439,7 @@ html, body {
     display: block;
 }
 
-/* Alte VIEW-AbstÃ¤nde entfernen */
+/* Alte VIEW-Abstände entfernen */
 .btn-view {
     margin-top: 0;
 }
@@ -928,14 +928,11 @@ setTimeout(async () => {
 
     try {
 
-        await GPS.start();
-        gpsActive = true;
-
-        console.log("GPS beim App-Start gestartet");
+        await GPS.start(); gpsActive = true; alert("GPS START OK");
 
     } catch (error) {
 
-        console.error("GPS Startfehler:", error);
+        alert("GPS START FEHLER: " + error);
 
     }
 
@@ -963,6 +960,7 @@ btnExit.addEventListener("click", () => {
 
 </body>
 </html>
+
 
 
 
