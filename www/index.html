@@ -575,8 +575,6 @@ html, body {
 
 </div>
 <script type="module">
-
-alert("A – JS gestartet");
 /* =====================================================
    CAPACITOR / GPS
 ===================================================== */
@@ -584,7 +582,6 @@ alert("A – JS gestartet");
 import { registerPlugin } from "./capacitor-core.js";
 
 const GPS = registerPlugin("GPS");
-alert("B1 - nach GPS Plugin");
 let gpsActive = false;
 
 
@@ -921,9 +918,6 @@ btnToggle.addEventListener("click", () => {
 /* =====================================================
    GPS BEIM APP-START
 ===================================================== */
-
-alert("C - GPS BLOCK");
-
 setTimeout(async () => {
 
     try {
@@ -943,6 +937,4 @@ setTimeout(async () => {
 
 </body>
 </html>
-
-
 
