@@ -1,4 +1,4 @@
-import Foundation
+﻿import Foundation
 import Capacitor
 import CoreLocation
 
@@ -24,6 +24,7 @@ public class GPSPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManagerDelegate {
     }
 
     @objc func start(_ call: CAPPluginCall) {
+        print("BIKEHELLO GPS: start() NATIVE ERREICHT")
 
         notifyListeners("gpsDebug", data: [
             "message": "GPS: start() erreicht"
@@ -106,3 +107,4 @@ public class GPSPlugin: CAPPlugin, CAPBridgedPlugin, CLLocationManagerDelegate {
         ])
     }
 }
+
