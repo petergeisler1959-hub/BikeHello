@@ -27,7 +27,10 @@ jobs:
         run: |
           echo "=== CHECK ios/App/App/public/index.html ==="
           grep -n 'vPower' ios/App/App/public/index.html
-          grep -n 'JS OK' ios/App/App/public/index.html || true
+          grep -n 'B – GPS Plugin registriert' ios/App/App/public/index.html || true
+          grep -n 'B1 - nach GPS Plugin' ios/App/App/public/index.html || true
+          grep -n 'C - GPS BLOCK' ios/App/App/public/index.html || true
+          echo "=== END CHECK ==="
 
       - name: Build iOS app
         run: |
