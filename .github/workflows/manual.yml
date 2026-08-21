@@ -27,9 +27,9 @@ jobs:
         run: |
           echo "=== CHECK ios/App/App/public/index.html ==="
           grep -n 'vPower' ios/App/App/public/index.html
-          grep -n 'B – GPS Plugin registriert' ios/App/App/public/index.html || true
-          grep -n 'B1 - nach GPS Plugin' ios/App/App/public/index.html || true
-          grep -n 'C - GPS BLOCK' ios/App/App/public/index.html || true
+          grep -n '&#128690;' ios/App/App/public/index.html
+          grep -n 'map.setView(position, 12' ios/App/App/public/index.html
+          grep -n 'map.setView(position, 17' ios/App/App/public/index.html
           echo "=== END CHECK ==="
 
       - name: Build iOS app
@@ -47,8 +47,9 @@ jobs:
       - name: Verify built app
         run: |
           echo "=== CHECK BUILT APP ==="
-          grep -R -n 'B1 - nach GPS Plugin' ios/App/build/App.xcarchive/Products/Applications/App.app || true
-          grep -R -n 'C - GPS BLOCK' ios/App/build/App.xcarchive/Products/Applications/App.app || true
+          grep -n '&#128690;' ios/App/build/App.xcarchive/Products/Applications/App.app/public/index.html
+          grep -n 'map.setView(position, 12' ios/App/build/App.xcarchive/Products/Applications/App.app/public/index.html
+          grep -n 'map.setView(position, 17' ios/App/build/App.xcarchive/Products/Applications/App.app/public/index.html
           echo "=== END BUILT APP CHECK ==="
             
       - name: Create IPA
