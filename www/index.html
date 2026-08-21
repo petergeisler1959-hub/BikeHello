@@ -552,8 +552,8 @@ html, body {
             <div class="control-label">STATUS</div>
 
             <div id="btnToggle" class="button">
-                <span id="iconGo" class="status-bike">&#128692;</span>
-                <span id="iconBreak" class="status-bike" style="display:none;">&#128693;</span>
+                <span id="iconGo" class="status-bike">&#128690;</span>
+                <span id="iconBreak" class="status-bike" style="display:none;">&#128690;</span>
             </div>
 
         </div>
@@ -729,7 +729,7 @@ if (!mapCenteredOnGps) {
     mapCenteredOnGps = true;
 
     setTimeout(() => {
-        map.setView(position, 16);
+        map.setView(position, 17);
     }, 1000);
 }
 
@@ -805,7 +805,7 @@ function updateMapDisplay() {
         if (mapView === "Wide") {
 
             /* Standort weit */
-            map.setView(position, 15, {
+            map.setView(position, 12, {
                 animate: false
             });
 
@@ -814,7 +814,7 @@ function updateMapDisplay() {
         } else {
 
             /* Standort zoom */
-            map.setView(position, 16, {
+            map.setView(position, 17, {
                 animate: false
             });
 
