@@ -761,11 +761,9 @@ if (!mapCenteredOnGps) {
 ===================================================== */
 
 const btnToggle = document.getElementById("btnToggle");
-const btnExit = document.getElementById("btnExit");
 const btnView = document.getElementById("btnView");
 const btnNewRoute = document.getElementById("btnNewRoute");
 
-btnExit.classList.add("disabled");
 btnView.classList.remove("disabled");
 
 const go = document.getElementById("iconGo");
@@ -858,10 +856,8 @@ function updateUI() {
 
     /* Stop / New Route */
     if (operatingStatus === "Stop") {
-        btnExit.classList.add("disabled");
         btnNewRoute.classList.remove("disabled");
     } else {
-        btnExit.classList.remove("disabled");
         btnNewRoute.classList.add("disabled");
     }
 
@@ -943,74 +939,8 @@ setTimeout(async () => {
 }, 500);
 
 
-btnExit.addEventListener("click", () => {
-
-    operatingStatus = "Stop";
-    routeAvailable = false;
-
-    if (mapView === "Route") {
-        console.log("STOP -> Standort weit");
-    } else {
-        console.log("STOP -> Standort zoom");
-    }
-
-    console.log("Betriebsstatus: STOP");
-
-    updateUI();
-
-});
-
 </script>
 
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
