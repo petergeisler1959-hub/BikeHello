@@ -23,6 +23,12 @@ jobs:
       - name: Sync Capacitor iOS
         run: npx cap sync ios
 
+      - name: Verify synced index
+        run: |
+          echo "=== CHECK ios/App/App/public/index.html ==="
+          grep -n 'vPower' ios/App/App/public/index.html
+          grep -n 'JS OK' ios/App/App/public/index.html || true
+
       - name: Build iOS app
         run: |
           cd ios/App
