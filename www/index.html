@@ -593,6 +593,10 @@ const map = L.map("map", {
     zoomControl: false
 }).setView([20, 0], 2);
 
+const testDestination = [49.8727, 8.6512];
+let testRouteLine = null;
+let routeActive = false;
+
 L.tileLayer(
     "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
     {
@@ -770,7 +774,8 @@ const br = document.getElementById("iconBreak");
    BIKEHELLO ZUSTAND
 ===================================================== */
 
-let operatingStatus = "Stop";       // Go / Break / Stop
+let routeStatus = "New";          // New / Stop
+let operatingStatus = "Break";      // Break / Go
 let mapView = "Zoom";               // Zoom / Wide
 let routeAvailable = false;         // true / false
 
@@ -842,23 +847,37 @@ function updateUI() {
 
     updateMapDisplay();
 
-    /* Go / Break */
-    if (operatingStatus === "Go") {
-        go.style.display = "none";
-        br.style.display = "inline";
+    /* =================================================
+       STATUS
+       Break/Go ist nur aktiv, wenn eine Route existiert
+    ================================================= */
+
+    if (routeStatus === "New") {
+        btnToggle.classList.add("disabled");
     } else {
-        go.style.display = "inline";
-        br.style.display = "none";
+        btnToggle.classList.remove("disabled");
     }
 
-    /* Stop / New Route */
-    if (operatingStatus === "Stop") {
-        btnNewRoute.classList.remove("disabled");
+    /* Immer dasselbe leere Fahrrad */
+    go.style.display = "inline";
+    br.style.display = "none";
+
+    /* =================================================
+       ROUTE
+       New <-> Stop
+    ================================================= */
+
+    if (routeStatus === "New") {
+        btnNewRoute.querySelector(".btn-txt").textContent = "New";
     } else {
-        btnNewRoute.classList.add("disabled");
+        btnNewRoute.querySelector(".btn-txt").textContent = "Stop";
     }
 
-    /* MAP bleibt immer aktiv und zeigt den aktuellen Zustand */
+    /* =================================================
+       MAP
+       völlig unabhängig
+    ================================================= */
+
     btnView.classList.remove("disabled");
 
     if (mapView === "Zoom") {
@@ -867,7 +886,6 @@ function updateUI() {
         btnView.querySelector(".btn-txt").textContent = "Wide";
     }
 }
-
 
 /* =====================================================
    MAP BUTTON
@@ -891,25 +909,109 @@ btnView.addEventListener("click", () => {
 
 
 /* =====================================================
-   GO / BREAK
-=====================================================
-
+   STATUS BUTTON
 ===================================================== */
 
 btnToggle.addEventListener("click", () => {
 
-    if (operatingStatus === "Go") {
-        operatingStatus = "Break";
-        console.log("Betriebsstatus: BREAK");
-    } else {
+    /* Status nur bei aktiver Route */
+    if (routeStatus !== "Stop") {
+        console.log("STATUS: inaktiv - keine aktive Route");
+        return;
+    }
+
+    if (operatingStatus === "Break") {
         operatingStatus = "Go";
-        console.log("Betriebsstatus: GO");
+        console.log("STATUS: BREAK -> GO");
+    } else {
+        operatingStatus = "Break";
+        console.log("STATUS: GO -> BREAK");
     }
 
     updateUI();
 
 });
 
+btnNewRoute.addEventListener("click", () => {
+
+    /* =================================================
+       STOP -> NEW
+       Route entfernen
+    ================================================= */
+
+    if (routeStatus === "Stop") {
+
+        if (testRouteLine) {
+            map.removeLayer(testRouteLine);
+            testRouteLine = null;
+        }
+
+        routeActive = false;
+        routeAvailable = false;
+
+        routeStatus = "New";
+        operatingStatus = "Break";
+
+        console.log("ROUTE: Stop -> New");
+
+        updateUI();
+        return;
+    }
+
+
+    /* =================================================
+       NEW -> STOP
+       Testroute erzeugen
+    ================================================= */
+
+    if (!lastGpsData) {
+        console.log("ROUTE: Noch keine GPS-Position vorhanden");
+        return;
+    }
+
+    const startPosition = [
+        lastGpsData.lat,
+        lastGpsData.lon
+    ];
+
+    /* Testziel: Luisenplatz Darmstadt */
+    const endPosition = testDestination;
+
+    /* Vorhandene Test-Route entfernen */
+    if (testRouteLine) {
+        map.removeLayer(testRouteLine);
+    }
+
+    /* Gerade Teststrecke */
+    testRouteLine = L.polyline(
+        [startPosition, endPosition],
+        {
+            color: "blue",
+            weight: 5,
+            opacity: 0.8
+        }
+    ).addTo(map);
+
+    routeActive = true;
+    routeAvailable = true;
+
+    routeStatus = "Stop";
+    operatingStatus = "Break";
+
+    console.log("ROUTE: New -> Stop");
+    console.log("ROUTE: Start =", startPosition);
+    console.log("ROUTE: Ziel Luisenplatz =", endPosition);
+
+    updateUI();
+
+    /* Bei Wide komplette Route zeigen */
+    if (mapView === "Wide") {
+        map.fitBounds(testRouteLine.getBounds(), {
+            padding: [20, 20]
+        });
+    }
+
+});
 
 /* =====================================================
    EXIT
