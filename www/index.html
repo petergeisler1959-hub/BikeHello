@@ -90,6 +90,21 @@ html, body {
     cursor: default;
     pointer-events: none;
 }
+/* =====================================================
+   AKTIVER STATUS-BUTTON
+===================================================== */
+
+.button.status-active {
+    border: 3px solid #333;
+}
+
+/* =====================================================
+   TIME / DISTANCE BEI BREAK
+===================================================== */
+
+.data-paused {
+    color: #999 !important;
+}
 .status-box {
     width: 70px;
     height: 62px;
@@ -552,8 +567,8 @@ html, body {
             <div class="control-label">STATUS</div>
 
             <div id="btnToggle" class="button">
-                <span id="iconGo" class="status-bike">&#128690;</span>
-                <span id="iconBreak" class="status-bike" style="display:none;">&#128690;</span>
+                <span id="iconGo" class="status-bike">&#x1F6B4;</span>
+                <span id="iconBreak" class="status-bike" style="display:none;">&#x1F6B2;</span>
             </div>
 
         </div>
@@ -774,8 +789,7 @@ const br = document.getElementById("iconBreak");
    BIKEHELLO ZUSTAND
 ===================================================== */
 
-let routeStatus = "New";          // New / Stop
-let operatingStatus = "Break";      // Break / Go
+let operatingStatus = "Break";      // Break / Ride
 let mapView = "Zoom";               // Zoom / Wide
 let routeAvailable = false;         // true / false
 
@@ -867,34 +881,66 @@ function updateUI() {
     updateMapDisplay();
 
     /* =================================================
-       STATUS
-       Break/Go ist nur aktiv, wenn eine Route existiert
+       ROUTE
+       Empty = keine Route
+       Ready = Route vorhanden
     ================================================= */
 
-    if (routeStatus === "New") {
-        btnToggle.classList.add("disabled");
-    } else {
+    if (routeAvailable) {
+
+        btnNewRoute.querySelector(".btn-txt").textContent = "Stop";
         btnToggle.classList.remove("disabled");
+        btnToggle.classList.add("status-active");
+
+    } else {
+
+        btnNewRoute.querySelector(".btn-txt").textContent = "New";
+        btnToggle.classList.add("disabled");
+        btnToggle.classList.remove("status-active");
+
+        /* Empty = Time und Distance auf 0 */
+        document.getElementById("vDistLeft").textContent = "0.0";
+        document.getElementById("vDistTotal").textContent = "(0.0)";
+        document.getElementById("vTimeLeft").textContent = "0:00";
+        document.getElementById("vTimeTotal").textContent = "(0:00)";
     }
 
-    /* Immer dasselbe leere Fahrrad */
-    go.style.display = "inline";
-    br.style.display = "none";
 
     /* =================================================
-       ROUTE
-       New <-> Stop
+       STATUS
+       Break = Fahrrad ohne Fahrer
+       Ride  = Fahrrad mit Fahrer
     ================================================= */
 
-    if (routeStatus === "New") {
-        btnNewRoute.querySelector(".btn-txt").textContent = "New";
+    const pausedFields = [
+        document.getElementById("vDistLeft"),
+        document.getElementById("vDistTotal"),
+        document.getElementById("vTimeLeft"),
+        document.getElementById("vTimeTotal")
+    ];
+
+    if (operatingStatus === "Ride" && routeAvailable) {
+
+        go.style.display = "inline";
+        br.style.display = "none";
+
+        pausedFields.forEach(el => {
+            if (el) el.classList.remove("data-paused");
+        });
+
     } else {
-        btnNewRoute.querySelector(".btn-txt").textContent = "Stop";
+
+        go.style.display = "none";
+        br.style.display = "inline";
+
+        pausedFields.forEach(el => {
+            if (el) el.classList.add("data-paused");
+        });
     }
+
 
     /* =================================================
        MAP
-       völlig unabhängig
     ================================================= */
 
     btnView.classList.remove("disabled");
@@ -905,7 +951,6 @@ function updateUI() {
         btnView.querySelector(".btn-txt").textContent = "Wide";
     }
 }
-
 /* =====================================================
    MAP BUTTON
 ===================================================== */
@@ -933,32 +978,32 @@ btnView.addEventListener("click", () => {
 
 btnToggle.addEventListener("click", () => {
 
-    /* Status nur bei aktiver Route */
-    if (routeStatus !== "Stop") {
-        console.log("STATUS: inaktiv - keine aktive Route");
+    /* Status ist nur bei vorhandener Route aktiv */
+    if (!routeAvailable) {
+        console.log("STATUS: inaktiv - keine Route");
         return;
     }
 
+    /* Break <-> Ride */
     if (operatingStatus === "Break") {
-        operatingStatus = "Go";
-        console.log("STATUS: BREAK -> GO");
+        operatingStatus = "Ride";
+        console.log("STATUS: BREAK -> RIDE");
     } else {
         operatingStatus = "Break";
-        console.log("STATUS: GO -> BREAK");
+        console.log("STATUS: RIDE -> BREAK");
     }
 
     updateUI();
-
 });
 
 btnNewRoute.addEventListener("click", () => {
 
     /* =================================================
-       STOP -> NEW
+       READY -> EMPTY
        Route entfernen
     ================================================= */
 
-    if (routeStatus === "Stop") {
+    if (routeAvailable) {
 
         if (testRouteLine) {
             map.removeLayer(testRouteLine);
@@ -968,10 +1013,9 @@ btnNewRoute.addEventListener("click", () => {
         routeActive = false;
         routeAvailable = false;
 
-        routeStatus = "New";
         operatingStatus = "Break";
 
-        console.log("ROUTE: Stop -> New");
+        console.log("ROUTE: Ready -> Empty");
 
         updateUI();
         return;
@@ -979,7 +1023,7 @@ btnNewRoute.addEventListener("click", () => {
 
 
     /* =================================================
-       NEW -> STOP
+       EMPTY -> READY
        Testroute erzeugen
     ================================================= */
 
@@ -1014,10 +1058,9 @@ btnNewRoute.addEventListener("click", () => {
     routeActive = true;
     routeAvailable = true;
 
-    routeStatus = "Stop";
     operatingStatus = "Break";
 
-    console.log("ROUTE: New -> Stop");
+    console.log("ROUTE: Empty -> Ready");
     console.log("ROUTE: Start =", startPosition);
     console.log("ROUTE: Ziel Luisenplatz =", endPosition);
 
@@ -1026,6 +1069,7 @@ btnNewRoute.addEventListener("click", () => {
     /* Bei Wide komplette Route zeigen */
     if (mapView === "Wide") {
         map.fitBounds(testRouteLine.getBounds(), {
+            animate: false,
             padding: [20, 20]
         });
     }
@@ -1058,4 +1102,3 @@ setTimeout(async () => {
 
 </body>
 </html>
-
