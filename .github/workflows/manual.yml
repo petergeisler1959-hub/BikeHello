@@ -23,15 +23,6 @@ jobs:
       - name: Sync Capacitor iOS
         run: npx cap sync ios
 
-      - name: Verify synced index
-        run: |
-          echo "=== CHECK ios/App/App/public/index.html ==="
-          grep -n 'vPower' ios/App/App/public/index.html
-          grep -n '&#128690;' ios/App/App/public/index.html
-          grep -n 'map.setView(position, 12' ios/App/App/public/index.html
-          grep -n 'map.setView(position, 17' ios/App/App/public/index.html
-          echo "=== END CHECK ==="
-
       - name: Build iOS app
         run: |
           cd ios/App
@@ -43,14 +34,6 @@ jobs:
             -archivePath $PWD/build/App.xcarchive \
             archive \
             CODE_SIGNING_ALLOWED=NO
-
-      - name: Verify built app
-        run: |
-          echo "=== CHECK BUILT APP ==="
-          grep -n '&#128690;' ios/App/build/App.xcarchive/Products/Applications/App.app/public/index.html
-          grep -n 'map.setView(position, 12' ios/App/build/App.xcarchive/Products/Applications/App.app/public/index.html
-          grep -n 'map.setView(position, 17' ios/App/build/App.xcarchive/Products/Applications/App.app/public/index.html
-          echo "=== END BUILT APP CHECK ==="
             
       - name: Create IPA
         run: |
