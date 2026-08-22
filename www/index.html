@@ -833,16 +833,35 @@ function updateMapDisplay() {
        ROUTE VORHANDEN
     ================================================= */
 
-    if (mapView === "Route") {
-        console.log("Karte: Route");
-        return;
-    }
+    if (mapView === "Wide") {
 
-    if (mapView === "GPS") {
-        console.log("Karte: Navigation");
-        return;
+        /* Wide = komplette Route */
+        if (testRouteLine) {
+            map.fitBounds(testRouteLine.getBounds(), {
+                animate: false,
+                padding: [20, 20]
+            });
+
+            console.log("Karte: komplette Route");
+        }
+
+    } else {
+
+        /* Zoom = aktueller Standort */
+        if (lastGpsData) {
+            const position = [
+                lastGpsData.lat,
+                lastGpsData.lon
+            ];
+
+            map.setView(position, 17, {
+                animate: false
+            });
+
+            console.log("Karte: Route-Zoom");
+        }
     }
-}
+    }
 function updateUI() {
 
     updateMapDisplay();
