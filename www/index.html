@@ -422,7 +422,7 @@ html, body {
     border: 3px solid #555;
 }
 
-/* ROUTE und MAP: klar erkennbare Aktionsfl‰chen */
+/* ROUTE und MAP: klar erkennbare Aktionsfl√§chen */
 #btnNewRoute,
 #btnView {
     border-radius: 9px;
@@ -459,9 +459,100 @@ html, body {
     display: block;
 }
 
-/* Alte VIEW-Abst‰nde entfernen */
+/* Alte VIEW-Abst√§nde entfernen */
 .btn-view {
     margin-top: 0;
+}
+
+
+/* =====================================================
+   ROUTING OVERLAY - PROTOTYP
+===================================================== */
+
+#routeOverlay {
+    position: absolute;
+    inset: 0;
+    z-index: 1000;
+    display: none;
+    background: rgba(255,255,255,0.18);
+    box-sizing: border-box;
+}
+
+#routeOverlayContent {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+.route-definition {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+}
+
+.route-point {
+    width: 105px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+}
+
+.route-point-circle {
+    width: 76px;
+    height: 76px;
+    border-radius: 50%;
+    border: 2px solid rgba(80,80,80,0.55);
+    background: rgba(255,255,255,0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    font-size: 30px;
+}
+
+.route-point-label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #555;
+    letter-spacing: 0.4px;
+}
+
+.route-edit {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid #bbb;
+    background: rgba(255,255,255,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    box-sizing: border-box;
+}
+
+.route-arrow {
+    font-size: 30px;
+    color: #666;
+    margin-top: -20px;
+}
+
+#btnRouteList {
+    margin-top: 34px;
+    min-width: 150px;
+    height: 44px;
+    border-radius: 9px;
+    border: 1px solid #bbb;
+    background: rgba(255,255,255,0.92);
+    font-size: 16px;
+    font-weight: 600;
 }
 
 </style>
@@ -480,6 +571,32 @@ html, body {
 
     <div id="mapWrapper">
         <div id="map"></div>
+
+        <div id="routeOverlay">
+            <div id="routeOverlayContent">
+
+                <div class="route-definition">
+
+                    <div class="route-point">
+                        <div class="route-point-circle">?</div>
+                        <div class="route-point-label">START</div>
+                        <div class="route-edit">&#x270F;</div>
+                    </div>
+
+                    <div class="route-arrow">&#x2192;</div>
+
+                    <div class="route-point">
+                        <div class="route-point-circle">?</div>
+                        <div class="route-point-label">ZIEL</div>
+                        <div class="route-edit">&#x270F;</div>
+                    </div>
+
+                </div>
+
+                <button id="btnRouteList">ROUTENLISTE</button>
+
+            </div>
+        </div>
     </div>
 
 
@@ -784,6 +901,7 @@ if (!mapCenteredOnGps) {
 const btnToggle = document.getElementById("btnToggle");
 const btnView = document.getElementById("btnView");
 const btnNewRoute = document.getElementById("btnNewRoute");
+const routeOverlay = document.getElementById("routeOverlay");
 
 btnView.classList.remove("disabled");
 
@@ -1028,56 +1146,13 @@ btnNewRoute.addEventListener("click", () => {
 
 
     /* =================================================
-       EMPTY -> READY
-       Testroute erzeugen
+       EMPTY -> ROUTING
+       Routing-Overlay √∂ffnen
     ================================================= */
 
-    if (!lastGpsData) {
-        console.log("ROUTE: Noch keine GPS-Position vorhanden");
-        return;
-    }
+    routeOverlay.style.display = "block";
 
-    const startPosition = [
-        lastGpsData.lat,
-        lastGpsData.lon
-    ];
-
-    /* Testziel: Luisenplatz Darmstadt */
-    const endPosition = testDestination;
-
-    /* Vorhandene Test-Route entfernen */
-    if (testRouteLine) {
-        map.removeLayer(testRouteLine);
-    }
-
-    /* Gerade Teststrecke */
-    testRouteLine = L.polyline(
-        [startPosition, endPosition],
-        {
-            color: "blue",
-            weight: 5,
-            opacity: 0.8
-        }
-    ).addTo(map);
-
-    routeActive = true;
-    routeAvailable = true;
-
-    operatingStatus = "Break";
-
-    console.log("ROUTE: Empty -> Ready");
-    console.log("ROUTE: Start =", startPosition);
-    console.log("ROUTE: Ziel Luisenplatz =", endPosition);
-
-    updateUI();
-
-    /* Bei Wide komplette Route zeigen */
-    if (mapView === "Wide") {
-        map.fitBounds(testRouteLine.getBounds(), {
-            animate: false,
-            padding: [20, 20]
-        });
-    }
+    console.log("ROUTE: Empty -> Routing");
 
 });
 
