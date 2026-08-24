@@ -543,10 +543,32 @@ html, body {
     z-index: 2;
 }
 
+.route-connection {
+    position: relative;
+    width: 110px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.route-line {
+    position: absolute;
+    left: 0;
+    right: 0;
+    height: 6px;
+    background: #2f6fed;
+    border-radius: 3px;
+}
+
 .route-arrow {
+    position: relative;
+    z-index: 2;
     font-size: 30px;
-    color: #666;
-    margin-top: -20px;
+    line-height: 1;
+    color: #2f6fed;
+    background: rgba(255,255,255,0.9);
+    padding: 0 5px;
 }
 
 #btnRouteList {
@@ -582,17 +604,18 @@ html, body {
 
                 <div class="route-definition">
 
-                    <div class="route-point">
-                        <div class="route-point-circle">?</div>
-                        <div class="route-point-label">START</div>
-                        <div class="route-edit">&#x270F;</div>
-                    </div>
+                   <div class="route-point">
+                       <div class="route-point-circle">START</div>
+                       <div class="route-edit">&#x270F;</div>
+                   </div>
 
-                    <div class="route-arrow">&#x2192;</div>
+                   <div class="route-connection">
+                       <div class="route-line"></div>
+                       <div class="route-arrow">&#x2192;</div>
+                   </div>
 
-                    <div class="route-point">
-                        <div class="route-point-circle">?</div>
-                        <div class="route-point-label">ZIEL</div>
+                   <div class="route-point">
+                        <div class="route-point-circle">ZIEL</div>
                         <div class="route-edit">&#x270F;</div>
                     </div>
 
