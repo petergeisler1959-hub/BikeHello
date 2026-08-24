@@ -1155,9 +1155,11 @@ btnNewRoute.addEventListener("click", () => {
        Routing-Overlay öffnen
     ================================================= */
 
-    routeOverlay.style.display = "block";
+    map.setView([20, 0], 2, {
+        animate: false
+    });
 
-    console.log("ROUTE: Empty -> Routing");
+    routeOverlay.style.display = "block";
 
 });
 
