@@ -64,6 +64,15 @@ html, body {
     border-radius: 8px;
 }
 
+#mapWrapper.routing-active {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    padding: 10px;
+    z-index: 999;
+}
+
 #buttonColumn {
     width: 70px;
     display: flex;
@@ -1031,6 +1040,7 @@ const btnToggle = document.getElementById("btnToggle");
 const btnView = document.getElementById("btnView");
 const btnNewRoute = document.getElementById("btnNewRoute");
 const routeOverlay = document.getElementById("routeOverlay");
+const mapWrapper = document.getElementById("mapWrapper");
 
 btnView.classList.remove("disabled");
 
@@ -1283,6 +1293,7 @@ btnNewRoute.addEventListener("click", () => {
         animate: false
     });
 
+    mapWrapper.classList.add("routing-active");
     routeOverlay.style.display = "block";
 
 });
