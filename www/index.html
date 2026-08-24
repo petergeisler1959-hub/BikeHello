@@ -1290,11 +1290,13 @@ btnNewRoute.addEventListener("click", () => {
        Routing-Overlay öffnen
     ================================================= */
 
-    map.setView([30, 0], 3, {
+    map.setView([40, 0], 3, {
         animate: false
     });
 
     mapWrapper.classList.add("routing-active");
+    map.invalidateSize();
+
     routeOverlay.style.display = "block";
 
 });
