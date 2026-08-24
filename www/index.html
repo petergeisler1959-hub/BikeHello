@@ -516,7 +516,41 @@ html, body {
     align-items: center;
     justify-content: center;
     box-sizing: border-box;
-    font-size: 30px;
+    font-size: 18px;
+}
+
+.route-marker {
+    width: 22px;
+    height: 22px;
+    border-radius: 50% 50% 50% 0;
+    transform: rotate(-45deg);
+    position: relative;
+}
+
+.route-marker::after {
+    content: "";
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: white;
+    border-radius: 50%;
+    top: 7px;
+    left: 7px;
+}
+
+.start-marker {
+    background: #d9534f;
+}
+
+.target-marker {
+    background: #3aaa35;
+}
+
+.route-point-text {
+    font-size: 18px;
+    font-weight: 600;
+    color: #555;
+    margin-top: 5px;
 }
 
 .route-point-label {
@@ -592,7 +626,10 @@ html, body {
                 <div class="route-definition">
 
                    <div class="route-point">
-                       <div class="route-point-circle">START</div>
+                       <div class="route-point-circle">
+                           <div class="route-marker start-marker"></div>
+                           <div class="route-point-text">START</div>
+                       </div>
                        <div class="route-edit">&#x270F;</div>
                    </div>
 
@@ -601,7 +638,10 @@ html, body {
                    </div>
 
                    <div class="route-point">
-                        <div class="route-point-circle">ZIEL</div>
+                        <div class="route-point-circle">
+                            <div class="route-marker target-marker"></div>
+                            <div class="route-point-text">ZIEL</div>
+                        </div>
                         <div class="route-edit">&#x270F;</div>
                     </div>
 
