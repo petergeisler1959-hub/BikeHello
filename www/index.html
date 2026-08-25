@@ -668,6 +668,34 @@ html, body {
     white-space: nowrap;
 }
 
+#routeCandidates {
+    width: 100%;
+    margin-top: 10px;
+    display: none;
+}
+
+.route-candidate {
+    width: 100%;
+    padding: 10px 12px;
+    margin-bottom: 6px;
+    border: 1px solid #bbb;
+    border-radius: 8px;
+    background: rgba(255,255,255,0.98);
+    box-sizing: border-box;
+}
+
+.route-candidate-name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #555;
+}
+
+.route-candidate-address {
+    margin-top: 3px;
+    font-size: 13px;
+    color: #888;
+}
+
 .route-button-bar {
     width: 100%;
     display: flex;
@@ -763,6 +791,8 @@ html, body {
                 </div>
 
             </div>
+
+            <div id="routeCandidates"></div>
 
             <div class="route-button-bar">
 
@@ -1092,6 +1122,42 @@ const btnRouteSearch = document.getElementById("btnRouteSearch");
 const routeSearchCountElement =
     document.getElementById("routeSearchCount");
 
+const routeCandidates =
+    document.getElementById("routeCandidates");
+
+const mockRouteCandidates = [
+    {
+        name: "Luisenplatz",
+        address: "Luisenplatz 5, 64283 Darmstadt",
+        lat: 49.872777,
+        lon: 8.651111
+    },
+    {
+        name: "Darmstadt Hbf",
+        address: "Am Hauptbahnhof, 64293 Darmstadt",
+        lat: 49.872500,
+        lon: 8.628889
+    },
+    {
+        name: "Mathildenhöhe",
+        address: "Olbrichweg 15, 64287 Darmstadt",
+        lat: 49.876511,
+        lon: 8.668889
+    },
+    {
+        name: "Stadion am Böllenfalltor",
+        address: "Nieder-Ramstädter-Straße 170, 64285 Darmstadt",
+        lat: 49.857701,
+        lon: 8.672349
+    },
+    {
+        name: "Ludwigsturm",
+        address: "Auf der Ludwigshöhe, 64285 Darmstadt",
+        lat: 49.84311,
+        lon: 8.66091
+    }
+];
+
 function getTodayKey() {
     const now = new Date();
 
@@ -1133,7 +1199,33 @@ function incrementRouteSearchCount() {
 }
 
 function updateRouteSearchButton() {
-    routeSearchCountElement.textContent = routeSearchCount;
+    routeSearchCountElement.textContent = "(" + (routeSearchCount + 1) + ")";
+}
+
+function showMockRouteCandidates() {
+
+    routeCandidates.innerHTML = "";
+
+    mockRouteCandidates.forEach(candidate => {
+
+        const item = document.createElement("div");
+
+        item.className = "route-candidate";
+
+        item.innerHTML = `
+            <div class="route-candidate-name">
+                ${candidate.name}
+            </div>
+            <div class="route-candidate-address">
+                ${candidate.address}
+            </div>
+        `;
+
+        routeCandidates.appendChild(item);
+
+    });
+
+    routeCandidates.style.display = "block";
 }
 
 loadRouteSearchCount();
@@ -1157,6 +1249,8 @@ btnRouteSearch.addEventListener("click", () => {
     updateRouteSearchButton();
 
     btnRouteSearch.style.display = "none";
+
+    showMockRouteCandidates();
 
 });
 
