@@ -660,6 +660,12 @@ html, body {
     display: flex;
     align-items: center;
     justify-content: center;
+    white-space: nowrap;
+}
+
+#routeSearchCount {
+    font-size: 12px;
+    white-space: nowrap;
 }
 
 .route-button-bar {
@@ -751,7 +757,7 @@ html, body {
                     >
 
                     <button id="btnRouteSearch" type="button">
-                        &#128269; (<span id="routeSearchCount">0</span>)
+                        &#128269; <span id="routeSearchCount">(0)</span>
                     </button>
 
                 </div>
@@ -1132,6 +1138,18 @@ function updateRouteSearchButton() {
 
 loadRouteSearchCount();
 updateRouteSearchButton();
+
+btnRouteSearch.style.display = "none";
+
+routeInput.addEventListener("input", () => {
+
+    if (routeInput.value.trim().length > 3) {
+        btnRouteSearch.style.display = "flex";
+    } else {
+        btnRouteSearch.style.display = "none";
+    }
+
+});
 
 btnRouteSearch.addEventListener("click", () => {
 
