@@ -631,9 +631,35 @@ html, body {
     box-sizing: border-box;
     display: flex;
     align-items: center;
-    padding: 0 12px;
-    color: #555;
+    padding: 0 8px 0 12px;
+}
+
+#routeInput {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    border: none;
+    outline: none;
+    background: transparent;
     font-size: 15px;
+    color: #555;
+}
+
+#routeInput::placeholder {
+    color: #888;
+}
+
+#btnRouteSearch {
+    width: 38px;
+    height: 38px;
+    border: none;
+    border-radius: 7px;
+    background: transparent;
+    font-size: 21px;
+    color: #555;
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 
 .route-button-bar {
@@ -652,6 +678,7 @@ html, body {
     background: rgba(255,255,255,0.92);
     font-size: 16px;
     font-weight: 600;
+    display: none;
 }
 
 #btnRouteCancel {
@@ -714,13 +741,18 @@ html, body {
 
                 <div class="route-input-title"></div>
 
-                <input
-                    id="routeInput"
-                    class="route-input-row"
-                    type="text"
-                    placeholder="Ort, Adresse oder PLZ eingeben ..."
-                    autocomplete="off"
-                >
+                <div class="route-input-row">
+
+                    <input
+                        id="routeInput"
+                        type="text"
+                        placeholder="Ort, Adresse oder PLZ eingeben ..."
+                        autocomplete="off"
+                    >
+
+                    <button id="btnRouteSearch" type="button">&#128269;</button>
+
+                </div>
 
             </div>
 
