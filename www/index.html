@@ -750,7 +750,9 @@ html, body {
                         autocomplete="off"
                     >
 
-                    <button id="btnRouteSearch" type="button">&#128269;</button>
+                    <button id="btnRouteSearch" type="button">
+                        &#128269; (<span id="routeSearchCount">0</span>)
+                    </button>
 
                 </div>
 
@@ -1077,6 +1079,68 @@ const routeTargetCircle = document.getElementById("routeTargetCircle");
 const routeInputTitle = document.querySelector(".route-input-title");
 
 let activeRoutePoint = null;
+let routeSearchCount = 0;
+
+const routeInput = document.getElementById("routeInput");
+const btnRouteSearch = document.getElementById("btnRouteSearch");
+const routeSearchCountElement =
+    document.getElementById("routeSearchCount");
+
+function getTodayKey() {
+    const now = new Date();
+
+    return [
+        now.getFullYear(),
+        String(now.getMonth() + 1).padStart(2, "0"),
+        String(now.getDate()).padStart(2, "0")
+    ].join("-");
+}
+
+function loadRouteSearchCount() {
+
+    const today = getTodayKey();
+    const savedDate = localStorage.getItem("bikehello_route_search_date");
+    const savedCount = localStorage.getItem("bikehello_route_search_count");
+
+    if (savedDate === today) {
+        routeSearchCount = Number(savedCount) || 0;
+    } else {
+        routeSearchCount = 0;
+        localStorage.setItem("bikehello_route_search_date", today);
+        localStorage.setItem("bikehello_route_search_count", "0");
+    }
+}
+
+function incrementRouteSearchCount() {
+
+    routeSearchCount++;
+
+    localStorage.setItem(
+        "bikehello_route_search_date",
+        getTodayKey()
+    );
+
+    localStorage.setItem(
+        "bikehello_route_search_count",
+        String(routeSearchCount)
+    );
+}
+
+function updateRouteSearchButton() {
+    routeSearchCountElement.textContent = routeSearchCount;
+}
+
+loadRouteSearchCount();
+updateRouteSearchButton();
+
+btnRouteSearch.addEventListener("click", () => {
+
+    incrementRouteSearchCount();
+    updateRouteSearchButton();
+
+    btnRouteSearch.style.display = "none";
+
+});
 
 routeStartCircle.addEventListener("click", () => {
     activeRoutePoint = "start";
