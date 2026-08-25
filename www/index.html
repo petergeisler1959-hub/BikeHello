@@ -715,9 +715,13 @@ html, body {
 
                 <div class="route-input-title"></div>
 
-                <div class="route-input-row">
-                    Position eingeben ...
-                </div>
+                <input
+                    id="routeInput"
+                    class="route-input-row"
+                    type="text"
+                    placeholder="Ort, Adresse oder PLZ eingeben ..."
+                    autocomplete="off"
+                >
 
             </div>
 
@@ -1046,11 +1050,15 @@ let activeRoutePoint = null;
 routeStartCircle.addEventListener("click", () => {
     activeRoutePoint = "start";
     routeInputTitle.textContent = "START suchen";
+    routeInput.value = "";
+    routeInput.focus();
 });
 
 routeTargetCircle.addEventListener("click", () => {
     activeRoutePoint = "target";
     routeInputTitle.textContent = "ZIEL suchen";
+    routeInput.value = "";
+    routeInput.focus();
 });
 
 btnView.classList.remove("disabled");
