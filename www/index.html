@@ -612,7 +612,8 @@ html, body {
     background: rgba(255,255,255,0.92);
     box-sizing: border-box;
     padding: 12px 18px;
-    margin-top: 10px;
+    margin-top: 22px;
+    display: none;
 }
 
 .route-input-title {
@@ -717,7 +718,6 @@ html, body {
     background: rgba(255,255,255,0.92);
     font-size: 16px;
     font-weight: 600;
-    display: none;
 }
 
 #btnRouteCancel {
@@ -1124,6 +1124,8 @@ let routeSearchCount = 0;
 
 const routeInput = document.getElementById("routeInput");
 const btnRouteSearch = document.getElementById("btnRouteSearch");
+const btnRouteList = document.getElementById("btnRouteList");
+const btnRouteCancel = document.getElementById("btnRouteCancel");
 const routeSearchCountElement =
     document.getElementById("routeSearchCount");
 
@@ -1259,8 +1261,11 @@ btnRouteSearch.addEventListener("click", () => {
 
 });
 
+const routeInputPanel = document.querySelector(".route-input-panel");
+
 routeStartCircle.addEventListener("click", () => {
     activeRoutePoint = "start";
+    routeInputPanel.style.display = "block";
     routeInputTitle.textContent = "START suchen";
     routeInput.value = "";
     routeInput.focus();
@@ -1268,9 +1273,18 @@ routeStartCircle.addEventListener("click", () => {
 
 routeTargetCircle.addEventListener("click", () => {
     activeRoutePoint = "target";
+    routeInputPanel.style.display = "block";
     routeInputTitle.textContent = "ZIEL suchen";
     routeInput.value = "";
     routeInput.focus();
+});
+
+btnRouteCancel.addEventListener("click", () => {
+    routeInputPanel.style.display = "none";
+});
+
+btnRouteList.addEventListener("click", () => {
+    routeInputPanel.style.display = "none";
 });
 
 btnView.classList.remove("disabled");
