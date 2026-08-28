@@ -1,5 +1,11 @@
 {
   "appId": "com.peter.bikehello",
   "appName": "BikeHello",
-  "webDir": "www"
+  "webDir": "www",
+  "packageClassList": [],
+  "plugins": {
+    "Keyboard": {
+      "resize": "none"
+    }
+  }
 }
