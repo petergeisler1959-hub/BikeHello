@@ -5,10 +5,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
   <title>BikeHello</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+
+  <link rel="stylesheet"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
   <style>
-    :root { color-scheme: light; }
+
+    :root {
+      color-scheme: light;
+    }
 
     * {
       box-sizing: border-box;
@@ -32,6 +37,7 @@
       font: inherit;
     }
 
+
     /* =========================================================
        SCREENS
        ========================================================= */
@@ -46,6 +52,7 @@
     .screen.is-active {
       display: flex;
     }
+
 
     /* =========================================================
        COCKPIT
@@ -194,14 +201,10 @@
       transform-origin: center;
     }
 
+
     /* =========================================================
        ROUTE SCREEN
        ========================================================= */
-
-    /*
-       Die Routing-Funktion ist jetzt eine eigene Seite.
-       Das Cockpit wird beim Öffnen ausgeblendet.
-    */
 
     #routeScreen {
       position: relative;
@@ -217,41 +220,34 @@
         env(safe-area-inset-bottom);
     }
 
+
+    /* ---------------------------------------------------------
+       HEADER
+       --------------------------------------------------------- */
+
     .route-page-header {
       flex: none;
 
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      justify-content: center;
 
-      min-height: 64px;
-      gap: 14px;
+      min-height: 46px;
     }
 
     .route-page-title {
       margin: 0;
-      color: #444;
-      font-size: 22px;
-    }
 
-    .text-button {
-      min-height: 42px;
-      padding: 0 14px;
-
-      border: 1px solid #aaa;
-      border-radius: 9px;
-
-      background: #fff;
       color: #444;
 
-      font-weight: 700;
-      cursor: pointer;
+      font-size: 21px;
+      font-weight: 600;
     }
 
-    /*
-       Nur dieser Bereich scrollt.
-       Header und untere Buttonleiste bleiben stehen.
-    */
+
+    /* ---------------------------------------------------------
+       BODY
+       --------------------------------------------------------- */
 
     .route-page-body {
       flex: 1;
@@ -260,8 +256,9 @@
       overflow-y: auto;
       overscroll-behavior: contain;
 
-      padding: 8px 0 24px;
+      padding: 0 0 6px;
     }
+
 
     /* =========================================================
        START / ZIEL
@@ -275,13 +272,7 @@
       width: 100%;
       max-width: 600px;
 
-      margin: 0 auto;
-
-      /*
-         Abstand zwischen START/ZIEL und Eingabeblock.
-         Dieser Wert kann später separat verändert werden.
-      */
-      margin-bottom: 45px;
+      margin: 0 auto 18px;
     }
 
     .route-point {
@@ -290,23 +281,42 @@
 
       flex-direction: column;
       align-items: center;
-
-      gap: 7px;
     }
 
+
+    /*
+       DIE KREISE
+
+       Vor Auswahl:
+       - weiß
+       - Marker
+       - START / ZIEL
+
+       Nach Auswahl:
+       - Mini-Karte
+       - Positionspunkt
+       - Name
+    */
+
     .route-point-circle {
+      position: relative;
+
       display: flex;
       align-items: center;
       justify-content: center;
-      flex-direction: column;
 
-      width: clamp(100px, 27vw, 120px);
-      height: clamp(100px, 27vw, 120px);
+      width: clamp(96px, 25vw, 112px);
+      height: clamp(96px, 25vw, 112px);
+
+      padding: 0;
+
+      overflow: hidden;
 
       border: 2px solid rgba(80,80,80,.55);
       border-radius: 50%;
 
       background: rgba(255,255,255,.92);
+
       color: #555;
 
       cursor: pointer;
@@ -317,9 +327,72 @@
       outline-offset: 3px;
     }
 
+
+    /* ---------------------------------------------------------
+       MINI MAP
+       --------------------------------------------------------- */
+
+    .route-mini-map {
+      position: absolute;
+
+      inset: 0;
+
+      width: 100%;
+      height: 100%;
+
+      border-radius: 50%;
+
+      overflow: hidden;
+
+      opacity: 0;
+
+      pointer-events: none;
+    }
+
+    .route-point-circle.has-location
+    .route-mini-map {
+      opacity: 1;
+    }
+
+
+    /* ---------------------------------------------------------
+       KREIS-INHALT
+       --------------------------------------------------------- */
+
+    .route-circle-content {
+      position: relative;
+      z-index: 10;
+
+      display: flex;
+
+      flex-direction: column;
+
+      align-items: center;
+      justify-content: center;
+
+      width: 100%;
+      height: 100%;
+
+      padding: 8px;
+
+      border-radius: 50%;
+
+      background: rgba(255,255,255,.88);
+    }
+
+    .route-point-circle.has-location
+    .route-circle-content {
+      background: rgba(255,255,255,.20);
+    }
+
+
+    /* ---------------------------------------------------------
+       START/ZIEL MARKER
+       --------------------------------------------------------- */
+
     .route-marker {
-      width: 22px;
-      height: 22px;
+      width: 21px;
+      height: 21px;
 
       border-radius: 50% 50% 50% 0;
 
@@ -334,36 +407,84 @@
       background: #3aaa35;
     }
 
+
+    /* ---------------------------------------------------------
+       TEXT IM KREIS
+       --------------------------------------------------------- */
+
     .route-point-text {
-      margin-top: 7px;
-      font-size: 17px;
+      margin-top: 6px;
+
+      font-size: 16px;
       font-weight: 700;
+
+      text-align: center;
+
+      text-shadow:
+        0 1px 2px rgba(255,255,255,.9);
     }
 
-    .route-point-label {
-      color: #666;
-      font-size: 13px;
+    /*
+       Nach Auswahl wird der Kandidatenname angezeigt.
+       Etwas kleiner, damit auch längere Namen passen.
+    */
+
+    .route-selected-name {
+      display: none;
+
+      max-width: 88%;
+
+      margin-top: 5px;
+
+      color: #444;
+
+      font-size: 12px;
+      line-height: 1.15;
+
       font-weight: 700;
-      letter-spacing: .4px;
+
+      text-align: center;
+
+      text-shadow:
+        0 1px 2px rgba(255,255,255,.95);
     }
+
+    .route-point-circle.has-location
+    .route-selected-name {
+      display: block;
+    }
+
+    .route-point-circle.has-location
+    .route-point-text {
+      display: none;
+    }
+
+
+    /* ---------------------------------------------------------
+       BLAUE VERBINDUNG
+       --------------------------------------------------------- */
 
     .route-connection {
       flex: 1;
 
-      max-width: 160px;
-      min-width: 30px;
+      max-width: 150px;
+      min-width: 25px;
 
-      height: 6px;
+      height: 5px;
 
-      margin: 0 10px 23px;
+      margin:
+        0
+        9px
+        0;
 
       border-radius: 3px;
 
       background: #2f6fed;
     }
 
+
     /* =========================================================
-       ROUTE INPUT
+       INPUT PANEL
        ========================================================= */
 
     .route-input-panel {
@@ -373,12 +494,17 @@
       max-width: 600px;
 
       margin: 0 auto;
-      padding: 16px;
 
-      border: 1px solid rgba(120,120,120,.45);
+      padding: 9px 12px;
+
+      border:
+        1px solid
+        rgba(120,120,120,.45);
+
       border-radius: 12px;
 
-      background: rgba(255,255,255,.95);
+      background:
+        rgba(255,255,255,.95);
     }
 
     .route-input-panel.is-open {
@@ -386,10 +512,11 @@
     }
 
     .route-input-title {
-      margin-bottom: 12px;
+      margin-bottom: 5px;
 
       color: #666;
-      font-size: 17px;
+
+      font-size: 14px;
       font-weight: 700;
     }
 
@@ -397,26 +524,31 @@
       display: flex;
       align-items: center;
 
-      min-height: 48px;
+      min-height: 40px;
 
-      border: 1px solid #bbb;
+      border:
+        1px solid
+        #bbb;
+
       border-radius: 8px;
 
       background: #fff;
 
-      padding-left: 12px;
+      padding-left: 10px;
     }
 
     #routeInput {
       flex: 1;
+
       min-width: 0;
 
-      height: 46px;
+      height: 38px;
 
       border: 0;
       outline: 0;
 
       color: #444;
+
       background: transparent;
     }
 
@@ -425,15 +557,17 @@
 
       flex: none;
 
-      width: 48px;
-      height: 40px;
+      width: 44px;
+      height: 34px;
 
-      margin-right: 4px;
+      margin-right: 3px;
 
       border: 0;
+
       border-radius: 7px;
 
       background: #eaf2ff;
+
       color: #2455a7;
 
       cursor: pointer;
@@ -443,8 +577,9 @@
       display: block;
     }
 
+
     /* =========================================================
-       ROUTE CANDIDATES
+       KANDIDATEN
        ========================================================= */
 
     #routeCandidates {
@@ -453,7 +588,7 @@
       width: 100%;
       max-width: 600px;
 
-      margin: 14px auto 0;
+      margin: 7px auto 0;
     }
 
     #routeCandidates.is-visible {
@@ -463,15 +598,20 @@
     .route-candidate {
       width: 100%;
 
-      margin-bottom: 7px;
-      padding: 11px 12px;
+      margin-bottom: 4px;
 
-      border: 1px solid #bbb;
+      padding: 7px 10px;
+
+      border:
+        1px solid
+        #bbb;
+
       border-radius: 8px;
 
       background: #fff;
 
       cursor: pointer;
+
       text-align: left;
     }
 
@@ -479,53 +619,156 @@
       display: block;
 
       color: #555;
-      font-size: 16px;
+
+      font-size: 15px;
+      line-height: 1.15;
+
       font-weight: 700;
     }
 
     .route-candidate-address {
       display: block;
 
-      margin-top: 3px;
+      margin-top: 1px;
 
       color: #777;
-      font-size: 13px;
+
+      font-size: 12px;
+      line-height: 1.15;
     }
 
-    /* =========================================================
-       ROUTE BOTTOM BAR
-       ========================================================= */
+    .route-candidate:active {
+      background: #f0f5ff;
+    }
 
-    /*
-       Die Buttonleiste ist unabhängig vom Body.
-       Sie bleibt deshalb unten, auch wenn der Body scrollt.
-    */
+
+    /* =========================================================
+       BOTTOM BUTTONS
+       ========================================================= */
 
     .route-page-actions {
       flex: none;
 
       display: flex;
+
       justify-content: center;
 
-      gap: 12px;
+      width: 100%;
+      max-width: 600px;
 
-      padding: 12px 0 6px;
+      margin: 0 auto;
+
+      gap: 10px;
+
+      padding:
+        15px
+        0
+        6px;
 
       background: #f8faf8;
     }
 
     .route-page-actions button {
-      min-width: 145px;
+      flex: 1;
+
+      min-width: 0;
+
+      min-height: 46px;
+
+      font-size: 16px;
     }
+
+
+    /* ---------------------------------------------------------
+       ROUTENLISTE
+       --------------------------------------------------------- */
+
+    #btnRouteList {
+      border-color:
+        rgba(47,111,237,.45);
+
+      background:
+        #eef4ff;
+
+      color:
+        #285aa8;
+    }
+
+
+    /* ---------------------------------------------------------
+       CANCEL
+       --------------------------------------------------------- */
+
+    #btnRouteCancel {
+      border-color:
+        rgba(190,70,70,.40);
+
+      background:
+        #fff1f1;
+
+      color:
+        #a04444;
+    }
+
+
+    /* =========================================================
+       MINI-MAP MARKER
+       ========================================================= */
+
+    .route-mini-map
+    .leaflet-control-attribution {
+      font-size: 6px;
+      line-height: 8px;
+
+      background:
+        rgba(255,255,255,.65);
+    }
+
+    .route-mini-marker {
+      width: 14px;
+      height: 14px;
+
+      border: 2px solid #fff;
+
+      border-radius: 50%;
+
+      background: #d9534f;
+
+      box-shadow:
+        0 1px 4px
+        rgba(0,0,0,.55);
+    }
+
+    .route-mini-marker.target {
+      background: #3aaa35;
+    }
+
+
+    /* =========================================================
+       SMALL SCREENS
+       ========================================================= */
 
     @media (max-width: 370px) {
 
-      .route-page-actions button {
-        min-width: 0;
-        flex: 1;
+      .route-point-circle {
+        width: 92px;
+        height: 92px;
       }
 
+      .route-connection {
+        margin-left: 6px;
+        margin-right: 6px;
+      }
+
+      .route-page-actions {
+        gap: 8px;
+      }
+
+      .route-page-actions button {
+        font-size: 15px;
+      }
     }
+
   </style>
 
 </head>
@@ -536,12 +779,16 @@
        COCKPIT
        ========================================================= -->
 
-  <main id="cockpitScreen" class="screen is-active">
+  <main
+    id="cockpitScreen"
+    class="screen is-active"
+  >
 
 ```
 <div id="mapWrapper">
   <div id="map"></div>
 </div>
+
 
 <section id="bottomPanel">
 
@@ -549,72 +796,161 @@
 
     <div class="vital-item">
       <span class="vital-label">Speed</span>
-      <span class="vital-value" id="vSpeed">22.5 km/h</span>
+      <span
+        class="vital-value"
+        id="vSpeed"
+      >
+        22.5 km/h
+      </span>
     </div>
 
     <div class="vital-item">
       <span class="vital-label">Altitude</span>
-      <span class="vital-value" id="vAltitude">236 m</span>
+      <span
+        class="vital-value"
+        id="vAltitude"
+      >
+        236 m
+      </span>
     </div>
 
     <div class="vital-item">
       <span class="vital-label">Distance</span>
+
       <span class="vital-value">
-        <span id="vDistLeft">38.8</span>
-        <span class="secondary-value" id="vDistTotal">(52.3)</span>
+
+        <span id="vDistLeft">
+          38.8
+        </span>
+
+        <span
+          class="secondary-value"
+          id="vDistTotal"
+        >
+          (52.3)
+        </span>
+
       </span>
     </div>
 
     <div class="vital-item">
       <span class="vital-label">Time</span>
+
       <span class="vital-value">
-        <span id="vTimeLeft">3:50</span>
-        <span class="secondary-value" id="vTimeTotal">(5:12)</span>
+
+        <span id="vTimeLeft">
+          3:50
+        </span>
+
+        <span
+          class="secondary-value"
+          id="vTimeTotal"
+        >
+          (5:12)
+        </span>
+
       </span>
     </div>
 
   </div>
 
+
   <div id="sensorBottom">
 
     <div class="sensor-item">
       <span class="sensor-label">Power</span>
-      <span class="sensor-value">245 W</span>
+      <span class="sensor-value">
+        245 W
+      </span>
     </div>
 
     <div class="sensor-item">
       <span class="sensor-label">Battery</span>
-      <span class="sensor-value">67 %</span>
+      <span class="sensor-value">
+        67 %
+      </span>
     </div>
 
     <div class="sensor-item">
       <span class="sensor-label">Range</span>
-      <span class="sensor-value">54 km</span>
+      <span class="sensor-value">
+        54 km
+      </span>
     </div>
 
   </div>
 
 </section>
 
-<nav id="controlBar" aria-label="Bedienung">
+
+<nav
+  id="controlBar"
+  aria-label="Bedienung"
+>
 
   <div class="control-group">
-    <span class="control-label">ROUTE</span>
-    <button id="btnNewRoute" class="button" type="button">New</button>
-  </div>
 
-  <div class="control-group">
-    <span class="control-label">STATUS</span>
+    <span class="control-label">
+      ROUTE
+    </span>
 
-    <button id="btnToggle" class="button disabled" type="button">
-      <span id="iconGo" class="status-bike">🚴</span>
-      <span id="iconBreak" class="status-bike" hidden>🚲</span>
+    <button
+      id="btnNewRoute"
+      class="button"
+      type="button"
+    >
+      New
     </button>
+
   </div>
 
+
   <div class="control-group">
-    <span class="control-label">MAP</span>
-    <button id="btnView" class="button" type="button">Zoom</button>
+
+    <span class="control-label">
+      STATUS
+    </span>
+
+    <button
+      id="btnToggle"
+      class="button disabled"
+      type="button"
+    >
+
+      <span
+        id="iconGo"
+        class="status-bike"
+      >
+        🚴
+      </span>
+
+      <span
+        id="iconBreak"
+        class="status-bike"
+        hidden
+      >
+        🚲
+      </span>
+
+    </button>
+
+  </div>
+
+
+  <div class="control-group">
+
+    <span class="control-label">
+      MAP
+    </span>
+
+    <button
+      id="btnView"
+      class="button"
+      type="button"
+    >
+      Zoom
+    </button>
+
   </div>
 
 </nav>
@@ -623,10 +959,14 @@
   </main>
 
   <!-- =========================================================
-       ROUTE SEITE
+       ROUTE SCREEN
        ========================================================= -->
 
-  <main id="routeScreen" class="screen" aria-label="Route planen">
+  <main
+    id="routeScreen"
+    class="screen"
+    aria-label="Route planen"
+  >
 
 ```
 <header class="route-page-header">
@@ -635,22 +975,21 @@
     Neue Route
   </h1>
 
-  <button
-    id="btnRouteBack"
-    class="text-button"
-    type="button"
-  >
-    Zurück
-  </button>
-
 </header>
+
 
 
 <div class="route-page-body">
 
-  <!-- START / ZIEL -->
+
+  <!-- =====================================================
+       START / ZIEL
+       ===================================================== -->
 
   <div class="route-definition">
+
+
+    <!-- START -->
 
     <div class="route-point">
 
@@ -660,22 +999,46 @@
         type="button"
         aria-label="Start eingeben"
       >
-        <span class="route-marker start-marker"></span>
-        <span class="route-point-text">START</span>
-      </button>
 
-      <span class="route-point-label">
-        START
-      </span>
+        <div
+          id="routeStartMiniMap"
+          class="route-mini-map"
+        ></div>
+
+
+        <div class="route-circle-content">
+
+          <span
+            class="route-marker start-marker"
+          ></span>
+
+          <span class="route-point-text">
+            START
+          </span>
+
+          <span
+            id="routeStartName"
+            class="route-selected-name"
+          ></span>
+
+        </div>
+
+      </button>
 
     </div>
 
+
+
+    <!-- VERBINDUNG -->
 
     <div
       class="route-connection"
       aria-hidden="true"
     ></div>
 
+
+
+    <!-- ZIEL -->
 
     <div class="route-point">
 
@@ -685,20 +1048,41 @@
         type="button"
         aria-label="Ziel eingeben"
       >
-        <span class="route-marker target-marker"></span>
-        <span class="route-point-text">ZIEL</span>
-      </button>
 
-      <span class="route-point-label">
-        ZIEL
-      </span>
+        <div
+          id="routeTargetMiniMap"
+          class="route-mini-map"
+        ></div>
+
+
+        <div class="route-circle-content">
+
+          <span
+            class="route-marker target-marker"
+          ></span>
+
+          <span class="route-point-text">
+            ZIEL
+          </span>
+
+          <span
+            id="routeTargetName"
+            class="route-selected-name"
+          ></span>
+
+        </div>
+
+      </button>
 
     </div>
 
   </div>
 
 
-  <!-- EINGABE -->
+
+  <!-- =====================================================
+       INPUT
+       ===================================================== -->
 
   <section
     id="routeInputPanel"
@@ -711,6 +1095,7 @@
       class="route-input-title"
     ></div>
 
+
     <div class="route-input-row">
 
       <input
@@ -720,12 +1105,15 @@
         autocomplete="off"
       >
 
+
       <button
         id="btnRouteSearch"
         type="button"
       >
         🔎
-        <span id="routeSearchCount">(1)</span>
+        <span id="routeSearchCount">
+          (1)
+        </span>
       </button>
 
     </div>
@@ -733,14 +1121,21 @@
   </section>
 
 
-  <!-- KANDIDATEN -->
+
+  <!-- =====================================================
+       KANDIDATEN
+       ===================================================== -->
 
   <div id="routeCandidates"></div>
+
 
 </div>
 
 
-<!-- UNTERE BUTTONLEISTE -->
+
+<!-- =======================================================
+     BOTTOM BUTTONS
+     ======================================================= -->
 
 <footer class="route-page-actions">
 
@@ -751,6 +1146,7 @@
   >
     ROUTENLISTE
   </button>
+
 
   <button
     id="btnRouteCancel"
@@ -769,7 +1165,9 @@
        LEAFLET
        ========================================================= -->
 
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script
+    src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js">
+  </script>
 
   <!-- =========================================================
        JAVASCRIPT
@@ -777,7 +1175,9 @@
 
   <script type="module">
 
-    import { registerPlugin } from "./capacitor-core.js";
+    import {
+      registerPlugin
+    } from "./capacitor-core.js";
 
 
     /* =========================================================
@@ -785,37 +1185,59 @@
        ========================================================= */
 
     const cockpitScreen =
-      document.getElementById("cockpitScreen");
+      document.getElementById(
+        "cockpitScreen"
+      );
 
     const routeScreen =
-      document.getElementById("routeScreen");
+      document.getElementById(
+        "routeScreen"
+      );
 
     const btnNewRoute =
-      document.getElementById("btnNewRoute");
+      document.getElementById(
+        "btnNewRoute"
+      );
 
     const btnView =
-      document.getElementById("btnView");
+      document.getElementById(
+        "btnView"
+      );
 
     const btnToggle =
-      document.getElementById("btnToggle");
+      document.getElementById(
+        "btnToggle"
+      );
 
     const routeInputPanel =
-      document.getElementById("routeInputPanel");
+      document.getElementById(
+        "routeInputPanel"
+      );
 
     const routeInputTitle =
-      document.getElementById("routeInputTitle");
+      document.getElementById(
+        "routeInputTitle"
+      );
 
     const routeInput =
-      document.getElementById("routeInput");
+      document.getElementById(
+        "routeInput"
+      );
 
     const routeCandidates =
-      document.getElementById("routeCandidates");
+      document.getElementById(
+        "routeCandidates"
+      );
 
     const btnRouteSearch =
-      document.getElementById("btnRouteSearch");
+      document.getElementById(
+        "btnRouteSearch"
+      );
 
     const routeSearchCountElement =
-      document.getElementById("routeSearchCount");
+      document.getElementById(
+        "routeSearchCount"
+      );
 
 
     /* =========================================================
@@ -823,6 +1245,7 @@
        ========================================================= */
 
     let activeRoutePoint = null;
+
     let routeSearchCount = 0;
 
     let routeAvailable = false;
@@ -831,15 +1254,22 @@
 
     let mapView = "Zoom";
 
+    let selectedStart = null;
+
+    let selectedTarget = null;
+
 
     /* =========================================================
-       MAP
+       HAUPTKARTE
        ========================================================= */
 
     const map =
-      L.map("map", {
-        zoomControl: false
-      }).setView(
+      L.map(
+        "map",
+        {
+          zoomControl: false
+        }
+      ).setView(
         [20, 0],
         2
       );
@@ -858,15 +1288,19 @@
       "load",
       () =>
         setTimeout(
-          () => map.invalidateSize(true),
+          () =>
+            map.invalidateSize(true),
           100
         )
     );
 
 
     let gpsMarker = null;
+
     let lastGpsData = null;
+
     let mapCenteredOnGps = false;
+
     let testRouteLine = null;
 
 
@@ -889,7 +1323,182 @@
 
 
     /* =========================================================
-       ROUTE SEITE ÖFFNEN / SCHLIESSEN
+       MINI-KARTEN
+       ========================================================= */
+
+    let startMiniMap = null;
+
+    let targetMiniMap = null;
+
+
+    function createMiniMap(
+      elementId
+    ) {
+
+      const miniMap =
+        L.map(
+          elementId,
+          {
+            zoomControl: false,
+            attributionControl: false,
+
+            dragging: false,
+            touchZoom: false,
+            scrollWheelZoom: false,
+            doubleClickZoom: false,
+            boxZoom: false,
+            keyboard: false,
+            tap: false
+          }
+        );
+
+
+      L.tileLayer(
+        "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+        {
+          maxZoom: 19,
+          attribution: "© OSM"
+        }
+      ).addTo(miniMap);
+
+
+      return miniMap;
+    }
+
+
+    function showMiniMap(
+      point,
+      position,
+      name
+    ) {
+
+      const circle =
+        document.getElementById(
+          point === "start"
+            ? "routeStartCircle"
+            : "routeTargetCircle"
+        );
+
+
+      const nameElement =
+        document.getElementById(
+          point === "start"
+            ? "routeStartName"
+            : "routeTargetName"
+        );
+
+
+      let miniMap;
+
+
+      if (point === "start") {
+
+        if (!startMiniMap) {
+
+          startMiniMap =
+            createMiniMap(
+              "routeStartMiniMap"
+            );
+
+        }
+
+        miniMap = startMiniMap;
+
+      } else {
+
+        if (!targetMiniMap) {
+
+          targetMiniMap =
+            createMiniMap(
+              "routeTargetMiniMap"
+            );
+
+        }
+
+        miniMap = targetMiniMap;
+
+      }
+
+
+      nameElement.textContent =
+        name;
+
+
+      circle.classList.add(
+        "has-location"
+      );
+
+
+      miniMap.invalidateSize(
+        true
+      );
+
+
+      miniMap.setView(
+        position,
+        15,
+        {
+          animate: false
+        }
+      );
+
+
+      /*
+         Alte Marker entfernen.
+      */
+
+      miniMap.eachLayer(
+        layer => {
+
+          if (
+            layer instanceof L.Marker
+          ) {
+
+            miniMap.removeLayer(
+              layer
+            );
+
+          }
+
+        }
+      );
+
+
+      const markerIcon =
+        L.divIcon({
+          className: "",
+
+          html:
+            `<div class="route-mini-marker ${point === "target" ? "target" : ""}"></div>`,
+
+          iconSize: [14, 14],
+
+          iconAnchor: [7, 7]
+        });
+
+
+      L.marker(
+        position,
+        {
+          icon: markerIcon
+        }
+      ).addTo(
+        miniMap
+      );
+
+
+      setTimeout(
+        () =>
+          miniMap.invalidateSize(
+            true
+          ),
+        100
+      );
+    }
+
+
+    /* =========================================================
+       ROUTE SCREEN
        ========================================================= */
 
     function showRoutePage() {
@@ -902,9 +1511,6 @@
         "is-active"
       );
 
-      routeScreen
-        .querySelector("#routeStartCircle")
-        .focus();
     }
 
 
@@ -912,28 +1518,46 @@
 
       routeInput.blur();
 
+
+      routeInputPanel.classList.remove(
+        "is-open"
+      );
+
+
+      routeCandidates.classList.remove(
+        "is-visible"
+      );
+
+
       routeScreen.classList.remove(
         "is-active"
       );
+
 
       cockpitScreen.classList.add(
         "is-active"
       );
 
+
       requestAnimationFrame(
         () =>
-          map.invalidateSize(true)
+          map.invalidateSize(
+            true
+          )
       );
     }
 
 
     /* =========================================================
-       START / ZIEL ÖFFNEN
+       START / ZIEL
        ========================================================= */
 
-    function openPoint(point) {
+    function openPoint(
+      point
+    ) {
 
       activeRoutePoint = point;
+
 
       routeInputTitle.textContent =
         point === "start"
@@ -943,21 +1567,18 @@
 
       routeInput.value = "";
 
+
       routeInputPanel.classList.add(
         "is-open"
       );
+
 
       routeCandidates.classList.remove(
         "is-visible"
       );
 
 
-      /*
-         Eingabebereich sichtbar machen.
-         Keine transform-Lösung.
-      */
-
-      routeInputPanel.scrollIntoView({
+      routeInput.scrollIntoView({
         block: "center",
         behavior: "smooth"
       });
@@ -966,22 +1587,29 @@
       routeInput.focus({
         preventScroll: true
       });
+
     }
 
 
     document
-      .getElementById("routeStartCircle")
+      .getElementById(
+        "routeStartCircle"
+      )
       .addEventListener(
         "click",
-        () => openPoint("start")
+        () =>
+          openPoint("start")
       );
 
 
     document
-      .getElementById("routeTargetCircle")
+      .getElementById(
+        "routeTargetCircle"
+      )
       .addEventListener(
         "click",
-        () => openPoint("target")
+        () =>
+          openPoint("target")
       );
 
 
@@ -999,19 +1627,13 @@
 
 
     /* =========================================================
-       ZURÜCK / CANCEL
+       CANCEL
        ========================================================= */
 
     document
-      .getElementById("btnRouteBack")
-      .addEventListener(
-        "click",
-        closeRoutePage
-      );
-
-
-    document
-      .getElementById("btnRouteCancel")
+      .getElementById(
+        "btnRouteCancel"
+      )
       .addEventListener(
         "click",
         closeRoutePage
@@ -1023,7 +1645,9 @@
        ========================================================= */
 
     document
-      .getElementById("btnRouteList")
+      .getElementById(
+        "btnRouteList"
+      )
       .addEventListener(
         "click",
         () => {
@@ -1051,6 +1675,7 @@
       return new Date()
         .toISOString()
         .slice(0, 10);
+
     }
 
 
@@ -1084,6 +1709,7 @@
 
       routeSearchCountElement.textContent =
         `(${routeSearchCount + 1})`;
+
     }
 
 
@@ -1091,7 +1717,7 @@
 
 
     /* =========================================================
-       SUCHEINGABE
+       INPUT
        ========================================================= */
 
     routeInput.addEventListener(
@@ -1108,41 +1734,51 @@
 
 
     /* =========================================================
-       FESTE TESTKANDIDATEN
+       TESTKANDIDATEN
        ========================================================= */
 
     const candidates = [
 
       [
         "Luisenplatz",
-        "Luisenplatz 5, 64283 Darmstadt"
+        "Luisenplatz 5, 64283 Darmstadt",
+        49.8721,
+        8.6512
       ],
 
       [
         "Darmstadt Hbf",
-        "Am Hauptbahnhof, 64293 Darmstadt"
+        "Am Hauptbahnhof, 64293 Darmstadt",
+        49.8728,
+        8.6298
       ],
 
       [
         "Mathildenhöhe",
-        "Olbrichweg 15, 64287 Darmstadt"
+        "Olbrichweg 15, 64287 Darmstadt",
+        49.8755,
+        8.6684
       ],
 
       [
         "Stadion am Böllenfalltor",
-        "Nieder-Ramstädter-Straße 170, 64285 Darmstadt"
+        "Nieder-Ramstädter-Straße 170, 64285 Darmstadt",
+        49.8510,
+        8.6760
       ],
 
       [
         "Ludwigsturm",
-        "Auf der Ludwigshöhe, 64285 Darmstadt"
+        "Auf der Ludwigshöhe, 64285 Darmstadt",
+        49.8405,
+        8.6660
       ]
 
     ];
 
 
     /* =========================================================
-       SUCHBUTTON
+       SUCHE
        ========================================================= */
 
     btnRouteSearch.addEventListener(
@@ -1170,6 +1806,7 @@
                 <button
                   class="route-candidate"
                   type="button"
+                  data-name="${name}"
                 >
 
                   <span
@@ -1200,6 +1837,107 @@
           "is-visible"
         );
 
+
+        document
+          .querySelectorAll(
+            ".route-candidate"
+          )
+          .forEach(
+            button => {
+
+              button.addEventListener(
+                "click",
+                () => {
+
+                  const selected =
+                    candidates.find(
+                      candidate =>
+                        candidate[0] ===
+                        button.dataset.name
+                    );
+
+
+                  if (!selected) {
+                    return;
+                  }
+
+
+                  const [
+                    name,
+                    address,
+                    lat,
+                    lon
+                  ] = selected;
+
+
+                  const position = [
+                    lat,
+                    lon
+                  ];
+
+
+                  if (
+                    activeRoutePoint ===
+                    "start"
+                  ) {
+
+                    selectedStart = {
+                      name,
+                      address,
+                      lat,
+                      lon
+                    };
+
+                  } else {
+
+                    selectedTarget = {
+                      name,
+                      address,
+                      lat,
+                      lon
+                    };
+
+                  }
+
+
+                  /*
+                     Kandidat wurde ausgewählt:
+
+                     1. Kreis bekommt Mini-Karte
+                     2. Punkt wird gesetzt
+                     3. Name erscheint im Kreis
+                     4. Kandidatenliste verschwindet
+                     5. Input verschwindet
+
+                     Dadurch gewinnen wir sofort
+                     wieder Platz.
+                  */
+
+                  showMiniMap(
+                    activeRoutePoint,
+                    position,
+                    name
+                  );
+
+
+                  routeInputPanel.classList.remove(
+                    "is-open"
+                  );
+
+
+                  routeCandidates.classList.remove(
+                    "is-visible"
+                  );
+
+
+                  routeInput.blur();
+
+                }
+              );
+
+            }
+          );
+
       }
     );
 
@@ -1210,7 +1948,9 @@
 
     function updateMapDisplay() {
 
-      if (!lastGpsData) return;
+      if (!lastGpsData) {
+        return;
+      }
 
 
       const position = [
@@ -1237,6 +1977,7 @@
             animate: false
           }
         );
+
 
         return;
       }
@@ -1266,6 +2007,7 @@
         );
 
       }
+
     }
 
 
@@ -1318,28 +2060,33 @@
 
         document.getElementById(
           "vDistLeft"
-        ).textContent = "0.0";
+        ).textContent =
+          "0.0";
 
 
         document.getElementById(
           "vDistTotal"
-        ).textContent = "(0.0)";
+        ).textContent =
+          "(0.0)";
 
 
         document.getElementById(
           "vTimeLeft"
-        ).textContent = "0:00";
+        ).textContent =
+          "0:00";
 
 
         document.getElementById(
           "vTimeTotal"
-        ).textContent = "(0:00)";
+        ).textContent =
+          "(0:00)";
       }
+
     }
 
 
     /* =========================================================
-       ROUTE STOP
+       STOP
        ========================================================= */
 
     function stopRoute() {
@@ -1351,6 +2098,7 @@
         );
 
         testRouteLine = null;
+
       }
 
 
@@ -1358,7 +2106,9 @@
 
       operatingStatus = "Break";
 
+
       updateUI();
+
     }
 
 
@@ -1370,7 +2120,9 @@
       "click",
       () => {
 
-        if (!routeAvailable) return;
+        if (!routeAvailable) {
+          return;
+        }
 
 
         operatingStatus =
@@ -1441,7 +2193,8 @@
 
 
           const speedKmh =
-            (Number(data.speed) || 0) * 3.6;
+            (Number(data.speed) || 0) *
+            3.6;
 
 
           if (!gpsMarker) {
@@ -1467,6 +2220,7 @@
                 ? gpsArrowIcon
                 : gpsDotIcon
             );
+
           }
 
 
@@ -1487,6 +2241,7 @@
                 `rotate(${data.course}deg)`;
 
             }
+
           }
 
 
@@ -1503,6 +2258,7 @@
                 ),
               1000
             );
+
           }
 
 
