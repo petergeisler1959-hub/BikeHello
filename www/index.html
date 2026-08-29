@@ -1,1594 +1,1532 @@
 <!DOCTYPE html>
+
 <html lang="de">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Bike Navigation</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>BikeHello</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
 
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+  <style>
+    :root { color-scheme: light; }
 
-<style>
+    * {
+      box-sizing: border-box;
+    }
 
-html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    font-family: Arial, sans-serif;
-    background: white;
-    box-sizing: border-box;
-}
+    html,
+    body {
+      width: 100%;
+      min-height: 100%;
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #fff;
+    }
 
-*, *::before, *::after {
-    box-sizing: border-box;
-}
+    body {
+      overflow: hidden;
+    }
 
+    button,
+    input {
+      font: inherit;
+    }
 
-/* =====================================================
-   APP-BEREICH
-===================================================== */
+    /* =========================================================
+       SCREENS
+       ========================================================= */
 
-#app {
-    position: relative;
-    width: 100%;
-    height: 100%;
-    padding-top: env(safe-area-inset-top);
-    background: white;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+    .screen {
+      display: none;
+      width: 100%;
+      height: 100dvh;
+      min-height: 0;
+    }
 
+    .screen.is-active {
+      display: flex;
+    }
 
-/* =====================================================
-   OBERER BEREICH
-===================================================== */
+    /* =========================================================
+       COCKPIT
+       ========================================================= */
 
-#container {
-    display: flex;
-    width: 100%;
-    height: 50vh;
-    padding: 10px;
-    gap: 10px;
-    flex-shrink: 0;
-}
+    #cockpitScreen {
+      flex-direction: column;
+      overflow: hidden;
+      padding-top: env(safe-area-inset-top);
+    }
 
-#mapWrapper {
-    flex: 1;
-    min-width: 0;
-}
+    #mapWrapper {
+      position: relative;
+      flex: 1;
+      min-height: 0;
+      padding: 10px;
+    }
 
-#map {
-    width: 100%;
-    height: 100%;
-    border-radius: 8px;
-}
+    #map {
+      width: 100%;
+      height: 100%;
+      border-radius: 8px;
+    }
 
-#mapWrapper.routing-active {
-    position: absolute;
-    top: env(safe-area-inset-top);
-    right: 0;
-    bottom: env(safe-area-inset-bottom);
-    left: 0;
-    padding: 10px;
-    z-index: 999;
-}
+    #bottomPanel {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      padding: 12px 18px;
+      background: rgba(255,255,255,.96);
+    }
 
-#buttonColumn {
-    width: 70px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
+    #vitaldaten,
+    #sensorBottom {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
 
-.button {
-    width: 70px;
-    height: 50px;
-    border-radius: 12px;
-    background: #C3E2C8;
-    border: 1px solid rgba(0,0,0,0.25);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-}
+    .vital-item,
+    .sensor-item {
+      display: flex;
+      flex-direction: column;
+    }
 
-.button.disabled {
-    opacity: 0.35;
-    filter: grayscale(100%);
-    cursor: default;
-    pointer-events: none;
-}
-/* =====================================================
-   AKTIVER STATUS-BUTTON
-===================================================== */
+    .vital-label,
+    .sensor-label {
+      color: #666;
+      font-size: 13px;
+    }
 
-.button.status-active {
-    border: 3px solid #555;
-}
+    .vital-value,
+    .sensor-value {
+      margin-top: 1px;
+      font-size: 24px;
+      font-weight: 600;
+    }
 
-/* =====================================================
-   TIME / DISTANCE BEI BREAK
-===================================================== */
+    .secondary-value {
+      margin-left: 5px;
+      color: #888;
+      font-size: 16px;
+      font-weight: 400;
+    }
 
-.data-paused {
-    color: #999 !important;
-}
-.status-box {
-    width: 70px;
-    height: 62px;
-    border-radius: 12px;
-    background: #F5F5F5;
-    border: 1px solid rgba(0,0,0,0.25);
-    box-shadow: 0 4px 10px rgba(0,0,0,0.18);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-}
+    .data-paused {
+      color: #999 !important;
+    }
 
-.status-label {
-    font-size: 8px;
-    font-weight: bold;
-    margin-bottom: 2px;
-}
+    #controlBar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      padding: 10px 12px calc(14px + env(safe-area-inset-bottom));
+      background: rgba(255,255,255,.98);
+    }
 
-.status-icon {
-    font-size: 27px;
-    line-height: 27px;
-}
+    .control-group {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
 
-.status-box.not-started {
-    background: #FFD6D6;
-}
+    .control-label {
+      color: #666;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: .5px;
+    }
 
-.status-box.active {
-    background: #C3E2C8;
-}
+    .button {
+      width: 100%;
+      min-height: 52px;
+      border: 1px solid rgba(0,0,0,.25);
+      border-radius: 9px;
+      background: #c3e2c8;
+      box-shadow: 0 4px 10px rgba(0,0,0,.18);
+      cursor: pointer;
+      font-size: 18px;
+      font-weight: 700;
+    }
 
-.status-box.paused {
-    background: #FFF0B3;
-}
+    .button.disabled {
+      opacity: .35;
+      filter: grayscale(1);
+      pointer-events: none;
+    }
 
-.button.route {
-    font-size: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-}
+    #btnToggle {
+      background: #f5f5f5;
+    }
 
-.marker-icon {
-    width: 18px;
-    height: auto;
-}
+    #btnToggle.status-active {
+      border: 3px solid #555;
+    }
 
-.route-line {
-    font-size: 40px;
-    font-weight: 300;
-    opacity: 0.8;
-}
+    .status-bike {
+      font-size: 38px;
+      line-height: 1;
+    }
 
-.nav-icon {
-    font-size: 42px;
-}
+    .gps-dot,
+    .gps-arrow {
+      background: transparent;
+      border: 0;
+    }
 
-.btn-txt {
-    font-size: 21px;
-    font-weight: bold;
-}
+    .gps-dot div {
+      width: 18px;
+      height: 18px;
+      border: 2px solid #fff;
+      border-radius: 50%;
+      background: #2e7d32;
+      box-shadow: 0 1px 4px rgba(0,0,0,.5);
+      transform-origin: center;
+    }
 
-.btn-view {
-    margin-top: 10px;
-}
-
-
-/* =====================================================
-   UNTERER BEREICH
-===================================================== */
-
-#bottomPanel {
-    flex: 1;
-    min-height: 0;
-    width: 100%;
-    display: flex;
-    padding: 20px;
-    gap: 20px;
-    background: rgba(255,255,255,0.9);
-    overflow: hidden;
-}
-
-#vitaldaten {
-    width: 55%;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    overflow: hidden;
-}
-
-#sensorBottom {
-    width: 42%;
-    margin-left: 3%;
-    display: flex;
-    flex-direction: column;
-    gap: 15px;
-    overflow: hidden;
-}
-
-
-/* =====================================================
-   WERTE
-===================================================== */
-
-.vital-item,
-.sensor-item {
-    display: flex;
-    flex-direction: column;
-}
-
-.vital-label,
-.sensor-label {
-    font-size: 14px;
-    color: #666;
-    font-weight: 300;
-}
-
-.vital-value,
-.sensor-value {
-    font-size: 28px;
-    font-weight: 600;
-    margin-top: 3px;
-}
-
-.secondary-value {
-    font-size: 18px;
-    color: #888;
-    font-weight: 400;
-    margin-left: 6px;
-}
-
-
-/* =====================================================
-   ROUTE-HINWEIS
-===================================================== */
-
-#routeHint {
-    display: none;
-    position: absolute;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: #333;
-    color: white;
-    padding: 10px 16px;
-    border-radius: 8px;
-    z-index: 9999;
-}
-
-/* =====================================================
-   GPS-MARKER
-===================================================== */
-
-.gps-dot {
-    background: transparent;
-    border: none;
-}
-
-.gps-dot div {
-    width: 18px;
-    height: 18px;
-    background: #2E7D32;
-    border-radius: 50%;
-    border: 2px solid white;
-    box-shadow: 0 1px 4px rgba(0,0,0,0.5);
-      transform-origin: center center;
-}
-
-.gps-arrow {
-    background: transparent;
-    border: none;
-}
-
-.gps-arrow div {
+    .gps-arrow div {
       width: 0;
       height: 0;
-      border-left: 10px solid transparent;
       border-right: 10px solid transparent;
-      border-bottom: 26px solid #2E7D32;
-      filter: drop-shadow(0 1px 2px white);
-  }
+      border-bottom: 26px solid #2e7d32;
+      border-left: 10px solid transparent;
+      filter: drop-shadow(0 1px 2px #fff);
+      transform-origin: center;
+    }
 
+    /* =========================================================
+       ROUTE SCREEN
+       ========================================================= */
 
-/* =====================================================
-   NEUES BIKEHELLO COCKPIT
-===================================================== */
+    /*
+       Die Routing-Funktion ist jetzt eine eigene Seite.
+       Das Cockpit wird beim Öffnen ausgeblendet.
+    */
 
-/* Hauptbereich */
-#app {
-    width: 100%;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
-}
+    #routeScreen {
+      position: relative;
+      flex-direction: column;
+      min-height: 0;
+      overflow: hidden;
 
-/* Karte volle Breite */
-#mapWrapper {
-    width: 100%;
-    flex: 1;
-    min-height: 0;
-    position: relative;
-}
+      background: #f8faf8;
 
-#map {
-    width: 100%;
-    height: 100%;
-}
+      padding:
+        env(safe-area-inset-top)
+        20px
+        env(safe-area-inset-bottom);
+    }
 
-/* Datenbereich */
-#bottomPanel {
-    width: 100%;
-    flex: none;
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    padding: 12px 18px;
-    gap: 24px;
-    background: rgba(255,255,255,0.95);
-    overflow: hidden;
-    box-sizing: border-box;
-}
+    .route-page-header {
+      flex: none;
 
-/* Linke und rechte Datenspalte */
-#vitaldaten,
-#sensorBottom {
-    width: 100%;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
 
-/* Einzelne Werte */
-.vital-item,
-.sensor-item {
-    display: flex;
-    flex-direction: column;
-}
+      min-height: 64px;
+      gap: 14px;
+    }
 
-.vital-label,
-.sensor-label {
-    font-size: 13px;
-    color: #666;
-    font-weight: 400;
-}
+    .route-page-title {
+      margin: 0;
+      color: #444;
+      font-size: 22px;
+    }
 
-.vital-value,
-.sensor-value {
-    font-size: 24px;
-    font-weight: 600;
-    margin-top: 1px;
-}
+    .text-button {
+      min-height: 42px;
+      padding: 0 14px;
 
-.secondary-value {
-    font-size: 16px;
-    color: #888;
-    font-weight: 400;
-    margin-left: 5px;
-}
+      border: 1px solid #aaa;
+      border-radius: 9px;
 
-/* =====================================================
-   BEDIENLEISTE
-===================================================== */
+      background: #fff;
+      color: #444;
 
-#controlBar {
-    width: 100%;
-    flex: none;
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 10px;
-    padding: 10px 12px calc(14px + env(safe-area-inset-bottom)) 12px;
-    background: rgba(255,255,255,0.98);
-    box-sizing: border-box;
-}
+      font-weight: 700;
+      cursor: pointer;
+    }
 
-.control-group {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-}
+    /*
+       Nur dieser Bereich scrollt.
+       Header und untere Buttonleiste bleiben stehen.
+    */
 
-.control-label {
-    font-size: 12px;
-    font-weight: 600;
-    color: #666;
-    letter-spacing: 0.5px;
-}
+    .route-page-body {
+      flex: 1;
+      min-height: 0;
 
-.control-group .button {
-    width: 100%;
-    height: 52px;
-    min-height: 52px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    border-radius: 9px;
-}
+      overflow-y: auto;
+      overscroll-behavior: contain;
 
-.control-group .btn-txt {
-    font-size: 18px;
-    font-weight: bold;
-}
+      padding: 8px 0 24px;
+    }
 
-/* STATUS: optisch Statusanzeige, technisch weiterhin klickbar */
-#btnToggle {
-    border-radius: 9px;
-    background: rgba(245,245,245,0.95);
-    border: 1px solid #d0d0d0;
-}
+    /* =========================================================
+       START / ZIEL
+       ========================================================= */
 
-#btnToggle.status-active {
-    border: 3px solid #555;
-}
+    .route-definition {
+      display: flex;
+      align-items: center;
+      justify-content: center;
 
-/* ROUTE und MAP: klar erkennbare Aktionsflächen */
-#btnNewRoute,
-#btnView {
-    border-radius: 9px;
-}
+      width: 100%;
+      max-width: 600px;
 
-/* STATUS: Fahrrad als zentrale Statusanzeige */
-.status-display {
-    min-height: 52px;
-    height: 52px;
-    border-radius: 9px;
-    border: 1px solid #d0d0d0;
-    background: rgba(245,245,245,0.95);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-}
+      margin: 0 auto;
 
-.status-bike {
-    font-size: 38px;
-    line-height: 1;
-}
+      /*
+         Abstand zwischen START/ZIEL und Eingabeblock.
+         Dieser Wert kann später separat verändert werden.
+      */
+      margin-bottom: 45px;
+    }
 
-/* Alte rechte Button-Spalte nicht mehr verwenden */
-#buttonColumn {
-    display: none;
-}
+    .route-point {
+      display: flex;
+      flex: none;
 
-/* Alte Container-Struktur neutralisieren */
-#container {
-    width: 100%;
-    flex: 1;
-    min-height: 0;
-    display: block;
-}
+      flex-direction: column;
+      align-items: center;
 
-/* Alte VIEW-Abstände entfernen */
-.btn-view {
-    margin-top: 0;
-}
+      gap: 7px;
+    }
 
+    .route-point-circle {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
 
-/* =====================================================
-   ROUTING OVERLAY - PROTOTYP
-===================================================== */
+      width: clamp(100px, 27vw, 120px);
+      height: clamp(100px, 27vw, 120px);
 
-#routeOverlay {
-    position: absolute;
-    inset: 0;
-    z-index: 1000;
-    display: none;
-    background: rgba(255,255,255,0.18);
-    box-sizing: border-box;
-}
+      border: 2px solid rgba(80,80,80,.55);
+      border-radius: 50%;
 
-#routeOverlayContent {
-    position: absolute;
-    inset: 0;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: flex-start;
-    padding: 60px 20px;
-    box-sizing: border-box;
-}
+      background: rgba(255,255,255,.92);
+      color: #555;
 
-.route-definition {
-    width: 100%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 0px;
-    transform: translateY(55px);
-}
+      cursor: pointer;
+    }
 
-.route-point {
-    width: 120px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-    position: relative;
-}
+    .route-point-circle:focus-visible {
+      outline: 3px solid #2f6fed;
+      outline-offset: 3px;
+    }
 
-.route-point-circle {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border: 2px solid rgba(80,80,80,0.55);
-    background: rgba(255,255,255,0.72);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    box-sizing: border-box;
-    font-size: 18px;
-}
+    .route-marker {
+      width: 22px;
+      height: 22px;
 
-.route-marker {
-    width: 22px;
-    height: 22px;
-    border-radius: 50% 50% 50% 0;
-    transform: rotate(-45deg);
-    position: relative;
-}
+      border-radius: 50% 50% 50% 0;
 
-.route-marker::after {
-    content: "";
-    position: absolute;
-    width: 8px;
-    height: 8px;
-    background: white;
-    border-radius: 50%;
-    top: 7px;
-    left: 7px;
-}
+      transform: rotate(-45deg);
+    }
 
-.start-marker {
-    background: #d9534f;
-}
+    .start-marker {
+      background: #d9534f;
+    }
 
-.target-marker {
-    background: #3aaa35;
-}
+    .target-marker {
+      background: #3aaa35;
+    }
 
-.route-point-text {
-    font-size: 18px;
-    font-weight: 600;
-    color: #555;
-    margin-top: 5px;
-}
+    .route-point-text {
+      margin-top: 7px;
+      font-size: 17px;
+      font-weight: 700;
+    }
 
-.route-point-label {
-    font-size: 13px;
-    font-weight: 600;
-    color: #555;
-    letter-spacing: 0.4px;
-}
+    .route-point-label {
+      color: #666;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: .4px;
+    }
 
-.route-edit {
-    display: none;
-    position: absolute;
-    top: 88px;
-    right: -8px;
-    width: 32px;
-    height: 32px;
-    border-radius: 50%;
-    border: 1px solid #bbb;
-    background: rgba(255,255,255,0.95);
-    align-items: center;
-    justify-content: center;
-    font-size: 17px;
-    box-sizing: border-box;
-    z-index: 2;
-}
+    .route-connection {
+      flex: 1;
 
-.route-connection {
-    position: relative;
-    width: 110px;
-    height: 120px;
-    display: flex;
-    align-items: center;
-}
+      max-width: 160px;
+      min-width: 30px;
 
-.route-line {
-    width: 100%;
-    height: 6px;
-    background: #2f6fed;
-    border-radius: 3px;
-}
+      height: 6px;
 
-.route-input-panel {
-    position: absolute;
-    top: 260px;
-    left: 5%;
-    width: 90%;
-    max-width: 600px;
-    min-height: 105px;
-    border: 1px solid rgba(120,120,120,0.45);
-    border-radius: 12px;
-    background: rgba(255,255,255,0.92);
-    box-sizing: border-box;
-    padding: 12px 30px;
-    display: none;
-}
+      margin: 0 10px 23px;
 
-.route-input-title {
-    font-size: 17px;
-    font-weight: 600;
-    color: #777;
-    margin-bottom: 12px;
-}
+      border-radius: 3px;
 
-.route-input-row {
-    width: 100%;
-    height: 44px;
-    margin-bottom: 10px;
-    border: 1px solid #bbb;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.98);
-    box-sizing: border-box;
-    display: flex;
-    align-items: center;
-    padding: 0 8px 0 12px;
-}
+      background: #2f6fed;
+    }
 
-#routeInput {
-    flex: 1;
-    min-width: 0;
-    height: 100%;
-    border: none;
-    outline: none;
-    background: transparent;
-    font-size: 15px;
-    color: #555;
-}
+    /* =========================================================
+       ROUTE INPUT
+       ========================================================= */
 
-#routeInput::placeholder {
-    color: #888;
-}
+    .route-input-panel {
+      display: none;
 
-#btnRouteSearch {
-    width: 38px;
-    height: 38px;
-    border: none;
-    border-radius: 7px;
-    background: transparent;
-    font-size: 21px;
-    color: #555;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    white-space: nowrap;
-}
+      width: 100%;
+      max-width: 600px;
 
-#routeSearchCount {
-    font-size: 12px;
-    white-space: nowrap;
-}
+      margin: 0 auto;
+      padding: 16px;
 
-#routeCandidates {
-    position: absolute;
-    top: 420px;
-    left: 5%;
-    width: 90%;
-    display: none;
+      border: 1px solid rgba(120,120,120,.45);
+      border-radius: 12px;
 
-}
+      background: rgba(255,255,255,.95);
+    }
 
-.route-candidate {
-    width: 100%;
-    padding: 10px 12px;
-    margin-bottom: 6px;
-    border: 1px solid #bbb;
-    border-radius: 8px;
-    background: rgba(255,255,255,0.98);
-    box-sizing: border-box;
-}
+    .route-input-panel.is-open {
+      display: block;
+    }
 
-.route-candidate:last-child {
-    margin-bottom: 0;
-}
+    .route-input-title {
+      margin-bottom: 12px;
 
-.route-candidate-name {
-    font-size: 16px;
-    font-weight: 600;
-    color: #555;
-}
+      color: #666;
+      font-size: 17px;
+      font-weight: 700;
+    }
 
-.route-candidate-address {
-    margin-top: 3px;
-    font-size: 13px;
-    color: #888;
-}
+    .route-input-row {
+      display: flex;
+      align-items: center;
 
-.route-button-bar {
-    position: absolute;
-    bottom: 30px;
-    left: 0;
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    gap: 14px;
-}
+      min-height: 48px;
 
-#btnRouteList,
-#btnRouteCancel {
-    min-width: 150px;
-    height: 44px;
-    border-radius: 9px;
-    border: 1px solid #bbb;
-    background: rgba(255,255,255,0.92);
-    font-size: 16px;
-    font-weight: 600;
-}
+      border: 1px solid #bbb;
+      border-radius: 8px;
 
-#btnRouteCancel {
-    background: rgba(255,255,255,0.92);
-    border-color: #bbb;
-    color: #555;
-}
+      background: #fff;
 
-</style>
+      padding-left: 12px;
+    }
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    #routeInput {
+      flex: 1;
+      min-width: 0;
+
+      height: 46px;
+
+      border: 0;
+      outline: 0;
+
+      color: #444;
+      background: transparent;
+    }
+
+    #btnRouteSearch {
+      display: none;
+
+      flex: none;
+
+      width: 48px;
+      height: 40px;
+
+      margin-right: 4px;
+
+      border: 0;
+      border-radius: 7px;
+
+      background: #eaf2ff;
+      color: #2455a7;
+
+      cursor: pointer;
+    }
+
+    #btnRouteSearch.is-visible {
+      display: block;
+    }
+
+    /* =========================================================
+       ROUTE CANDIDATES
+       ========================================================= */
+
+    #routeCandidates {
+      display: none;
+
+      width: 100%;
+      max-width: 600px;
+
+      margin: 14px auto 0;
+    }
+
+    #routeCandidates.is-visible {
+      display: block;
+    }
+
+    .route-candidate {
+      width: 100%;
+
+      margin-bottom: 7px;
+      padding: 11px 12px;
+
+      border: 1px solid #bbb;
+      border-radius: 8px;
+
+      background: #fff;
+
+      cursor: pointer;
+      text-align: left;
+    }
+
+    .route-candidate-name {
+      display: block;
+
+      color: #555;
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+    .route-candidate-address {
+      display: block;
+
+      margin-top: 3px;
+
+      color: #777;
+      font-size: 13px;
+    }
+
+    /* =========================================================
+       ROUTE BOTTOM BAR
+       ========================================================= */
+
+    /*
+       Die Buttonleiste ist unabhängig vom Body.
+       Sie bleibt deshalb unten, auch wenn der Body scrollt.
+    */
+
+    .route-page-actions {
+      flex: none;
+
+      display: flex;
+      justify-content: center;
+
+      gap: 12px;
+
+      padding: 12px 0 6px;
+
+      background: #f8faf8;
+    }
+
+    .route-page-actions button {
+      min-width: 145px;
+    }
+
+    @media (max-width: 370px) {
+
+      .route-page-actions button {
+        min-width: 0;
+        flex: 1;
+      }
+
+    }
+  </style>
+
 </head>
-
 
 <body>
 
-<div id="app">
+  <!-- =========================================================
+       COCKPIT
+       ========================================================= -->
 
-    <!-- =================================================
-         KARTE
-    ================================================= -->
+  <main id="cockpitScreen" class="screen is-active">
 
-    <div id="mapWrapper">
-        <div id="map"></div>
+```
+<div id="mapWrapper">
+  <div id="map"></div>
+</div>
 
+<section id="bottomPanel">
+
+  <div id="vitaldaten">
+
+    <div class="vital-item">
+      <span class="vital-label">Speed</span>
+      <span class="vital-value" id="vSpeed">22.5 km/h</span>
     </div>
 
-    <!-- =================================================
-         ROUTING OVERLAY
-    ================================================= -->
-
-    <div id="routeOverlay">
-        <div id="routeOverlayContent">
-
-            <div class="route-definition">
-
-                <div class="route-point">
-                    <div class="route-point-circle" id="routeStartCircle">
-                        <div class="route-marker start-marker"></div>
-                        <div class="route-point-text">START</div>
-                    </div>
-                    <div class="route-edit">&#x270F;</div>
-                </div>
-
-                <div class="route-connection">
-                    <div class="route-line"></div>
-                </div>
-
-                <div class="route-point">
-                    <div class="route-point-circle" id="routeTargetCircle">
-                        <div class="route-marker target-marker"></div>
-                        <div class="route-point-text">ZIEL</div>
-                    </div>
-                    <div class="route-edit">&#x270F;</div>
-                </div>
-
-            </div>
-
-            <div class="route-input-panel">
-
-                <div class="route-input-title"></div>
-
-                <div class="route-input-row">
-
-                    <input
-                        id="routeInput"
-                        type="text"
-                        placeholder="Ort, Adresse oder PLZ eingeben ..."
-                        autocomplete="off"
-                    >
-
-                    <button id="btnRouteSearch" type="button">
-                        &#128269; <span id="routeSearchCount">(0)</span>
-                    </button>
-
-                </div>
-
-            </div>
-
-            <div id="routeCandidates"></div>
-
- <!--           <div class="route-button-bar">
-
-                <button id="btnRouteList">ROUTENLISTE</button>
-                <button id="btnRouteCancel">CANCEL</button>
-
-            </div>  -->
-
-        </div>
-
-            <div class="route-button-bar">
-
-                <button id="btnRouteList">ROUTENLISTE</button>
-                <button id="btnRouteCancel">CANCEL</button>
-
-            </div>
-
-
-
+    <div class="vital-item">
+      <span class="vital-label">Altitude</span>
+      <span class="vital-value" id="vAltitude">236 m</span>
     </div>
 
+    <div class="vital-item">
+      <span class="vital-label">Distance</span>
+      <span class="vital-value">
+        <span id="vDistLeft">38.8</span>
+        <span class="secondary-value" id="vDistTotal">(52.3)</span>
+      </span>
+    </div>
+
+    <div class="vital-item">
+      <span class="vital-label">Time</span>
+      <span class="vital-value">
+        <span id="vTimeLeft">3:50</span>
+        <span class="secondary-value" id="vTimeTotal">(5:12)</span>
+      </span>
+    </div>
+
+  </div>
+
+  <div id="sensorBottom">
+
+    <div class="sensor-item">
+      <span class="sensor-label">Power</span>
+      <span class="sensor-value">245 W</span>
+    </div>
+
+    <div class="sensor-item">
+      <span class="sensor-label">Battery</span>
+      <span class="sensor-value">67 %</span>
+    </div>
+
+    <div class="sensor-item">
+      <span class="sensor-label">Range</span>
+      <span class="sensor-value">54 km</span>
+    </div>
+
+  </div>
+
+</section>
+
+<nav id="controlBar" aria-label="Bedienung">
+
+  <div class="control-group">
+    <span class="control-label">ROUTE</span>
+    <button id="btnNewRoute" class="button" type="button">New</button>
+  </div>
+
+  <div class="control-group">
+    <span class="control-label">STATUS</span>
+
+    <button id="btnToggle" class="button disabled" type="button">
+      <span id="iconGo" class="status-bike">🚴</span>
+      <span id="iconBreak" class="status-bike" hidden>🚲</span>
+    </button>
+  </div>
+
+  <div class="control-group">
+    <span class="control-label">MAP</span>
+    <button id="btnView" class="button" type="button">Zoom</button>
+  </div>
+
+</nav>
+```
+
+  </main>
+
+  <!-- =========================================================
+       ROUTE SEITE
+       ========================================================= -->
+
+  <main id="routeScreen" class="screen" aria-label="Route planen">
+
+```
+<header class="route-page-header">
+
+  <h1 class="route-page-title">
+    Neue Route
+  </h1>
+
+  <button
+    id="btnRouteBack"
+    class="text-button"
+    type="button"
+  >
+    Zurück
+  </button>
+
+</header>
 
 
-    <!-- =================================================
-         DATEN
-    ================================================= -->
+<div class="route-page-body">
 
-    <div id="bottomPanel">
+  <!-- START / ZIEL -->
 
-        <!-- FAHRDATEN -->
+  <div class="route-definition">
 
-        <div id="vitaldaten">
+    <div class="route-point">
 
-            <div class="vital-item">
-                <span class="vital-label">Speed</span>
-                <span class="vital-value" id="vSpeed">22.5 km/h</span>
-            </div>
+      <button
+        id="routeStartCircle"
+        class="route-point-circle"
+        type="button"
+        aria-label="Start eingeben"
+      >
+        <span class="route-marker start-marker"></span>
+        <span class="route-point-text">START</span>
+      </button>
 
-            <div class="vital-item">
-                <span class="vital-label">Altitude</span>
-                <span class="vital-value" id="vAltitude">236 m</span>
-            </div>
-
-            <div class="vital-item">
-                <span class="vital-label">Distance</span>
-                <span class="vital-value">
-                    <span id="vDistLeft">38.8</span>
-                    <span class="secondary-value" id="vDistTotal">(52.3)</span>
-                </span>
-            </div>
-
-            <div class="vital-item">
-                <span class="vital-label">Time</span>
-                <span class="vital-value">
-                    <span id="vTimeLeft">3:50</span>
-                    <span class="secondary-value" id="vTimeTotal">(5:12)</span>
-                </span>
-            </div>
-
-        </div>
-
-
-        <!-- E-BIKE-DATEN -->
-
-        <div id="sensorBottom">
-
-            <div class="sensor-item">
-                <span class="sensor-label">Power</span>
-                <span class="sensor-value" id="vPower">245 W</span>
-            </div>
-
-            <div class="sensor-item">
-                <span class="sensor-label">Battery</span>
-                <span class="sensor-value" id="vBattery">67 %</span>
-            </div>
-
-            <div class="sensor-item">
-                <span class="sensor-label">Range</span>
-                <span class="sensor-value" id="vRange">54 km</span>
-            </div>
-
-        </div>
+      <span class="route-point-label">
+        START
+      </span>
 
     </div>
 
 
-    <!-- =================================================
-         BEDIENLEISTE
-    ================================================= -->
-
-    <div id="controlBar">
-
-        <!-- ROUTE -->
-
-        <div class="control-group">
-
-            <div class="control-label">ROUTE</div>
-
-            <div id="btnNewRoute" class="button route">
-                <span class="btn-txt">New</span>
-            </div>
-
-        </div>
+    <div
+      class="route-connection"
+      aria-hidden="true"
+    ></div>
 
 
-        <!-- STATUS -->
+    <div class="route-point">
 
-        <div class="control-group">
+      <button
+        id="routeTargetCircle"
+        class="route-point-circle"
+        type="button"
+        aria-label="Ziel eingeben"
+      >
+        <span class="route-marker target-marker"></span>
+        <span class="route-point-text">ZIEL</span>
+      </button>
 
-            <div class="control-label">STATUS</div>
-
-            <div id="btnToggle" class="button">
-                <span id="iconGo" class="status-bike">&#x1F6B4;</span>
-                <span id="iconBreak" class="status-bike" style="display:none;">&#x1F6B2;</span>
-            </div>
-
-        </div>
-
-
-        <!-- KARTE -->
-
-        <div class="control-group">
-
-            <div class="control-label">MAP</div>
-
-            <div id="btnView" class="button btn-view">
-                <span class="btn-txt">Zoom</span>
-            </div>
-
-        </div>
+      <span class="route-point-label">
+        ZIEL
+      </span>
 
     </div>
+
+  </div>
+
+
+  <!-- EINGABE -->
+
+  <section
+    id="routeInputPanel"
+    class="route-input-panel"
+    aria-live="polite"
+  >
+
+    <div
+      id="routeInputTitle"
+      class="route-input-title"
+    ></div>
+
+    <div class="route-input-row">
+
+      <input
+        id="routeInput"
+        type="text"
+        placeholder="Ort, Adresse oder PLZ eingeben …"
+        autocomplete="off"
+      >
+
+      <button
+        id="btnRouteSearch"
+        type="button"
+      >
+        🔎
+        <span id="routeSearchCount">(1)</span>
+      </button>
+
+    </div>
+
+  </section>
+
+
+  <!-- KANDIDATEN -->
+
+  <div id="routeCandidates"></div>
 
 </div>
 
-<script type="module">
-/* =====================================================
-   CAPACITOR / GPS
-===================================================== */
 
-import { registerPlugin } from "./capacitor-core.js";
+<!-- UNTERE BUTTONLEISTE -->
 
-const GPS = registerPlugin("GPS");
-let gpsActive = false;
+<footer class="route-page-actions">
+
+  <button
+    id="btnRouteList"
+    class="text-button"
+    type="button"
+  >
+    ROUTENLISTE
+  </button>
+
+  <button
+    id="btnRouteCancel"
+    class="text-button"
+    type="button"
+  >
+    CANCEL
+  </button>
+
+</footer>
+```
+
+  </main>
+
+  <!-- =========================================================
+       LEAFLET
+       ========================================================= -->
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+  <!-- =========================================================
+       JAVASCRIPT
+       ========================================================= -->
+
+  <script type="module">
+
+    import { registerPlugin } from "./capacitor-core.js";
 
 
-/* =====================================================
-   LEAFLET KARTE
-===================================================== */
+    /* =========================================================
+       ELEMENTE
+       ========================================================= */
 
-const map = L.map("map", {
-    zoomControl: false
-}).setView([20, 0], 2);
+    const cockpitScreen =
+      document.getElementById("cockpitScreen");
 
-const testDestination = [49.8727, 8.6512];
-let testRouteLine = null;
-let routeActive = false;
+    const routeScreen =
+      document.getElementById("routeScreen");
 
-L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
+    const btnNewRoute =
+      document.getElementById("btnNewRoute");
+
+    const btnView =
+      document.getElementById("btnView");
+
+    const btnToggle =
+      document.getElementById("btnToggle");
+
+    const routeInputPanel =
+      document.getElementById("routeInputPanel");
+
+    const routeInputTitle =
+      document.getElementById("routeInputTitle");
+
+    const routeInput =
+      document.getElementById("routeInput");
+
+    const routeCandidates =
+      document.getElementById("routeCandidates");
+
+    const btnRouteSearch =
+      document.getElementById("btnRouteSearch");
+
+    const routeSearchCountElement =
+      document.getElementById("routeSearchCount");
+
+
+    /* =========================================================
+       ZUSTAND
+       ========================================================= */
+
+    let activeRoutePoint = null;
+    let routeSearchCount = 0;
+
+    let routeAvailable = false;
+
+    let operatingStatus = "Break";
+
+    let mapView = "Zoom";
+
+
+    /* =========================================================
+       MAP
+       ========================================================= */
+
+    const map =
+      L.map("map", {
+        zoomControl: false
+      }).setView(
+        [20, 0],
+        2
+      );
+
+
+    L.tileLayer(
+      "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+      {
         maxZoom: 19,
-        attribution: "  OpenStreetMap"
-    }
-).addTo(map);
-
-window.addEventListener("load", () => {
-    map.invalidateSize(true);
-
-    setTimeout(() => {
-        map.invalidateSize(true);
-    }, 500);
-
-    setTimeout(() => {
-        map.invalidateSize(true);
-    }, 1000);
-});
+        attribution: "© OpenStreetMap"
+      }
+    ).addTo(map);
 
 
-/* =====================================================
-   GPS-POSITION AUF DER KARTE
-===================================================== */
-
-let gpsMarker = null;
-let lastGpsData = null;
-let mapCenteredOnGps = false;
-
-
-/* Punkt fuer stehendes Fahrrad */
-const gpsDotIcon = L.divIcon({
-    className: "gps-dot",
-    html: '<div></div>',
-    iconSize: [18, 18],
-    iconAnchor: [9, 9]
-});
-
-
-/* Pfeil fuer fahrendes Fahrrad */
-const gpsArrowIcon = L.divIcon({
-    className: 'gps-arrow',
-    html: '<div></div>',
-    iconSize: [20, 30],
-    iconAnchor: [10, 15]
-});
-
-
-/* =====================================================
-   WERTE
-===================================================== */
-
-const vSpeed = document.getElementById("vSpeed");
-const vAltitude = document.getElementById("vAltitude");
-
-
-/* =====================================================
-   GPS-DATEN
-===================================================== */
-
-GPS.addListener("gpsDebug", (data) => {
-    console.log(data.message);
-});
-
-GPS.addListener("gpsData", (data) => {
-
-    /* =================================================
-       SPEED + ALTITUDE
-    ================================================= */
-
-    vSpeed.textContent =
-        (data.speed * 3.6).toFixed(1);
-
-    vAltitude.textContent =
-        data.altitude.toFixed(0);
-
-
-    /* =================================================
-       GPS-POSITION AUF DER KARTE
-    ================================================= */
-
-    const position = [
-        data.lat,
-        data.lon
-    ];
-
-    const courseValid = data.courseValid === true;
-
-    /* =================================================
-       GPS-MARKER: PUNKT / PFEIL AB 1 km/h
-    ================================================= */
-
-    const speedMs = Number(data.speed) || 0;
-    const speedKmh = speedMs * 3.6;
-
-    if (gpsMarker) {
-        if (speedKmh >= 1.0) {
-            gpsMarker.setIcon(gpsArrowIcon);
-        } else {
-            gpsMarker.setIcon(gpsDotIcon);
-        }
-
-        if (courseValid) {
-            const markerElement = gpsMarker.getElement();
-            const iconElement = markerElement
-                ? markerElement.querySelector("div")
-                : null;
-
-            if (iconElement) {
-                iconElement.style.transform =
-                    `rotate(${data.course}deg)`;
-            }
-        }
-    }
-
-
-    /* =================================================
-       MARKER ERSTELLEN
-    ================================================= */
-
-    if (!gpsMarker) {
-
-    gpsMarker = L.marker(position, {
-        icon: gpsDotIcon,
-        zIndexOffset: 1000
-    }).addTo(map);
-
-} else {
-
-    gpsMarker.setLatLng(position);
-}
-
-if (!mapCenteredOnGps) {
-    mapCenteredOnGps = true;
-
-    setTimeout(() => {
-        map.setView(position, 17);
-    }, 1000);
-}
-
-
-    /* Letzte GPS-Daten merken */
-    lastGpsData = data;
-
-
-    console.log(
-        "GPS:",
-        data.lat,
-        data.lon,
-        "Speed:",
-        data.speed,
-        "Course:",
-        data.course,
-        "valid:",
-        data.courseValid,
-        "Altitude:",
-        data.altitude
+    window.addEventListener(
+      "load",
+      () =>
+        setTimeout(
+          () => map.invalidateSize(true),
+          100
+        )
     );
-});
 
-/* =====================================================
-   BUTTONS
-===================================================== */
 
-const btnToggle = document.getElementById("btnToggle");
-const btnView = document.getElementById("btnView");
-const btnNewRoute = document.getElementById("btnNewRoute");
-const routeOverlay = document.getElementById("routeOverlay");
-const mapWrapper = document.getElementById("mapWrapper");
+    let gpsMarker = null;
+    let lastGpsData = null;
+    let mapCenteredOnGps = false;
+    let testRouteLine = null;
 
-const routeStartCircle = document.getElementById("routeStartCircle");
-const routeTargetCircle = document.getElementById("routeTargetCircle");
-const routeInputTitle = document.querySelector(".route-input-title");
 
-let activeRoutePoint = null;
-let routeSearchCount = 0;
+    const gpsDotIcon =
+      L.divIcon({
+        className: "gps-dot",
+        html: "<div></div>",
+        iconSize: [18, 18],
+        iconAnchor: [9, 9]
+      });
 
-const routeInput = document.getElementById("routeInput");
-const btnRouteSearch = document.getElementById("btnRouteSearch");
-const btnRouteList = document.getElementById("btnRouteList");
-const btnRouteCancel = document.getElementById("btnRouteCancel");
-const routeSearchCountElement =
-    document.getElementById("routeSearchCount");
 
-const routeCandidates =
-    document.getElementById("routeCandidates");
+    const gpsArrowIcon =
+      L.divIcon({
+        className: "gps-arrow",
+        html: "<div></div>",
+        iconSize: [20, 30],
+        iconAnchor: [10, 15]
+      });
 
-const mockRouteCandidates = [
-    {
-        name: "Luisenplatz",
-        address: "Luisenplatz 5, 64283 Darmstadt",
-        lat: 49.872777,
-        lon: 8.651111
-    },
-    {
-        name: "Darmstadt Hbf",
-        address: "Am Hauptbahnhof, 64293 Darmstadt",
-        lat: 49.872500,
-        lon: 8.628889
-    },
-    {
-        name: "Mathildenhöhe",
-        address: "Olbrichweg 15, 64287 Darmstadt",
-        lat: 49.876511,
-        lon: 8.668889
-    },
-    {
-        name: "Stadion am Böllenfalltor",
-        address: "Nieder-Ramstädter-Straße 170, 64285 Darmstadt",
-        lat: 49.857701,
-        lon: 8.672349
-    },
-    {
-        name: "Ludwigsturm",
-        address: "Auf der Ludwigshöhe, 64285 Darmstadt",
-        lat: 49.84311,
-        lon: 8.66091
+
+    /* =========================================================
+       ROUTE SEITE ÖFFNEN / SCHLIESSEN
+       ========================================================= */
+
+    function showRoutePage() {
+
+      cockpitScreen.classList.remove(
+        "is-active"
+      );
+
+      routeScreen.classList.add(
+        "is-active"
+      );
+
+      routeScreen
+        .querySelector("#routeStartCircle")
+        .focus();
     }
-];
 
-function getTodayKey() {
-    const now = new Date();
 
-    return [
-        now.getFullYear(),
-        String(now.getMonth() + 1).padStart(2, "0"),
-        String(now.getDate()).padStart(2, "0")
-    ].join("-");
-}
+    function closeRoutePage() {
 
-function loadRouteSearchCount() {
+      routeInput.blur();
 
-    const today = getTodayKey();
-    const savedDate = localStorage.getItem("bikehello_route_search_date");
-    const savedCount = localStorage.getItem("bikehello_route_search_count");
+      routeScreen.classList.remove(
+        "is-active"
+      );
 
-    if (savedDate === today) {
-        routeSearchCount = Number(savedCount) || 0;
-    } else {
-        routeSearchCount = 0;
-        localStorage.setItem("bikehello_route_search_date", today);
-        localStorage.setItem("bikehello_route_search_count", "0");
+      cockpitScreen.classList.add(
+        "is-active"
+      );
+
+      requestAnimationFrame(
+        () =>
+          map.invalidateSize(true)
+      );
     }
-}
 
-function incrementRouteSearchCount() {
 
-    routeSearchCount++;
+    /* =========================================================
+       START / ZIEL ÖFFNEN
+       ========================================================= */
 
-    localStorage.setItem(
+    function openPoint(point) {
+
+      activeRoutePoint = point;
+
+      routeInputTitle.textContent =
+        point === "start"
+          ? "START suchen"
+          : "ZIEL suchen";
+
+
+      routeInput.value = "";
+
+      routeInputPanel.classList.add(
+        "is-open"
+      );
+
+      routeCandidates.classList.remove(
+        "is-visible"
+      );
+
+
+      /*
+         Eingabebereich sichtbar machen.
+         Keine transform-Lösung.
+      */
+
+      routeInputPanel.scrollIntoView({
+        block: "center",
+        behavior: "smooth"
+      });
+
+
+      routeInput.focus({
+        preventScroll: true
+      });
+    }
+
+
+    document
+      .getElementById("routeStartCircle")
+      .addEventListener(
+        "click",
+        () => openPoint("start")
+      );
+
+
+    document
+      .getElementById("routeTargetCircle")
+      .addEventListener(
+        "click",
+        () => openPoint("target")
+      );
+
+
+    /* =========================================================
+       NEW ROUTE
+       ========================================================= */
+
+    btnNewRoute.addEventListener(
+      "click",
+      () =>
+        routeAvailable
+          ? stopRoute()
+          : showRoutePage()
+    );
+
+
+    /* =========================================================
+       ZURÜCK / CANCEL
+       ========================================================= */
+
+    document
+      .getElementById("btnRouteBack")
+      .addEventListener(
+        "click",
+        closeRoutePage
+      );
+
+
+    document
+      .getElementById("btnRouteCancel")
+      .addEventListener(
+        "click",
+        closeRoutePage
+      );
+
+
+    /* =========================================================
+       ROUTENLISTE
+       ========================================================= */
+
+    document
+      .getElementById("btnRouteList")
+      .addEventListener(
+        "click",
+        () => {
+
+          routeInputPanel.classList.remove(
+            "is-open"
+          );
+
+          routeCandidates.classList.remove(
+            "is-visible"
+          );
+
+          routeInput.blur();
+
+        }
+      );
+
+
+    /* =========================================================
+       SUCHZÄHLER
+       ========================================================= */
+
+    function getTodayKey() {
+
+      return new Date()
+        .toISOString()
+        .slice(0, 10);
+    }
+
+
+    function loadSearchCount() {
+
+      const saved =
+        localStorage.getItem(
+          "bikehello_route_search_count"
+        );
+
+
+      routeSearchCount =
+        localStorage.getItem(
+          "bikehello_route_search_date"
+        ) === getTodayKey()
+          ? Number(saved) || 0
+          : 0;
+
+
+      localStorage.setItem(
         "bikehello_route_search_date",
         getTodayKey()
-    );
+      );
 
-    localStorage.setItem(
+
+      localStorage.setItem(
         "bikehello_route_search_count",
         String(routeSearchCount)
+      );
+
+
+      routeSearchCountElement.textContent =
+        `(${routeSearchCount + 1})`;
+    }
+
+
+    loadSearchCount();
+
+
+    /* =========================================================
+       SUCHEINGABE
+       ========================================================= */
+
+    routeInput.addEventListener(
+      "input",
+      () => {
+
+        btnRouteSearch.classList.toggle(
+          "is-visible",
+          routeInput.value.trim().length > 3
+        );
+
+      }
     );
-}
-
-function updateRouteSearchButton() {
-    routeSearchCountElement.textContent = "(" + (routeSearchCount + 1) + ")";
-}
-
-function showMockRouteCandidates() {
-
-    routeCandidates.innerHTML = "";
-
-    mockRouteCandidates.forEach(candidate => {
-
-        const item = document.createElement("div");
-
-        item.className = "route-candidate";
-
-        item.innerHTML = `
-            <div class="route-candidate-name">
-                ${candidate.name}
-            </div>
-            <div class="route-candidate-address">
-                ${candidate.address}
-            </div>
-        `;
-
-        routeCandidates.appendChild(item);
-
-    });
-
-    routeCandidates.style.display = "block";
-}
-
-loadRouteSearchCount();
-updateRouteSearchButton();
-
-btnRouteSearch.style.display = "none";
-
-routeInput.addEventListener("input", () => {
-
-    if (routeInput.value.trim().length > 3) {
-        btnRouteSearch.style.display = "flex";
-    } else {
-        btnRouteSearch.style.display = "none";
-    }
-
-});
-
-btnRouteSearch.addEventListener("click", () => {
-
-    incrementRouteSearchCount();
-    updateRouteSearchButton();
-
-    btnRouteSearch.style.display = "none";
-
-    showMockRouteCandidates();
-
-});
-
-const routeInputPanel = document.querySelector(".route-input-panel");
-
-routeStartCircle.addEventListener("click", () => {
-    activeRoutePoint = "start";
-    routeInputPanel.style.display = "block";
-    routeInputTitle.textContent = "START suchen";
-    routeInput.value = "";
-    routeInput.focus();
-});
-
-routeTargetCircle.addEventListener("click", () => {
-    activeRoutePoint = "target";
-    routeInputPanel.style.display = "block";
-    routeInputTitle.textContent = "ZIEL suchen";
-    routeInput.value = "";
-    routeInput.focus();
-});
-
-btnRouteCancel.addEventListener("click", () => {
-    routeInputPanel.style.display = "none";
-});
-
-btnRouteList.addEventListener("click", () => {
-    routeInputPanel.style.display = "none";
-});
-
-btnView.classList.remove("disabled");
-
-const go = document.getElementById("iconGo");
-const br = document.getElementById("iconBreak");
-
-/* =====================================================
-   BIKEHELLO ZUSTAND
-===================================================== */
-
-let operatingStatus = "Break";      // Break / Ride
-let mapView = "Zoom";               // Zoom / Wide
-let routeAvailable = false;         // true / false
 
 
-/* =====================================================
-   ZUSTAND -> BUTTON-ANZEIGE
-===================================================== */
+    /* =========================================================
+       FESTE TESTKANDIDATEN
+       ========================================================= */
 
-function updateMapDisplay() {
+    const candidates = [
 
-    /* =================================================
-       KEINE ROUTE VORHANDEN
-       GPS = Standort zoom
-       Route = Standort weit
-    ================================================= */
+      [
+        "Luisenplatz",
+        "Luisenplatz 5, 64283 Darmstadt"
+      ],
 
-    if (!routeAvailable) {
+      [
+        "Darmstadt Hbf",
+        "Am Hauptbahnhof, 64293 Darmstadt"
+      ],
 
-        if (!lastGpsData) {
-            return;
-        }
+      [
+        "Mathildenhöhe",
+        "Olbrichweg 15, 64287 Darmstadt"
+      ],
 
-        const position = [
-            lastGpsData.lat,
-            lastGpsData.lon
-        ];
+      [
+        "Stadion am Böllenfalltor",
+        "Nieder-Ramstädter-Straße 170, 64285 Darmstadt"
+      ],
 
-        if (gpsMarker) {
-            gpsMarker.setIcon(gpsDotIcon);
-        }
+      [
+        "Ludwigsturm",
+        "Auf der Ludwigshöhe, 64285 Darmstadt"
+      ]
 
-        if (mapView === "Wide") {
-
-            /* Standort weit */
-            map.setView(position, 12, {
-                animate: false
-            });
-
-            console.log("Karte: Standort weit");
-
-        } else {
-
-            /* Standort zoom */
-            map.setView(position, 17, {
-                animate: false
-            });
-
-            console.log("Karte: Standort zoom");
-        }
-
-        return;
-    }
-
-    /* =================================================
-       ROUTE VORHANDEN
-    ================================================= */
-
-    if (mapView === "Wide") {
-
-        /* Wide = komplette Route */
-        if (testRouteLine) {
-            map.fitBounds(testRouteLine.getBounds(), {
-                animate: false,
-                padding: [20, 20]
-            });
-
-            console.log("Karte: komplette Route");
-        }
-
-    } else {
-
-        /* Zoom = aktueller Standort */
-        if (lastGpsData) {
-            const position = [
-                lastGpsData.lat,
-                lastGpsData.lon
-            ];
-
-            map.setView(position, 17, {
-                animate: false
-            });
-
-            console.log("Karte: Route-Zoom");
-        }
-    }
-    }
-function updateUI() {
-
-    updateMapDisplay();
-
-    /* =================================================
-       ROUTE
-       Empty = keine Route
-       Ready = Route vorhanden
-    ================================================= */
-
-    if (routeAvailable) {
-
-        btnNewRoute.querySelector(".btn-txt").textContent = "Stop";
-        btnToggle.classList.remove("disabled");
-        btnToggle.classList.add("status-active");
-
-    } else {
-
-        btnNewRoute.querySelector(".btn-txt").textContent = "New";
-        btnToggle.classList.add("disabled");
-        btnToggle.classList.remove("status-active");
-
-        /* Empty = Time und Distance auf 0 */
-        document.getElementById("vDistLeft").textContent = "0.0";
-        document.getElementById("vDistTotal").textContent = "(0.0)";
-        document.getElementById("vTimeLeft").textContent = "0:00";
-        document.getElementById("vTimeTotal").textContent = "(0:00)";
-    }
-
-
-    /* =================================================
-       STATUS
-       Break = Fahrrad ohne Fahrer
-       Ride  = Fahrrad mit Fahrer
-    ================================================= */
-
-    const pausedFields = [
-        document.getElementById("vDistLeft"),
-        document.getElementById("vDistTotal"),
-        document.getElementById("vTimeLeft"),
-        document.getElementById("vTimeTotal")
     ];
 
-    if (operatingStatus === "Ride" && routeAvailable) {
 
-        go.style.display = "inline";
-        br.style.display = "none";
+    /* =========================================================
+       SUCHBUTTON
+       ========================================================= */
 
-        pausedFields.forEach(el => {
-            if (el) el.classList.remove("data-paused");
-        });
+    btnRouteSearch.addEventListener(
+      "click",
+      () => {
 
-    } else {
-
-        go.style.display = "none";
-        br.style.display = "inline";
-
-        pausedFields.forEach(el => {
-            if (el) el.classList.add("data-paused");
-        });
-    }
+        routeSearchCount++;
 
 
-    /* =================================================
-       MAP
-    ================================================= */
-
-    btnView.classList.remove("disabled");
-
-    if (mapView === "Zoom") {
-        btnView.querySelector(".btn-txt").textContent = "Zoom";
-    } else {
-        btnView.querySelector(".btn-txt").textContent = "Wide";
-    }
-}
-/* =====================================================
-   MAP BUTTON
-===================================================== */
-
-updateUI();
-
-btnView.addEventListener("click", () => {
-
-    if (mapView === "Zoom") {
-        mapView = "Wide";
-        console.log("VIEW: Standort weit");
-    } else {
-        mapView = "Zoom";
-        console.log("VIEW: Standort zoom");
-    }
-
-    updateUI();
-
-});
+        localStorage.setItem(
+          "bikehello_route_search_count",
+          String(routeSearchCount)
+        );
 
 
-/* =====================================================
-   STATUS BUTTON
-===================================================== */
+        routeSearchCountElement.textContent =
+          `(${routeSearchCount + 1})`;
 
-btnToggle.addEventListener("click", () => {
 
-    /* Status ist nur bei vorhandener Route aktiv */
-    if (!routeAvailable) {
-        console.log("STATUS: inaktiv - keine Route");
-        return;
-    }
+        routeCandidates.innerHTML =
+          candidates
+            .map(
+              ([name, address]) => `
 
-    /* Break <-> Ride */
-    if (operatingStatus === "Break") {
-        operatingStatus = "Ride";
-        console.log("STATUS: BREAK -> RIDE");
-    } else {
-        operatingStatus = "Break";
-        console.log("STATUS: RIDE -> BREAK");
-    }
+                <button
+                  class="route-candidate"
+                  type="button"
+                >
 
-    updateUI();
-});
+                  <span
+                    class="route-candidate-name"
+                  >
+                    ${name}
+                  </span>
 
-btnNewRoute.addEventListener("click", () => {
+                  <span
+                    class="route-candidate-address"
+                  >
+                    ${address}
+                  </span>
 
-    /* =================================================
-       READY -> EMPTY
-       Route entfernen
-    ================================================= */
+                </button>
 
-    if (routeAvailable) {
+              `
+            )
+            .join("");
 
-        if (testRouteLine) {
-            map.removeLayer(testRouteLine);
-            testRouteLine = null;
+
+        routeCandidates.classList.add(
+          "is-visible"
+        );
+
+
+        btnRouteSearch.classList.remove(
+          "is-visible"
+        );
+
+      }
+    );
+
+
+    /* =========================================================
+       MAP DISPLAY
+       ========================================================= */
+
+    function updateMapDisplay() {
+
+      if (!lastGpsData) return;
+
+
+      const position = [
+        lastGpsData.lat,
+        lastGpsData.lon
+      ];
+
+
+      if (!routeAvailable) {
+
+        if (gpsMarker) {
+          gpsMarker.setIcon(
+            gpsDotIcon
+          );
         }
 
-        routeActive = false;
-        routeAvailable = false;
 
-        operatingStatus = "Break";
+        map.setView(
+          position,
+          mapView === "Wide"
+            ? 12
+            : 17,
+          {
+            animate: false
+          }
+        );
 
-        console.log("ROUTE: Ready -> Empty");
-
-        updateUI();
         return;
+      }
+
+
+      if (
+        mapView === "Wide" &&
+        testRouteLine
+      ) {
+
+        map.fitBounds(
+          testRouteLine.getBounds(),
+          {
+            animate: false,
+            padding: [20, 20]
+          }
+        );
+
+      } else {
+
+        map.setView(
+          position,
+          17,
+          {
+            animate: false
+          }
+        );
+
+      }
     }
 
 
-    /* =================================================
-       EMPTY -> ROUTING
-       Routing-Overlay öffnen
-    ================================================= */
+    /* =========================================================
+       UI
+       ========================================================= */
 
-    map.setView([40, 0], 3, {
-        animate: false
-    });
+    function updateUI() {
 
-    mapWrapper.classList.add("routing-active");
-    map.invalidateSize();
+      updateMapDisplay();
 
-    routeOverlay.style.display = "block";
 
-});
+      btnNewRoute.textContent =
+        routeAvailable
+          ? "Stop"
+          : "New";
 
-/* =====================================================
-   EXIT
-===================================================== */
 
-/* =====================================================
-   GPS BEIM APP-START
-===================================================== */
-setTimeout(async () => {
+      btnToggle.classList.toggle(
+        "disabled",
+        !routeAvailable
+      );
+
+
+      btnToggle.classList.toggle(
+        "status-active",
+        routeAvailable
+      );
+
+
+      document.getElementById(
+        "iconGo"
+      ).hidden =
+        operatingStatus !== "Ride" ||
+        !routeAvailable;
+
+
+      document.getElementById(
+        "iconBreak"
+      ).hidden =
+        operatingStatus === "Ride" &&
+        routeAvailable;
+
+
+      btnView.textContent =
+        mapView;
+
+
+      if (!routeAvailable) {
+
+        document.getElementById(
+          "vDistLeft"
+        ).textContent = "0.0";
+
+
+        document.getElementById(
+          "vDistTotal"
+        ).textContent = "(0.0)";
+
+
+        document.getElementById(
+          "vTimeLeft"
+        ).textContent = "0:00";
+
+
+        document.getElementById(
+          "vTimeTotal"
+        ).textContent = "(0:00)";
+      }
+    }
+
+
+    /* =========================================================
+       ROUTE STOP
+       ========================================================= */
+
+    function stopRoute() {
+
+      if (testRouteLine) {
+
+        map.removeLayer(
+          testRouteLine
+        );
+
+        testRouteLine = null;
+      }
+
+
+      routeAvailable = false;
+
+      operatingStatus = "Break";
+
+      updateUI();
+    }
+
+
+    /* =========================================================
+       STATUS
+       ========================================================= */
+
+    btnToggle.addEventListener(
+      "click",
+      () => {
+
+        if (!routeAvailable) return;
+
+
+        operatingStatus =
+          operatingStatus === "Break"
+            ? "Ride"
+            : "Break";
+
+
+        updateUI();
+
+      }
+    );
+
+
+    /* =========================================================
+       MAP VIEW
+       ========================================================= */
+
+    btnView.addEventListener(
+      "click",
+      () => {
+
+        mapView =
+          mapView === "Zoom"
+            ? "Wide"
+            : "Zoom";
+
+
+        updateUI();
+
+      }
+    );
+
+
+    updateUI();
+
+
+    /* =========================================================
+       GPS
+       ========================================================= */
 
     try {
 
-        await GPS.start(); gpsActive = true;
+      const GPS =
+        registerPlugin("GPS");
 
-    } catch (error) {
 
-        alert("GPS START FEHLER: " + error);
+      GPS.addListener(
+        "gpsData",
+        data => {
+
+          document.getElementById(
+            "vSpeed"
+          ).textContent =
+            `${(data.speed * 3.6).toFixed(1)} km/h`;
+
+
+          document.getElementById(
+            "vAltitude"
+          ).textContent =
+            `${data.altitude.toFixed(0)} m`;
+
+
+          const position = [
+            data.lat,
+            data.lon
+          ];
+
+
+          const speedKmh =
+            (Number(data.speed) || 0) * 3.6;
+
+
+          if (!gpsMarker) {
+
+            gpsMarker =
+              L.marker(
+                position,
+                {
+                  icon: gpsDotIcon,
+                  zIndexOffset: 1000
+                }
+              ).addTo(map);
+
+          } else {
+
+            gpsMarker.setLatLng(
+              position
+            );
+
+
+            gpsMarker.setIcon(
+              speedKmh >= 1
+                ? gpsArrowIcon
+                : gpsDotIcon
+            );
+          }
+
+
+          if (
+            data.courseValid &&
+            gpsMarker
+          ) {
+
+            const arrow =
+              gpsMarker
+                .getElement()
+                ?.querySelector("div");
+
+
+            if (arrow) {
+
+              arrow.style.transform =
+                `rotate(${data.course}deg)`;
+
+            }
+          }
+
+
+          if (!mapCenteredOnGps) {
+
+            mapCenteredOnGps = true;
+
+
+            setTimeout(
+              () =>
+                map.setView(
+                  position,
+                  17
+                ),
+              1000
+            );
+          }
+
+
+          lastGpsData = data;
+
+        }
+      );
+
+
+      setTimeout(
+        () =>
+          GPS.start().catch(
+            () => {}
+          ),
+        500
+      );
+
+    } catch (_) {
+
+      /* Browser-Vorschau ohne Capacitor */
 
     }
 
-}, 500);
-
-
-</script>
+  </script>
 
 </body>
 </html>
