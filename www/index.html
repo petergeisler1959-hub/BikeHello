@@ -201,6 +201,24 @@
       transform-origin: center;
     }
 
+    .route-cockpit-marker {
+      width: 20px;
+      height: 20px;
+
+      border: 2px solid #fff;
+      border-radius: 50%;
+
+      box-shadow: 0 1px 4px rgba(0,0,0,.55);
+    }
+
+    .route-cockpit-marker.start {
+      background: #d9534f;
+    }
+
+    .route-cockpit-marker.target {
+      background: #3aaa35;
+    }
+
 
     /* =========================================================
        ROUTE SCREEN
@@ -1413,6 +1431,8 @@
     let mapCenteredOnGps = false;
 
     let testRouteLine = null;
+    let routeStartMarker = null;
+    let routeTargetMarker = null;
 
 
     const gpsDotIcon =
@@ -1431,6 +1451,24 @@
         iconSize: [20,30],
         iconAnchor: [10,15]
       });
+
+
+    const routeStartIcon =
+      L.divIcon({
+        className: "",
+        html: '<div class="route-cockpit-marker start"></div>',
+        iconSize: [20,20],
+        iconAnchor: [10,10]
+      });
+
+
+    const routeTargetIcon =
+      L.divIcon({
+        className: "",
+        html: '<div class="route-cockpit-marker target"></div>',
+        iconSize: [20,20],
+        iconAnchor: [10,10]
+       });
 
 
     /* =========================================================
@@ -2992,3 +3030,4 @@
 
 </body>
 </html>
+
