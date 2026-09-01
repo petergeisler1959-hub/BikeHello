@@ -469,18 +469,39 @@
        ========================================================= */
 
     .route-connection {
+      position: relative;
+
       flex: 1;
 
       max-width: 105px;
       min-width: 15px;
 
-      height: 6px;
+      height: 8px;
 
       margin: 72px 8px 0;
 
-      border-radius: 3px;
+      border-radius: 4px;
 
       background: #2f6fed;
+    }
+
+    .route-connection::after {
+      content: "";
+
+      position: absolute;
+
+      right: -3px;
+      top: 50%;
+
+      width: 14px;
+      height: 14px;
+
+      border-top: 7px solid #2f6fed;
+      border-right: 7px solid #2f6fed;
+
+      transform: translateY(-50%) rotate(45deg);
+
+      border-radius: 1px;
     }
 
 
