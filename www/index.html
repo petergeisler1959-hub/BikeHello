@@ -2526,6 +2526,8 @@
           testRouteLine
         );
 
+       testRouteLine = null;
+
       }
 
 
@@ -2542,11 +2544,55 @@
           }
         ).addTo(map);
 
+      /* ---------------------------------------------------------
+         Start- und Zielmarker
+         --------------------------------------------------------- */
+
+      if (routeStartMarker) {
+
+        map.removeLayer(
+          routeStartMarker
+        );
+
+        routeStartMarker = null;
+
+      }
+
+
+      if (routeTargetMarker) {
+
+        map.removeLayer(
+          routeTargetMarker
+        );
+
+        routeTargetMarker = null;
+
+      }
+
+      routeStartMarker =
+        L.marker(
+          startPosition,
+          {
+            icon: routeStartIcon,
+            zIndexOffset: 900
+          }
+        ).addTo(map);
+
+
+      routeTargetMarker =
+        L.marker(
+          targetPosition,
+          {
+            icon: routeTargetIcon,
+            zIndexOffset: 900
+          }
+        ).addTo(map);
+
 
       /* ---------------------------------------------------------
          Mock-Distanz und Mock-Fahrzeit
          --------------------------------------------------------- */
-
+ 
       const distanceKm =
         calculateMockDistanceKm(
           selectedStart,
