@@ -421,7 +421,12 @@
 
       width: 100%;
 
-      min-height: 38px;
+      /*
+         Feste Höhe:
+         Mein Standort und ein zweizeiliger Kandidat
+         beanspruchen exakt denselben Platz.
+      */
+      height: 40px;
 
       margin-top: 9px;
 
@@ -443,10 +448,12 @@
 
       font-size: 15px;
       font-weight: 700;
+
+      min-height: 18px;
     }
 
     .route-selected-info-address {
-      min-height: 15px;
+      height: 15px;
 
       margin-top: 2px;
 
@@ -561,12 +568,16 @@
 
       flex: none;
 
-      width: 62px;
+      /*
+         Deutlich breiter als bisher.
+         Dadurch passt "MEIN STANDORT" bequem in eine Zeile.
+      */
+      width: 112px;
       height: 38px;
 
       margin-right: 3px;
 
-      padding: 0;
+      padding: 0 8px;
 
       border:
         1px solid
@@ -600,6 +611,8 @@
 
       align-items: center;
       justify-content: center;
+
+      width: 72px;
 
       gap: 2px;
 
@@ -858,6 +871,15 @@
         font-size: 16px;
       }
 
+      #btnMyLocation {
+        width: 108px;
+        font-size: 12px;
+      }
+
+      #btnRouteSearch.is-visible {
+        width: 70px;
+      }
+
     }
 
   </style>
@@ -1047,7 +1069,6 @@
 </header>
 
 
-
 <div class="route-page-body">
 
 
@@ -1178,7 +1199,6 @@
   </div>
 
 
-
   <!-- =====================================================
        INPUT
        ===================================================== -->
@@ -1200,7 +1220,7 @@
       <input
         id="routeInput"
         type="text"
-        placeholder="Ort, Adresse oder PLZ eingeben …"
+        placeholder="Ort, Adresse oder PLZ"
         autocomplete="off"
       >
 
@@ -1209,7 +1229,7 @@
         id="btnMyLocation"
         type="button"
       >
-        MEIN<br>STANDORT
+        MEIN STANDORT
       </button>
 
 
@@ -1224,7 +1244,6 @@
     </div>
 
   </section>
-
 
 
   <!-- =====================================================
@@ -1247,7 +1266,6 @@
 
 
 </div>
-
 
 
 <!-- =======================================================
@@ -2125,6 +2143,22 @@
           length >= 4
         );
 
+
+        /*
+           Sobald der Benutzer den Suchtext verändert,
+           werden alte Kandidaten ausgeblendet.
+           So gehören die Kandidaten immer zum aktuellen
+           Suchtext.
+        */
+
+        if (length < 4) {
+
+          routeCandidates.classList.remove(
+            "is-visible"
+          );
+
+        }
+
       }
     );
 
@@ -2224,17 +2258,25 @@
             .join("");
 
 
+        /*
+           WICHTIGE ÄNDERUNG:
+           Das Eingabefeld bleibt geöffnet!
+           Nur die Kandidaten werden zusätzlich
+           darunter eingeblendet.
+        */
+
         routeCandidates.classList.add(
           "is-visible"
         );
 
 
-        routeInputPanel.classList.remove(
-          "is-open"
-        );
+        /*
+           Die Lupe bleibt ebenfalls sichtbar,
+           damit der Benutzer nach einer Korrektur
+           erneut suchen kann.
+        */
 
-
-        btnRouteSearch.classList.remove(
+        btnRouteSearch.classList.add(
           "is-visible"
         );
 
@@ -2326,6 +2368,21 @@
 
 
                   routeCandidates.classList.remove(
+                    "is-visible"
+                  );
+
+
+                  routeInputPanel.classList.remove(
+                    "is-open"
+                  );
+
+
+                  btnRouteSearch.classList.remove(
+                    "is-visible"
+                  );
+
+
+                  btnMyLocation.classList.remove(
                     "is-visible"
                   );
 
@@ -2706,3 +2763,4 @@
 
 </body>
 </html>
+
