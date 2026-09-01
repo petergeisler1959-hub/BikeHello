@@ -421,12 +421,7 @@
 
       width: 100%;
 
-      /*
-         Feste Höhe:
-         Mein Standort und ein zweizeiliger Kandidat
-         beanspruchen exakt denselben Platz.
-      */
-      height: 40px;
+      min-height: 38px;
 
       margin-top: 9px;
 
@@ -448,12 +443,10 @@
 
       font-size: 15px;
       font-weight: 700;
-
-      min-height: 18px;
     }
 
     .route-selected-info-address {
-      height: 15px;
+      min-height: 15px;
 
       margin-top: 2px;
 
@@ -465,7 +458,7 @@
 
 
     /* =========================================================
-       CONNECTION
+       CONNECTION / PFEIL
        ========================================================= */
 
     .route-connection {
@@ -490,7 +483,7 @@
 
       position: absolute;
 
-      right: -3px;
+      right: 0px;
       top: 50%;
 
       width: 14px;
@@ -499,7 +492,9 @@
       border-top: 7px solid #2f6fed;
       border-right: 7px solid #2f6fed;
 
-      transform: translateY(-50%) rotate(45deg);
+      transform:
+        translateY(-50%)
+        rotate(45deg);
 
       border-radius: 1px;
     }
@@ -589,16 +584,12 @@
 
       flex: none;
 
-      /*
-         Deutlich breiter als bisher.
-         Dadurch passt "MEIN STANDORT" bequem in eine Zeile.
-      */
-      width: 112px;
+      width: 62px;
       height: 38px;
 
       margin-right: 3px;
 
-      padding: 0 8px;
+      padding: 0;
 
       border:
         1px solid
@@ -632,8 +623,6 @@
 
       align-items: center;
       justify-content: center;
-
-      width: 72px;
 
       gap: 2px;
 
@@ -890,15 +879,6 @@
 
       .route-page-actions button {
         font-size: 16px;
-      }
-
-      #btnMyLocation {
-        width: 108px;
-        font-size: 12px;
-      }
-
-      #btnRouteSearch.is-visible {
-        width: 70px;
       }
 
     }
@@ -1250,7 +1230,7 @@
         id="btnMyLocation"
         type="button"
       >
-        MEIN STANDORT
+        MEIN<br>STANDORT
       </button>
 
 
@@ -1972,13 +1952,6 @@
           )
         ) {
 
-          /*
-             Wenn nur ein Punkt festgelegt war,
-             bleibt der andere Punkt bestehen.
-             Ist er noch leer, wird er automatisch
-             ebenfalls zum eigenen Standort.
-          */
-
           if (
             activeRoutePoint === "start" &&
             !selectedTarget
@@ -2092,7 +2065,7 @@
 
 
     /* =========================================================
-       SUCHZÄHLER
+       REQUESTZÄHLER
        ========================================================= */
 
     function getTodayKey() {
@@ -2141,6 +2114,23 @@
     loadSearchCount();
 
 
+    function increaseRequestCount() {
+
+      routeSearchCount++;
+
+
+      localStorage.setItem(
+        "bikehello_route_search_count",
+        String(routeSearchCount)
+      );
+
+
+      routeSearchCountElement.textContent =
+        `(${routeSearchCount + 1})`;
+
+    }
+
+
     /* =========================================================
        INPUT
        ========================================================= */
@@ -2163,22 +2153,6 @@
           "is-visible",
           length >= 4
         );
-
-
-        /*
-           Sobald der Benutzer den Suchtext verändert,
-           werden alte Kandidaten ausgeblendet.
-           So gehören die Kandidaten immer zum aktuellen
-           Suchtext.
-        */
-
-        if (length < 4) {
-
-          routeCandidates.classList.remove(
-            "is-visible"
-          );
-
-        }
 
       }
     );
@@ -2236,17 +2210,7 @@
       "click",
       () => {
 
-        routeSearchCount++;
-
-
-        localStorage.setItem(
-          "bikehello_route_search_count",
-          String(routeSearchCount)
-        );
-
-
-        routeSearchCountElement.textContent =
-          `(${routeSearchCount + 1})`;
+        increaseRequestCount();
 
 
         routeCandidates.innerHTML =
@@ -2279,25 +2243,17 @@
             .join("");
 
 
-        /*
-           WICHTIGE ÄNDERUNG:
-           Das Eingabefeld bleibt geöffnet!
-           Nur die Kandidaten werden zusätzlich
-           darunter eingeblendet.
-        */
-
         routeCandidates.classList.add(
           "is-visible"
         );
 
 
-        /*
-           Die Lupe bleibt ebenfalls sichtbar,
-           damit der Benutzer nach einer Korrektur
-           erneut suchen kann.
-        */
+        routeInputPanel.classList.add(
+          "is-open"
+        );
 
-        btnRouteSearch.classList.add(
+
+        btnRouteSearch.classList.remove(
           "is-visible"
         );
 
@@ -2398,16 +2354,6 @@
                   );
 
 
-                  btnRouteSearch.classList.remove(
-                    "is-visible"
-                  );
-
-
-                  btnMyLocation.classList.remove(
-                    "is-visible"
-                  );
-
-
                   routeInput.blur();
 
 
@@ -2424,26 +2370,288 @@
 
 
     /* =========================================================
-       ROUTE BERECHNEN
+       MOCK ROUTENBERECHNUNG
        ========================================================= */
 
-    routeCalculateButton.addEventListener(
-      "click",
-      () => {
+    function calculateMockDistanceKm(
+      start,
+      target
+    ) {
 
-        /*
-           Noch keine echte Berechnung.
-           Hier kommt im nächsten Schritt
-           die Mock-Routenberechnung hinein.
-        */
+      const R = 6371;
 
-        console.log(
-          "Route berechnen:",
+
+      const lat1 =
+        start.lat *
+        Math.PI / 180;
+
+      const lat2 =
+        target.lat *
+        Math.PI / 180;
+
+
+      const deltaLat =
+        (target.lat - start.lat) *
+        Math.PI / 180;
+
+      const deltaLon =
+        (target.lon - start.lon) *
+        Math.PI / 180;
+
+
+      const a =
+        Math.sin(deltaLat / 2) ** 2 +
+        Math.cos(lat1) *
+        Math.cos(lat2) *
+        Math.sin(deltaLon / 2) ** 2;
+
+
+      const c =
+        2 *
+        Math.atan2(
+          Math.sqrt(a),
+          Math.sqrt(1 - a)
+        );
+
+
+      return R * c;
+
+    }
+
+
+    function formatMockTime(
+      minutes
+    ) {
+
+      const totalMinutes =
+        Math.max(
+          1,
+          Math.round(minutes)
+        );
+
+
+      const hours =
+        Math.floor(
+          totalMinutes / 60
+        );
+
+
+      const remainingMinutes =
+        totalMinutes % 60;
+
+
+      if (hours > 0) {
+
+        return `${hours}:${String(
+          remainingMinutes
+        ).padStart(2, "0")}`;
+
+      }
+
+
+      return `0:${String(
+        remainingMinutes
+      ).padStart(2, "0")}`;
+
+    }
+
+
+    function calculateMockRoute() {
+
+      if (
+        !selectedStart ||
+        !selectedTarget
+      ) {
+        return;
+      }
+
+
+      const startPosition = [
+        selectedStart.lat,
+        selectedStart.lon
+      ];
+
+
+      const targetPosition = [
+        selectedTarget.lat,
+        selectedTarget.lon
+      ];
+
+
+      /* ---------------------------------------------------------
+         Gerade Linie als Mock-Route
+         --------------------------------------------------------- */
+
+      if (testRouteLine) {
+
+        map.removeLayer(
+          testRouteLine
+        );
+
+      }
+
+
+      testRouteLine =
+        L.polyline(
+          [
+            startPosition,
+            targetPosition
+          ],
+          {
+            color: "#2f6fed",
+            weight: 6,
+            opacity: 0.9
+          }
+        ).addTo(map);
+
+
+      /* ---------------------------------------------------------
+         Mock-Distanz und Mock-Fahrzeit
+         --------------------------------------------------------- */
+
+      const distanceKm =
+        calculateMockDistanceKm(
           selectedStart,
           selectedTarget
         );
 
-      }
+
+      /*
+         Angenommene Durchschnittsgeschwindigkeit:
+         20 km/h
+      */
+
+      const timeMinutes =
+        distanceKm /
+        20 *
+        60;
+
+
+      document.getElementById(
+        "vDistLeft"
+      ).textContent =
+        distanceKm.toFixed(1);
+
+
+      document.getElementById(
+        "vDistTotal"
+      ).textContent =
+        `(${distanceKm.toFixed(1)})`;
+
+
+      document.getElementById(
+        "vTimeLeft"
+      ).textContent =
+        formatMockTime(
+          timeMinutes
+        );
+
+
+      document.getElementById(
+        "vTimeTotal"
+      ).textContent =
+        `(${formatMockTime(
+          timeMinutes
+        )})`;
+
+
+      /* ---------------------------------------------------------
+         Request zählen
+         --------------------------------------------------------- */
+
+      increaseRequestCount();
+
+
+      /* ---------------------------------------------------------
+         Route aktivieren
+         --------------------------------------------------------- */
+
+      routeAvailable = true;
+
+      operatingStatus = "Break";
+
+      mapView = "Zoom";
+
+
+      /* ---------------------------------------------------------
+         Route-Seite verlassen
+         --------------------------------------------------------- */
+
+      routeInput.blur();
+
+
+      routeInputPanel.classList.remove(
+        "is-open"
+      );
+
+
+      routeCandidates.classList.remove(
+        "is-visible"
+      );
+
+
+      btnRouteSearch.classList.remove(
+        "is-visible"
+      );
+
+
+      btnMyLocation.classList.remove(
+        "is-visible"
+      );
+
+
+      activeRoutePoint = null;
+
+
+      routeCalculateButton.classList.remove(
+        "is-visible"
+      );
+
+
+      routeScreen.classList.remove(
+        "is-active"
+      );
+
+
+      cockpitScreen.classList.add(
+        "is-active"
+      );
+
+
+      requestAnimationFrame(
+        () => {
+
+          map.invalidateSize(true);
+
+
+          if (testRouteLine) {
+
+            map.fitBounds(
+              testRouteLine.getBounds(),
+              {
+                animate: false,
+                padding: [30,30]
+              }
+            );
+
+          }
+
+        }
+      );
+
+
+      updateUI();
+
+    }
+
+
+    /* =========================================================
+       ROUTE BERECHNEN BUTTON
+       ========================================================= */
+
+    routeCalculateButton.addEventListener(
+      "click",
+      calculateMockRoute
     );
 
 
@@ -2784,4 +2992,3 @@
 
 </body>
 </html>
-
