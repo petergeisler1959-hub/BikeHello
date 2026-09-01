@@ -239,7 +239,7 @@
 
       color: #444;
 
-      font-size: 16px;
+      font-size: 22px;
       font-weight: 600;
     }
 
@@ -255,7 +255,7 @@
       overflow-y: auto;
       overscroll-behavior: contain;
 
-      padding: 4px 0 0px;
+      padding: 4px 0 0;
     }
 
 
@@ -280,14 +280,10 @@
 
       flex-direction: column;
       align-items: center;
+
+      width: clamp(145px, 39vw, 165px);
     }
 
-
-    /*
-       Deutlich größere Kreise.
-       Ca. 1,5-facher Durchmesser gegenüber der
-       letzten stark komprimierten Version.
-    */
 
     .route-point-circle {
       position: relative;
@@ -415,33 +411,60 @@
         0 1px 2px rgba(255,255,255,.9);
     }
 
-    .route-selected-name {
+
+    /* =========================================================
+       NAME / ADDRESS UNDER CIRCLE
+       ========================================================= */
+
+    .route-selected-info {
       display: none;
 
-      max-width: 88%;
+      width: 100%;
 
-      margin-top: 6px;
-
-      color: #444;
-
-      font-size: 14px;
-      line-height: 1.2;
-
-      font-weight: 700;
+      margin-top: 9px;
 
       text-align: center;
+
+      line-height: 1.2;
 
       text-shadow:
         0 1px 2px rgba(255,255,255,.95);
     }
 
-    .route-point-circle.has-location
-    .route-selected-name {
+    .route-point.has-location
+    .route-selected-info {
       display: block;
     }
 
-    .route-point-circle.has-location
-    .route-point-text {
+    .route-selected-info-name {
+      color: #444;
+
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .route-selected-info-address {
+      margin-top: 2px;
+
+      color: #777;
+
+      font-size: 12px;
+      font-weight: 400;
+    }
+
+
+    /* =========================================================
+       MEIN STANDORT
+       ========================================================= */
+
+    .route-selected-info.my-location
+    .route-selected-info-name {
+      font-size: 15px;
+      font-weight: 700;
+    }
+
+    .route-selected-info.my-location
+    .route-selected-info-address {
       display: none;
     }
 
@@ -599,11 +622,6 @@
       width: 100%;
       max-width: 600px;
 
-      /*
-         Deutlich sichtbarer Abstand zwischen Suchfeld
-         und erstem Kandidaten.
-      */
-
       margin: 18px auto 0;
     }
 
@@ -664,6 +682,46 @@
 
 
     /* =========================================================
+       ROUTE BERECHNEN
+       ========================================================= */
+
+    #routeCalculateButton {
+      display: none;
+
+      width: 100%;
+      max-width: 600px;
+
+      min-height: 52px;
+
+      margin: 18px auto 0;
+
+      border:
+        1px solid
+        rgba(47,111,237,.45);
+
+      border-radius: 9px;
+
+      background:
+        #dce9ff;
+
+      color:
+        #2455a7;
+
+      box-shadow:
+        0 4px 10px rgba(0,0,0,.18);
+
+      cursor: pointer;
+
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    #routeCalculateButton.is-visible {
+      display: block;
+    }
+
+
+    /* =========================================================
        BOTTOM BUTTONS
        ========================================================= */
 
@@ -689,10 +747,6 @@
       background: #f8faf8;
     }
 
-    /*
-       Gleicher Grund-Look wie die Buttons auf der Startseite.
-    */
-
     .route-page-actions button {
       flex: 1;
 
@@ -715,7 +769,7 @@
 
 
     /* =========================================================
-       ROUTENLISTE – DEZENT BLAU
+       ROUTENLISTE
        ========================================================= */
 
     #btnRouteList {
@@ -731,7 +785,7 @@
 
 
     /* =========================================================
-       CANCEL – KRÄFTIGERES ROT
+       CANCEL
        ========================================================= */
 
     #btnRouteCancel {
@@ -785,8 +839,12 @@
 
     @media (max-width: 370px) {
 
+      .route-point,
       .route-point-circle {
         width: 135px;
+      }
+
+      .route-point-circle {
         height: 135px;
       }
 
@@ -1002,7 +1060,10 @@
 
     <!-- START -->
 
-    <div class="route-point">
+    <div
+      id="routeStartPoint"
+      class="route-point"
+    >
 
       <button
         id="routeStartCircle"
@@ -1027,14 +1088,27 @@
             START
           </span>
 
-          <span
-            id="routeStartName"
-            class="route-selected-name"
-          ></span>
-
         </div>
 
       </button>
+
+
+      <div
+        id="routeStartInfo"
+        class="route-selected-info"
+      >
+
+        <div
+          id="routeStartInfoName"
+          class="route-selected-info-name"
+        ></div>
+
+        <div
+          id="routeStartInfoAddress"
+          class="route-selected-info-address"
+        ></div>
+
+      </div>
 
     </div>
 
@@ -1049,7 +1123,10 @@
 
     <!-- ZIEL -->
 
-    <div class="route-point">
+    <div
+      id="routeTargetPoint"
+      class="route-point"
+    >
 
       <button
         id="routeTargetCircle"
@@ -1074,14 +1151,27 @@
             ZIEL
           </span>
 
-          <span
-            id="routeTargetName"
-            class="route-selected-name"
-          ></span>
-
         </div>
 
       </button>
+
+
+      <div
+        id="routeTargetInfo"
+        class="route-selected-info"
+      >
+
+        <div
+          id="routeTargetInfoName"
+          class="route-selected-info-name"
+        ></div>
+
+        <div
+          id="routeTargetInfoAddress"
+          class="route-selected-info-address"
+        ></div>
+
+      </div>
 
     </div>
 
@@ -1134,6 +1224,18 @@
        ===================================================== -->
 
   <div id="routeCandidates"></div>
+
+
+  <!-- =====================================================
+       ROUTE BERECHNEN
+       ===================================================== -->
+
+  <button
+    id="routeCalculateButton"
+    type="button"
+  >
+    ROUTE BERECHNEN
+  </button>
 
 
 </div>
@@ -1215,6 +1317,9 @@
 
     const routeSearchCountElement =
       document.getElementById("routeSearchCount");
+
+    const routeCalculateButton =
+      document.getElementById("routeCalculateButton");
 
 
     /* =========================================================
@@ -1340,8 +1445,7 @@
 
     function showMiniMap(
       point,
-      position,
-      name
+      position
     ) {
 
       const circle =
@@ -1349,14 +1453,6 @@
           point === "start"
             ? "routeStartCircle"
             : "routeTargetCircle"
-        );
-
-
-      const nameElement =
-        document.getElementById(
-          point === "start"
-            ? "routeStartName"
-            : "routeTargetName"
         );
 
 
@@ -1385,9 +1481,6 @@
 
         miniMap = targetMiniMap;
       }
-
-
-      nameElement.textContent = name;
 
 
       circle.classList.add(
@@ -1451,6 +1544,157 @@
 
 
     /* =========================================================
+       AUSGEWÄHLTE PUNKTE DARSTELLEN
+       ========================================================= */
+
+    function updateSelectedInfo() {
+
+      updateSelectedPoint(
+        "start",
+        selectedStart
+      );
+
+      updateSelectedPoint(
+        "target",
+        selectedTarget
+      );
+
+
+      routeCalculateButton.classList.toggle(
+        "is-visible",
+        Boolean(
+          selectedStart &&
+          selectedTarget
+        )
+      );
+
+    }
+
+
+    function updateSelectedPoint(
+      point,
+      data
+    ) {
+
+      const pointElement =
+        document.getElementById(
+          point === "start"
+            ? "routeStartPoint"
+            : "routeTargetPoint"
+        );
+
+      const circle =
+        document.getElementById(
+          point === "start"
+            ? "routeStartCircle"
+            : "routeTargetCircle"
+        );
+
+      const nameElement =
+        document.getElementById(
+          point === "start"
+            ? "routeStartInfoName"
+            : "routeTargetInfoName"
+        );
+
+      const addressElement =
+        document.getElementById(
+          point === "start"
+            ? "routeStartInfoAddress"
+            : "routeTargetInfoAddress"
+        );
+
+
+      if (!data) {
+
+        pointElement.classList.remove(
+          "has-location"
+        );
+
+        circle.classList.remove(
+          "has-location"
+        );
+
+        nameElement.textContent = "";
+        addressElement.textContent = "";
+
+        return;
+      }
+
+
+      pointElement.classList.add(
+        "has-location"
+      );
+
+      circle.classList.add(
+        "has-location"
+      );
+
+
+      nameElement.textContent =
+        data.name;
+
+      addressElement.textContent =
+        data.address || "";
+
+
+      showMiniMap(
+        point,
+        [
+          data.lat,
+          data.lon
+        ]
+      );
+
+    }
+
+
+    function setMyLocationAsPoint(
+      point
+    ) {
+
+      if (!lastGpsData) {
+        return false;
+      }
+
+
+      const locationData = {
+
+        name: "Mein Standort",
+
+        address: "",
+
+        lat: lastGpsData.lat,
+
+        lon: lastGpsData.lon,
+
+        isMyLocation: true
+
+      };
+
+
+      if (point === "start") {
+
+        selectedStart =
+          locationData;
+
+      } else {
+
+        selectedTarget =
+          locationData;
+
+      }
+
+
+      updateSelectedInfo();
+
+
+      return true;
+
+    }
+
+
+    /* =========================================================
        ROUTE PAGE
        ========================================================= */
 
@@ -1462,6 +1706,20 @@
 
       routeScreen.classList.add(
         "is-active"
+      );
+
+      requestAnimationFrame(
+        () => {
+
+          if (startMiniMap) {
+            startMiniMap.invalidateSize(true);
+          }
+
+          if (targetMiniMap) {
+            targetMiniMap.invalidateSize(true);
+          }
+
+        }
       );
 
     }
@@ -1478,6 +1736,11 @@
 
 
       routeCandidates.classList.remove(
+        "is-visible"
+      );
+
+
+      btnRouteSearch.classList.remove(
         "is-visible"
       );
 
@@ -1524,6 +1787,11 @@
 
 
       routeCandidates.classList.remove(
+        "is-visible"
+      );
+
+
+      btnRouteSearch.classList.remove(
         "is-visible"
       );
 
@@ -1597,6 +1865,10 @@
           );
 
           routeCandidates.classList.remove(
+            "is-visible"
+          );
+
+          btnRouteSearch.classList.remove(
             "is-visible"
           );
 
@@ -1773,6 +2045,11 @@
         );
 
 
+        routeInputPanel.classList.remove(
+          "is-open"
+        );
+
+
         btnRouteSearch.classList.remove(
           "is-visible"
         );
@@ -1810,10 +2087,16 @@
                   ] = selected;
 
 
-                  const position = [
+                  const selectedData = {
+
+                    name,
+                    address,
                     lat,
-                    lon
-                  ];
+                    lon,
+
+                    isMyLocation: false
+
+                  };
 
 
                   if (
@@ -1821,35 +2104,48 @@
                     "start"
                   ) {
 
-                    selectedStart = {
-                      name,
-                      address,
-                      lat,
-                      lon
-                    };
+                    selectedStart =
+                      selectedData;
+
+
+                    /*
+                       Wenn nur START gewählt wurde,
+                       wird ZIEL automatisch zum
+                       eigenen Standort.
+                    */
+
+                    if (!selectedTarget) {
+
+                      setMyLocationAsPoint(
+                        "target"
+                      );
+
+                    }
 
                   } else {
 
-                    selectedTarget = {
-                      name,
-                      address,
-                      lat,
-                      lon
-                    };
+                    selectedTarget =
+                      selectedData;
+
+
+                    /*
+                       Wenn nur ZIEL gewählt wurde,
+                       wird START automatisch zum
+                       eigenen Standort.
+                    */
+
+                    if (!selectedStart) {
+
+                      setMyLocationAsPoint(
+                        "start"
+                      );
+
+                    }
 
                   }
 
 
-                  showMiniMap(
-                    activeRoutePoint,
-                    position,
-                    name
-                  );
-
-
-                  routeInputPanel.classList.remove(
-                    "is-open"
-                  );
+                  updateSelectedInfo();
 
 
                   routeCandidates.classList.remove(
@@ -1859,11 +2155,37 @@
 
                   routeInput.blur();
 
+
+                  activeRoutePoint = null;
+
                 }
               );
 
             }
           );
+
+      }
+    );
+
+
+    /* =========================================================
+       ROUTE BERECHNEN
+       ========================================================= */
+
+    routeCalculateButton.addEventListener(
+      "click",
+      () => {
+
+        /*
+           Noch keine echte Berechnung.
+           Hier kommt später GraphHopper hinein.
+        */
+
+        console.log(
+          "Route berechnen:",
+          selectedStart,
+          selectedTarget
+        );
 
       }
     );
