@@ -202,13 +202,24 @@
     }
 
     .route-cockpit-marker {
-      width: 20px;
-      height: 20px;
-
+      position: relative;
+      width: 24px;
+      height: 24px;
       border: 2px solid #fff;
-      border-radius: 50%;
-
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
       box-shadow: 0 1px 4px rgba(0,0,0,.55);
+    }
+
+    .route-cockpit-marker::after {
+      content: "";
+      position: absolute;
+      width: 7px;
+      height: 7px;
+      left: 6.5px;
+      top: 6.5px;
+      background: #fff;
+      border-radius: 50%;
     }
 
     .route-cockpit-marker.start {
@@ -1457,8 +1468,8 @@
       L.divIcon({
         className: "",
         html: '<div class="route-cockpit-marker start"></div>',
-        iconSize: [20,20],
-        iconAnchor: [10,10]
+        iconSize: [24,24],
+        iconAnchor: [12,24]
       });
 
 
@@ -1466,8 +1477,8 @@
       L.divIcon({
         className: "",
         html: '<div class="route-cockpit-marker target"></div>',
-        iconSize: [20,20],
-        iconAnchor: [10,10]
+        iconSize: [24,24],
+        iconAnchor: [12,24]
        });
 
 
