@@ -884,21 +884,22 @@
 
     .route-mini-marker {
       position: relative;
-      width: 16px;
-      height: 16px;
+      width: 28px;
+      height: 28px;
       border: 2px solid #fff;
       border-radius: 50% 50% 50% 0;
       transform: rotate(-45deg);
       box-shadow: 0 1px 4px rgba(0,0,0,.55);
+      background: #d9534f;
     }
 
     .route-mini-marker::after {
       content: "";
       position: absolute;
-      width: 5px;
-      height: 5px;
-      left: 4.5px;
-      top: 4.5px;
+      width: 8px;
+      height: 8px;
+      left: 8px;
+      top: 8px;
       background: #fff;
       border-radius: 50%;
     }
@@ -1620,11 +1621,11 @@
           className: "",
 
           html:
-            `<div class="route-mini-marker ${point === "target" ? "target" : ""}"></div>`,
+            `<div class="route-mini-marker ${point === "target" ? "target" : "start"}"></div>`,
 
-          iconSize: [16,16],
+          iconSize: [28,28],
 
-          iconAnchor: [8,8]
+          iconAnchor: [14,14]
         });
 
 
