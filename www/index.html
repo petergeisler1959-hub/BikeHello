@@ -230,6 +230,19 @@
       background: #3aaa35;
     }
 
+    /* Marker in den großen START-/ZIEL-Kreisen */
+    .route-point-circle .route-cockpit-marker {
+      width: 30px;
+      height: 30px;
+    }
+
+    .route-point-circle .route-cockpit-marker::after {
+      width: 8px;
+      height: 8px;
+      left: 8px;
+      top: 8px;
+    }
+
 
     /* =========================================================
        ROUTE SCREEN
@@ -870,18 +883,28 @@
     }
 
     .route-mini-marker {
+      position: relative;
       width: 16px;
       height: 16px;
-
       border: 2px solid #fff;
+      border-radius: 50% 50% 50% 0;
+      transform: rotate(-45deg);
+      box-shadow: 0 1px 4px rgba(0,0,0,.55);
+    }
 
+    .route-mini-marker::after {
+      content: "";
+      position: absolute;
+      width: 5px;
+      height: 5px;
+      left: 4.5px;
+      top: 4.5px;
+      background: #fff;
       border-radius: 50%;
+    }
 
+    .route-mini-marker.start {
       background: #d9534f;
-
-      box-shadow:
-        0 1px 4px
-        rgba(0,0,0,.55);
     }
 
     .route-mini-marker.target {
@@ -1135,9 +1158,7 @@
 
         <div class="route-circle-content">
 
-          <span
-            class="route-marker start-marker"
-          ></span>
+          <span class="route-cockpit-marker start"></span>
 
           <span class="route-point-text">
             START
@@ -1198,9 +1219,7 @@
 
         <div class="route-circle-content">
 
-          <span
-            class="route-marker target-marker"
-          ></span>
+          <span class="route-cockpit-marker target"></span>
 
           <span class="route-point-text">
             ZIEL
