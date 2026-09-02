@@ -638,6 +638,10 @@
       white-space: nowrap;
     }
 
+    #btnMyLocation {
+      width: 110px;
+    }
+
     #btnMyLocation.is-visible {
       display: flex;
 
@@ -2903,9 +2907,34 @@
       }
 
 
+      if (routeStartMarker) {
+
+        map.removeLayer(
+          routeStartMarker
+        );
+
+        routeStartMarker = null;
+
+      }
+
+
+      if (routeTargetMarker) {
+
+        map.removeLayer(
+          routeTargetMarker
+        );
+
+        routeTargetMarker = null;
+
+      }
+
+
       routeAvailable = false;
 
       operatingStatus = "Break";
+
+
+      resetRouteSelection();
 
 
       updateUI();
