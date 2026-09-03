@@ -956,7 +956,6 @@
     class="screen is-active"
   >
 
-```
 <div id="mapWrapper">
   <div id="map"></div>
 </div>
@@ -1104,7 +1103,6 @@
   </div>
 
 </nav>
-```
 
   </main>
 
@@ -1118,7 +1116,6 @@
     aria-label="Route planen"
   >
 
-```
 <header class="route-page-header">
 
   <h1 class="route-page-title">
@@ -1347,7 +1344,6 @@
   </button>
 
 </footer>
-```
 
   </main>
 
@@ -2225,7 +2221,7 @@
 
         btnRouteSearch.classList.toggle(
           "is-visible",
-          length >= 4
+          length >= 10
         );
 
       }
@@ -2233,47 +2229,175 @@
 
 
     /* =========================================================
-       TESTKANDIDATEN
+       GRAPHHOPPER GEOCODING
        ========================================================= */
 
-    const candidates = [
+    /*
+       API-Key hier eintragen.
+       Der Key wird später nicht erneut im Chat ausgegeben.
+    */
+    const GRAPHHOPPER_API_KEY = "433044ea-af81-4461-ba34-e174c2d9535a";
 
-      [
-        "Luisenplatz",
-        "Luisenplatz 5, 64283 Darmstadt",
-        49.8728292,
-        8.6509408
-      ],
+    let candidates = [];
 
-      [
-        "Darmstadt Hbf",
-        "Am Hauptbahnhof, 64293 Darmstadt",
-        49.8727589,
-        8.6299198
-      ],
 
-      [
-        "Mathildenhöhe",
-        "Olbrichweg 15, 64287 Darmstadt",
-        49.8768456,
-        8.6671662
-      ],
+    function formatCandidateAddress(hit) {
+      const street =
+        hit.street
+          ? `${hit.street}${hit.housenumber || hit.house_number ? ` ${hit.housenumber || hit.house_number}` : ""}`
+          : "";
 
-      [
-        "Stadion am Böllenfalltor",
-        "Nieder-Ramstädter-Straße 170, 64285 Darmstadt",
-        49.8576828,
-        8.6721702
-      ],
+      const city =
+        [hit.postcode, hit.city]
+          .filter(Boolean)
+          .join(" ");
 
-      [
-        "Ludwigsturm",
-        "Auf der Ludwigshöhe, 64285 Darmstadt",
-        49.8431272,
-        8.6609738
-      ]
+      const parts =
+        [street, city]
+          .filter(Boolean);
 
-    ];
+      if (parts.length > 0) {
+        return parts.join(", ");
+      }
+
+      return [hit.district, hit.state, hit.country]
+        .filter(Boolean)
+        .join(", ");
+    }
+
+
+    async function searchGraphHopper() {
+      const query = routeInput.value.trim();
+
+      if (query.length < 10) {
+        return;
+      }
+
+      if (!GRAPHHOPPER_API_KEY ||
+          GRAPHHOPPER_API_KEY === "YOUR_GRAPHHOPPER_API_KEY") {
+        routeCandidates.innerHTML = `
+          <div class="route-candidate">
+            <span class="route-candidate-name">GraphHopper API-Key fehlt</span>
+            <span class="route-candidate-address">Bitte den API-Key in index.html eintragen.</span>
+          </div>
+        `;
+        routeCandidates.classList.add("is-visible");
+        return;
+      }
+
+      const url =
+        "https://graphhopper.com/api/1/geocode" +
+        `?q=${encodeURIComponent(query)}` +
+        `&locale=de&limit=5&key=${encodeURIComponent(GRAPHHOPPER_API_KEY)}`;
+
+      /* Jeder tatsächliche GraphHopper-Request zählt als 1 interner Request. */
+      increaseRequestCount();
+
+      routeCandidates.innerHTML = `
+        <div class="route-candidate">
+          <span class="route-candidate-name">Suche läuft …</span>
+        </div>
+      `;
+      routeCandidates.classList.add("is-visible");
+
+      btnRouteSearch.classList.remove("is-visible");
+      btnMyLocation.classList.remove("is-visible");
+
+      try {
+        const response = await fetch(url);
+
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const data = await response.json();
+        candidates = Array.isArray(data.hits) ? data.hits : [];
+
+        if (candidates.length === 0) {
+          routeCandidates.innerHTML = `
+            <div class="route-candidate">
+              <span class="route-candidate-name">Keine Treffer</span>
+              <span class="route-candidate-address">Bitte Suchbegriff prüfen.</span>
+            </div>
+          `;
+          return;
+        }
+
+        routeCandidates.innerHTML =
+          candidates
+            .map((hit, index) => {
+              const name = hit.name || "Unbekannter Ort";
+              const address = formatCandidateAddress(hit);
+
+              return `
+                <button
+                  class="route-candidate"
+                  type="button"
+                  data-index="${index}"
+                >
+                  <span class="route-candidate-name">
+                    ${name}
+                  </span>
+                  <span class="route-candidate-address">
+                    ${address}
+                  </span>
+                </button>
+              `;
+            })
+            .join("");
+
+        routeCandidates
+          .querySelectorAll(".route-candidate")
+          .forEach(button => {
+            button.addEventListener("click", () => {
+              const index = Number(button.dataset.index);
+              const selected = candidates[index];
+
+              if (!selected || !selected.point) {
+                return;
+              }
+
+              const selectedData = {
+                name: selected.name || "Unbekannter Ort",
+                address: formatCandidateAddress(selected),
+                lat: selected.point.lat,
+                lon: selected.point.lng,
+                isMyLocation: false
+              };
+
+              if (activeRoutePoint === "start") {
+                selectedStart = selectedData;
+
+                if (!selectedTarget) {
+                  setMyLocationAsPoint("target");
+                }
+              } else if (activeRoutePoint === "target") {
+                selectedTarget = selectedData;
+
+                if (!selectedStart) {
+                  setMyLocationAsPoint("start");
+                }
+              }
+
+              updateSelectedInfo();
+
+              routeCandidates.classList.remove("is-visible");
+              routeInputPanel.classList.remove("is-open");
+              routeInput.blur();
+              activeRoutePoint = null;
+            });
+          });
+      } catch (error) {
+        console.error("GraphHopper Geocoding:", error);
+
+        routeCandidates.innerHTML = `
+          <div class="route-candidate">
+            <span class="route-candidate-name">Suche nicht möglich</span>
+            <span class="route-candidate-address">GraphHopper konnte nicht erreicht werden.</span>
+          </div>
+        `;
+      }
+    }
 
 
     /* =========================================================
@@ -2282,164 +2406,7 @@
 
     btnRouteSearch.addEventListener(
       "click",
-      () => {
-
-        increaseRequestCount();
-
-
-        routeCandidates.innerHTML =
-          candidates
-            .map(
-              ([name,address]) => `
-
-                <button
-                  class="route-candidate"
-                  type="button"
-                  data-name="${name}"
-                >
-
-                  <span
-                    class="route-candidate-name"
-                  >
-                    ${name}
-                  </span>
-
-                  <span
-                    class="route-candidate-address"
-                  >
-                    ${address}
-                  </span>
-
-                </button>
-
-              `
-            )
-            .join("");
-
-
-        routeCandidates.classList.add(
-          "is-visible"
-        );
-
-
-        routeInputPanel.classList.add(
-          "is-open"
-        );
-
-
-        btnRouteSearch.classList.remove(
-          "is-visible"
-        );
-
-
-        btnMyLocation.classList.remove(
-          "is-visible"
-        );
-
-
-        document
-          .querySelectorAll(
-            ".route-candidate"
-          )
-          .forEach(
-            button => {
-
-              button.addEventListener(
-                "click",
-                () => {
-
-                  const selected =
-                    candidates.find(
-                      candidate =>
-                        candidate[0] ===
-                        button.dataset.name
-                    );
-
-
-                  if (!selected) {
-                    return;
-                  }
-
-
-                  const [
-                    name,
-                    address,
-                    lat,
-                    lon
-                  ] = selected;
-
-
-                  const selectedData = {
-
-                    name,
-                    address,
-                    lat,
-                    lon,
-
-                    isMyLocation: false
-
-                  };
-
-
-                  if (
-                    activeRoutePoint ===
-                    "start"
-                  ) {
-
-                    selectedStart =
-                      selectedData;
-
-
-                    if (!selectedTarget) {
-
-                      setMyLocationAsPoint(
-                        "target"
-                      );
-
-                    }
-
-                  } else {
-
-                    selectedTarget =
-                      selectedData;
-
-
-                    if (!selectedStart) {
-
-                      setMyLocationAsPoint(
-                        "start"
-                      );
-
-                    }
-
-                  }
-
-
-                  updateSelectedInfo();
-
-
-                  routeCandidates.classList.remove(
-                    "is-visible"
-                  );
-
-
-                  routeInputPanel.classList.remove(
-                    "is-open"
-                  );
-
-
-                  routeInput.blur();
-
-
-                  activeRoutePoint = null;
-
-                }
-              );
-
-            }
-          );
-
-      }
+      searchGraphHopper
     );
 
 
@@ -2673,13 +2640,6 @@
         `(${formatMockTime(
           timeMinutes
         )})`;
-
-
-      /* ---------------------------------------------------------
-         Request zählen
-         --------------------------------------------------------- */
-
-      increaseRequestCount();
 
 
       /* ---------------------------------------------------------
@@ -3137,4 +3097,3 @@
 
 </body>
 </html>
-
