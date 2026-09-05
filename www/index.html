@@ -1431,8 +1431,8 @@
     const SCREEN_WAKE_GRACE_MS = 5 * 60 * 1000;
 
     let screenWakeTimer = null;
+    let screenWakeGraceActive = false;
     let screenIsKeptAwake = false;
-
 
     async function setScreenKeepAwake(enabled) {
 
@@ -1451,7 +1451,6 @@
       }
     }
 
-
     function cancelScreenWakeTimer() {
 
       if (screenWakeTimer) {
@@ -1462,14 +1461,15 @@
 
         screenWakeTimer = null;
       }
-    }
 
+      screenWakeGraceActive = false;
+    }
 
     function updateScreenWakeLogic(speedKmh) {
 
       /*
          Nur im aktiven Ride-Modus
-         darf der Bildschirm dauerhaft wach bleiben.
+         darf der Bildschirm wach bleiben.
       */
 
       if (
@@ -1484,10 +1484,11 @@
         return;
       }
 
-
       /*
-         Während der Fahrt:
-         Bildschirm dauerhaft wach.
+          Bewegung ab 2 km/h:
+          Bildchirm dauerhaft wach.
+          Einen eventuell laufenden
+          5-Minuten-Nachlauf abbrechen.
       */
 
       if (
@@ -1501,21 +1502,26 @@
         return;
       }
 
-
       /*
-         Ride + unter 2 km/h:
-         5 Minuten Nachlauf beginnen.
+         Unter 2 km/h:
+         Nur dann einen 5-Minuten-Nachlauf
+         starten, wenn der Bildschirm vorher
+         durch die Fahrt wachgehalten wurde.
       */
 
       if (
-        !screenWakeTimer
+        screenIsKeptAwake &&
+        !screenWakeGraceActive
       ) {
+
+        screenWakeGraceActive = true;
 
         screenWakeTimer =
           setTimeout(
             () => {
 
               screenWakeTimer = null;
+              screenWakeGraceActive = false;
 
               setScreenKeepAwake(false);
 
@@ -1523,7 +1529,6 @@
             SCREEN_WAKE_GRACE_MS
           );
       }
-
     }
 
 
@@ -3119,6 +3124,8 @@
           const speedKmh =
             (Number(data.speed) || 0) *
             3.6;
+
+          updateScreenWakeLogic(speedKmh);
 
 
           if (!gpsMarker) {
