@@ -32,6 +32,7 @@
 		504EC3111FED79650016851F /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		504EC3131FED79650016851F /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
                 A1B2C3D32E3F456789ABCDEF /* MagnetometerPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MagnetometerPlugin.swift; sourceTree = "<group>"; };
+                B1C2D3E32E3F456789ABCDEF /* MainViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainViewController.swift; sourceTree = "<group>"; };
                 C1D2E3F32E3F456789ABCDEF /* GPSPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GPSPlugin.swift; sourceTree = "<group>"; };
 		D1E2F3A32E3F456789ABCDEF /* ScreenPlugin.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ScreenPlugin.swift; sourceTree = "<group>"; };
 		50B271D01FEDC1A000F3C39B /* public */ = {isa = PBXFileReference; lastKnownFileType = folder; path = public; sourceTree = "<group>"; };
