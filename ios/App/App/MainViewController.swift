@@ -5,5 +5,6 @@ class MainViewController: CAPBridgeViewController {
     override func capacitorDidLoad() {
         bridge?.registerPluginInstance(MagnetometerPlugin())
         bridge?.registerPluginInstance(GPSPlugin())
+        bridge?.registerPluginInstance(ScreenPlugin())
     }
 }
