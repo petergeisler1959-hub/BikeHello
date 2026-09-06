@@ -2881,12 +2881,12 @@
     updateUI();
 
 
-  } catch (error) {
+    } catch (error) {
 
-    console.error(
-      "GraphHopper Routing:",
-      error
-    );
+      console.error(
+        "GraphHopper Routing:",
+        error
+      );
 
 
     /*
@@ -2919,93 +2919,10 @@
 }
 
 
-      /* ---------------------------------------------------------
-         Route aktivieren
-         --------------------------------------------------------- */
-
-      routeAvailable = true;
-
-      operatingStatus = "Break";
-
-      mapView = "Zoom";
-
-
-      /* ---------------------------------------------------------
-         Route-Seite verlassen
-         --------------------------------------------------------- */
-
-      routeInput.blur();
-
-
-      routeInputPanel.classList.remove(
-        "is-open"
-      );
-
-
-      routeCandidates.classList.remove(
-        "is-visible"
-      );
-
-
-      btnRouteSearch.classList.remove(
-        "is-visible"
-      );
-
-
-      btnMyLocation.classList.remove(
-        "is-visible"
-      );
-
-
-      activeRoutePoint = null;
-
-
-      routeCalculateButton.classList.remove(
-        "is-visible"
-      );
-
-
-      routeScreen.classList.remove(
-        "is-active"
-      );
-
-
-      cockpitScreen.classList.add(
-        "is-active"
-      );
-
-
-      requestAnimationFrame(
-        () => {
-
-          map.invalidateSize(true);
-
-
-          if (testRouteLine) {
-
-            map.fitBounds(
-              testRouteLine.getBounds(),
-              {
-                animate: false,
-                padding: [30,30]
-              }
-            );
-
-          }
-
-        }
-      );
-
-
-      updateUI();
-
-    }
-
-
     /* =========================================================
        ROUTE BERECHNEN BUTTON
        ========================================================= */
-
+ 
     routeCalculateButton.addEventListener(
       "click",
       calculateGraphHopperRoute
