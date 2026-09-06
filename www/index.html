@@ -2522,56 +2522,10 @@
 
 
     /* =========================================================
-       MOCK ROUTENBERECHNUNG
+       GRAPHHOPPER ROUTENBERECHNUNG
        ========================================================= */
 
-    function calculateMockDistanceKm(
-      start,
-      target
-    ) {
-
-      const R = 6371;
-
-
-      const lat1 =
-        start.lat *
-        Math.PI / 180;
-
-      const lat2 =
-        target.lat *
-        Math.PI / 180;
-
-
-      const deltaLat =
-        (target.lat - start.lat) *
-        Math.PI / 180;
-
-      const deltaLon =
-        (target.lon - start.lon) *
-        Math.PI / 180;
-
-
-      const a =
-        Math.sin(deltaLat / 2) ** 2 +
-        Math.cos(lat1) *
-        Math.cos(lat2) *
-        Math.sin(deltaLon / 2) ** 2;
-
-
-      const c =
-        2 *
-        Math.atan2(
-          Math.sqrt(a),
-          Math.sqrt(1 - a)
-        );
-
-
-      return R * c;
-
-    }
-
-
-    function formatMockTime(
+    function formatRouteTime(
       minutes
     ) {
 
@@ -2608,7 +2562,7 @@
     }
 
 
-    function calculateMockRoute() {
+    async function calculateGraphHopperRoute() {
 
       if (
         !selectedStart ||
@@ -2618,20 +2572,26 @@
       }
 
 
-      const startPosition = [
-        selectedStart.lat,
-        selectedStart.lon
-      ];
-
-
-      const targetPosition = [
-        selectedTarget.lat,
-        selectedTarget.lon
-      ];
+      if (
+        !GRAPHHOPPER_API_KEY ||
+        GRAPHHOPPER_API_KEY === "YOUR_GRAPHHOPPER_API_KEY"
+      ) {
+        return;
+      }
 
 
       /* ---------------------------------------------------------
-         Gerade Linie als Mock-Route
+         Button während der Berechnung sperren
+         --------------------------------------------------------- */
+
+      routeCalculateButton.disabled = true;
+
+      routeCalculateButton.textContent =
+        "ROUTE WIRD BERECHNET …";
+
+
+      /* ---------------------------------------------------------
+         Alte Route entfernen
          --------------------------------------------------------- */
 
       if (testRouteLine) {
@@ -2640,117 +2600,323 @@
           testRouteLine
         );
 
-       testRouteLine = null;
+        testRouteLine = null;
 
       }
-
-
-      testRouteLine =
-        L.polyline(
-          [
-            startPosition,
-            targetPosition
-          ],
-          {
-            color: "#2f6fed",
-            weight: 6,
-            opacity: 0.9
-          }
-        ).addTo(map);
-
-      /* ---------------------------------------------------------
-         Start- und Zielmarker
-         --------------------------------------------------------- */
-
-      if (routeStartMarker) {
-
-        map.removeLayer(
-          routeStartMarker
-        );
-
-        routeStartMarker = null;
-
-      }
-
-
-      if (routeTargetMarker) {
-
-        map.removeLayer(
-          routeTargetMarker
-        );
-
-        routeTargetMarker = null;
-
-      }
-
-      routeStartMarker =
-        L.marker(
-          startPosition,
-          {
-            icon: routeStartIcon,
-            zIndexOffset: 900
-          }
-        ).addTo(map);
-
-
-      routeTargetMarker =
-        L.marker(
-          targetPosition,
-          {
-            icon: routeTargetIcon,
-            zIndexOffset: 900
-          }
-        ).addTo(map);
 
 
       /* ---------------------------------------------------------
-         Mock-Distanz und Mock-Fahrzeit
+         GraphHopper Routing URL
          --------------------------------------------------------- */
- 
-      const distanceKm =
-        calculateMockDistanceKm(
-          selectedStart,
-          selectedTarget
-        );
+
+      const url =
+        "https://graphhopper.com/api/1/route" +
+        `?point=${selectedStart.lat},${selectedStart.lon}` +
+        `&point=${selectedTarget.lat},${selectedTarget.lon}` +
+        `&profile=bike` +
+        `&locale=de` +
+        `&points_encoded=false` +
+        `&instructions=false` +
+        `&key=${encodeURIComponent(GRAPHHOPPER_API_KEY)}`;
 
 
-      /*
-         Angenommene Durchschnittsgeschwindigkeit:
-         20 km/h
-      */
-
-      const timeMinutes =
-        distanceKm /
-        20 *
-        60;
+      /* Jeder tatsächliche GraphHopper-Request zählt als 1 Request. */
+      increaseRequestCount();
 
 
-      document.getElementById(
-        "vDistLeft"
-      ).textContent =
-        distanceKm.toFixed(1);
+      try {
+
+        const response =
+          await fetch(url);
 
 
-      document.getElementById(
-        "vDistTotal"
-      ).textContent =
-        `(${distanceKm.toFixed(1)})`;
+        if (!response.ok) {
+
+          const errorText =
+            await response.text();
+
+          throw new Error(
+            `HTTP ${response.status}: ${errorText}`
+          );
+
+        }
 
 
-      document.getElementById(
-        "vTimeLeft"
-      ).textContent =
-        formatMockTime(
-          timeMinutes
-        );
+        const data =
+          await response.json();
 
 
-      document.getElementById(
-        "vTimeTotal"
-      ).textContent =
-        `(${formatMockTime(
-          timeMinutes
+        if (
+          !data.paths ||
+          !data.paths.length
+        ) {
+
+          throw new Error(
+            "GraphHopper hat keine Route geliefert."
+          );
+
+        }
+
+
+        const path =
+          data.paths[0];
+
+
+        /* ---------------------------------------------------------
+           ROUTENGEOMETRIE
+           --------------------------------------------------------- */
+
+        const coordinates =
+          path.points?.coordinates;
+
+
+        if (
+          !Array.isArray(coordinates) ||
+          coordinates.length < 2
+        ) {
+
+          throw new Error(
+            "Keine gültige Routengeometrie erhalten."
+          );
+
+        }
+
+
+        /*
+           GraphHopper liefert:
+           [longitude, latitude]
+
+           Leaflet benötigt:
+           [latitude, longitude]
+        */
+
+        const routeLatLngs =
+          coordinates.map(
+            ([lon, lat]) =>
+              [lat, lon]
+          );
+
+
+        testRouteLine =
+           L.polyline(
+            routeLatLngs,
+            {
+              color: "#2f6fed",
+              weight: 6,
+              opacity: 0.9
+            }
+          ).addTo(map);
+
+
+        /* ---------------------------------------------------------
+           START- UND ZIELMARKER
+           --------------------------------------------------------- */
+
+        if (routeStartMarker) {
+
+          map.removeLayer(
+            routeStartMarker
+          );
+
+          routeStartMarker = null;
+
+        }
+
+
+        if (routeTargetMarker) {
+
+          map.removeLayer(
+            routeTargetMarker
+          );
+
+          routeTargetMarker = null;
+
+        }
+
+
+        routeStartMarker =
+          L.marker(
+            [
+              selectedStart.lat,
+              selectedStart.lon
+            ],
+            {
+              icon: routeStartIcon,
+              zIndexOffset: 900
+            }
+          ).addTo(map);
+
+
+        routeTargetMarker =
+          L.marker(
+            [
+              selectedTarget.lat,
+              selectedTarget.lon
+            ],
+            {
+              icon: routeTargetIcon,
+              zIndexOffset: 900
+            }
+          ).addTo(map);
+
+
+        /* ---------------------------------------------------------
+           ECHTE DISTANZ UND FAHRZEIT
+           --------------------------------------------------------- */
+
+        const distanceKm =
+          Number(path.distance) / 1000;
+
+
+        const timeMinutes =
+          Number(path.time) / 60000;
+
+
+        document.getElementById(
+          "vDistLeft"
+        ).textContent =
+          distanceKm.toFixed(1);
+
+
+        document.getElementById(
+          "vDistTotal"
+        ).textContent =
+          `(${distanceKm.toFixed(1)})`;
+
+
+        document.getElementById(
+          "vTimeLeft"
+        ).textContent =
+          formatRouteTime(
+            timeMinutes
+          );
+
+
+        document.getElementById(
+          "vTimeTotal"
+        ).textContent =
+          `(${formatRouteTime(
+            timeMinutes
         )})`;
+
+
+    /* ---------------------------------------------------------
+       ROUTE AKTIVIEREN
+       --------------------------------------------------------- */
+
+    routeAvailable = true;
+
+    operatingStatus = "Break";
+
+    mapView = "Zoom";
+
+
+    /* ---------------------------------------------------------
+       ROUTE-SEITE VERLASSEN
+       --------------------------------------------------------- */
+
+    routeInput.blur();
+
+
+    routeInputPanel.classList.remove(
+      "is-open"
+    );
+
+
+    routeCandidates.classList.remove(
+      "is-visible"
+    );
+
+
+    btnRouteSearch.classList.remove(
+      "is-visible"
+    );
+
+
+    btnMyLocation.classList.remove(
+      "is-visible"
+    );
+
+
+    activeRoutePoint = null;
+
+
+    routeCalculateButton.classList.remove(
+      "is-visible"
+    );
+
+
+    routeScreen.classList.remove(
+      "is-active"
+    );
+
+
+    cockpitScreen.classList.add(
+      "is-active"
+    );
+
+
+    requestAnimationFrame(
+      () => {
+
+        map.invalidateSize(true);
+
+
+        if (testRouteLine) {
+
+          map.fitBounds(
+            testRouteLine.getBounds(),
+            {
+              animate: false,
+              padding: [30,30]
+            }
+          );
+
+        }
+
+      }
+    );
+
+
+    updateUI();
+
+
+  } catch (error) {
+
+    console.error(
+      "GraphHopper Routing:",
+      error
+    );
+
+
+    /*
+       Falls die Berechnung fehlschlägt,
+       bleibt die bisherige Route inaktiv.
+    */
+
+    routeAvailable = false;
+
+
+    routeCalculateButton.textContent =
+      "ROUTE NICHT MÖGLICH";
+
+
+    setTimeout(
+      () => {
+
+        routeCalculateButton.textContent =
+          "ROUTE BERECHNEN";
+
+      },
+      2500
+    );
+
+  }
+
+
+  routeCalculateButton.disabled = false;
+
+}
 
 
       /* ---------------------------------------------------------
@@ -2842,7 +3008,7 @@
 
     routeCalculateButton.addEventListener(
       "click",
-      calculateMockRoute
+      calculateGraphHopperRoute
     );
 
 
