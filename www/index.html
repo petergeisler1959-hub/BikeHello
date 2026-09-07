@@ -3265,25 +3265,40 @@
 
           }
 
-
           if (!mapCenteredOnGps) {
 
             mapCenteredOnGps = true;
 
-
             setTimeout(
-              () =>
+              () => {
+
                 map.setView(
                   position,
                   17
-                ),
-              1000
-            );
+                );
 
-          }
+                if (
+                  routeAvailable &&
+                  mapView === "Zoom"
+                ) {
+
+                  map.panBy(
+                    [0, map.getSize().y / 6],
+                    {
+                      animate: false
+                    }
+                  );
+
+              }
+
+            },
+            1000
+          );
+
+        }
 
 
-          lastGpsData = data;
+        lastGpsData = data;
 
         }
       );
