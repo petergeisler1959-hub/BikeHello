@@ -201,19 +201,6 @@
       transform-origin: center;
     }
 
-    /* =========================================================
-       FIXER GPS-PFEIL IM ZOOM-MODUS
-       ========================================================= */
-
-    #zoomArrow {
-      position: absolute;
-      left: 50%;
-      top: 66.7%;
-      transform: translate(-50%, -50%);
-      z-index: 2000;
-      pointer-events: none;
-    }
-
     .route-cockpit-marker {
       position: relative;
       width: 24px;
@@ -3001,6 +2988,13 @@
         map.setView(
           position,
           17,
+          {
+            animate: false
+          }
+        );
+
+        map.panBy(
+          [0, map.getSize().y / 6],
           {
             animate: false
           }
