@@ -2954,7 +2954,6 @@
           );
         }
 
-
         map.setView(
           position,
           mapView === "Wide"
@@ -2965,6 +2964,16 @@
           }
         );
 
+        if (mapView === "Zoom") {
+
+          map.panBy(
+            [0, -map.getSize().y / 4],
+            {
+              animate: false
+            }
+          );
+
+        }
 
         return;
       }
@@ -2994,7 +3003,7 @@
         );
 
         map.panBy(
-          [0, -map.getSize().y / 6],
+          [0, -map.getSize().y / 4],
           {
             animate: false
           }
@@ -3283,7 +3292,7 @@
                 ) {
 
                   map.panBy(
-                    [0, -map.getSize().y / 6],
+                    [0, -map.getSize().y / 4],
                     {
                       animate: false
                     }
