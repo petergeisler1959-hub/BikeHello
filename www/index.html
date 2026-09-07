@@ -77,6 +77,10 @@
       border-radius: 8px;
     }
 
+    #map.zoom-rotating .leaflet-map-pane {
+      transform-origin: 50% 75%;
+    }
+
     #bottomPanel {
       display: grid;
       grid-template-columns: 1fr 1fr;
@@ -1568,10 +1572,9 @@
 
 
     let gpsMarker = null;
-
     let lastGpsData = null;
-
     let mapCenteredOnGps = false;
+    let mapRotation = 0;
 
     let testRouteLine = null;
     let routeStartMarker = null;
@@ -2932,6 +2935,29 @@
     /* =========================================================
        MAP DISPLAY
        ========================================================= */
+    function updateMapRotation(course) {
+
+      if (mapView !== "Zoom") {
+        return;
+      }
+
+      const mapPane =
+        map.getPanes().mapPane;
+
+      if (!mapPane) {
+        return;
+      }
+
+      mapRotation = -course;
+
+      mapPane.style.transformOrigin =
+        "50% 75%";
+
+      mapPane.style.transform =
+        `rotate(${mapRotation}deg)`;
+
+    }
+
 
     function updateMapDisplay() {
 
@@ -3269,6 +3295,14 @@
 
               arrow.style.transform =
                 `rotate(${data.course}deg)`;
+
+            }
+
+            if (mapView === "Zoom") {
+
+               updateMapRotation(
+                 data.course
+               );
 
             }
 
