@@ -3271,7 +3271,9 @@
             if (arrow) {
 
               arrow.style.transform =
-                `rotate(${data.course}deg)`;
+                mapView === "Zoom"
+                ? "rotate(0deg)"
+                : `rotate(${data.course}deg)`;
 
             }
           }
