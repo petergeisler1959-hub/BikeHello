@@ -1544,9 +1544,7 @@
       L.map(
         "map",
         {
-          zoomControl: false,
-          rotate: true,
-          bearing: 45
+          zoomControl: false
         }
       ).setView(
         [20, 0],
@@ -3275,7 +3273,16 @@
                 `rotate(${data.course}deg)`;
 
             }
+          }
 
+          if (
+            data.courseValid &&
+            mapView === "Zoom"
+          ) {
+
+            map.setHeading(
+              data.course
+            );
 
           }
 
