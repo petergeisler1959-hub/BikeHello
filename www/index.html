@@ -3181,6 +3181,9 @@
             ? "Wide"
             : "Zoom";
 
+        if (mapView === "Wide") {
+          map.setBearing(0);
+        }
 
         updateUI();
 
