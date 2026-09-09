@@ -2063,6 +2063,8 @@
 
       activeRoutePoint = point;
 
+      routeInput.disabled = false;
+
 
       routeInputTitle.textContent =
         point === "start"
@@ -2818,6 +2820,7 @@
        ROUTE-SEITE VERLASSEN
        --------------------------------------------------------- */
 
+    routeInput.disabled = true;
     routeInput.blur();
 
 
@@ -2863,20 +2866,6 @@
       () => {
 
         map.invalidateSize(true);
-
-        /*
-        if (testRouteLine) {
-
-            map.fitBounds(
-            testRouteLine.getBounds(),
-            {
-              animate: false,
-              padding: [30,30]
-            }
-          );
-
-        }
-        */
 
       }
     );
