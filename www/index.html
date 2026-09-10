@@ -3335,16 +3335,27 @@
           }
 
 
-          if (
-            data.courseValid &&
-            mapView === "Zoom"
-          ) {
+if (
+  mapView === "Zoom"
+) {
 
-            map.setHeading(
-              data.course
-            );
+  map.setView(
+    position,
+    17,
+    {
+      animate: false
+    }
+  );
 
-          }
+  if (data.courseValid) {
+
+    map.setHeading(
+      data.course
+    );
+
+  }
+
+}
 
           if (!mapCenteredOnGps) {
 
