@@ -3277,38 +3277,8 @@
             mapView === "Zoom"
           ) {
 
-            // 1. GPS-Marker vor der Rotation vorübergehend
-            //    in die Kartenmitte bringen
-            map.panBy(
-              [0, map.getSize().y / 4],
-              {
-                animate: false
-              }
-            );
-
-            // 2. Karte auf die Fahrtrichtung drehen
             map.setHeading(
               data.course
-            );
-
-            // 3. Nach kurzer Zeit die Karte wieder so verschieben,
-            //    dass der GPS-Marker bei ca. 75 % Bildschirmhöhe steht
-            setTimeout(
-              () => {
-
-                if (mapView === "Zoom") {
-
-                  map.panBy(
-                    [0, -map.getSize().y / 4],
-                    {
-                      animate: false
-                    }
-                  );
-
-                }
-
-              },
-              500
             );
 
           }
