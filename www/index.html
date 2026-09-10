@@ -130,6 +130,50 @@
       background: rgba(255,255,255,.98);
     }
 
+
+
+
+/* =========================================================
+   ZOOM-LAYOUT TEST
+   Karte wird im Zoom-Modus über die gesamte Cockpit-Höhe
+   gelegt. Der weiße Bereich simuliert das spätere Cockpit.
+   ========================================================= */
+
+#cockpitScreen.zoom-layout-test {
+  position: relative;
+}
+
+#cockpitScreen.zoom-layout-test #mapWrapper {
+  position: absolute;
+  inset: 0;
+  padding: 10px;
+  z-index: 1;
+}
+
+#cockpitScreen.zoom-layout-test #bottomPanel,
+#cockpitScreen.zoom-layout-test #controlBar {
+  display: none;
+}
+
+#zoomTestOverlay {
+  display: none;
+}
+
+#cockpitScreen.zoom-layout-test #zoomTestOverlay {
+  display: block;
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 36%;
+  background: white;
+  z-index: 10;
+}
+
+
+
+
+
     .control-group {
       display: flex;
       flex-direction: column;
@@ -959,6 +1003,9 @@
 <div id="mapWrapper">
   <div id="map"></div>
 </div>
+
+
+<div id="zoomTestOverlay"></div>
 
 
 <section id="bottomPanel">
@@ -2957,6 +3004,7 @@
           }
         );
 
+        /*
         if (mapView === "Zoom") {
 
           map.panBy(
@@ -2967,6 +3015,7 @@
           );
 
         }
+        */
 
         return;
       }
@@ -2995,12 +3044,14 @@
           }
         );
 
+        /*
         map.panBy(
           [0, -map.getSize().y / 4],
           {
             animate: false
           }
         );
+        */
 
       }
 
@@ -3012,6 +3063,18 @@
        ========================================================= */
 
     function updateUI() {
+
+
+  cockpitScreen.classList.toggle(
+    "zoom-layout-test",
+    mapView === "Zoom"
+  );
+
+  requestAnimationFrame(() => {
+    map.invalidateSize(true);
+  });
+
+
 
       updateMapDisplay();
 
@@ -3295,6 +3358,8 @@
                   17
                 );
 
+
+                /*
                 if (
                   mapView === "Zoom"
                 ) {
@@ -3306,13 +3371,14 @@
                     }
                   );
 
-              }
+                }
+                */
 
-            },
-            1000
-          );
+              },
+              1000
+            );
 
-        }
+          }
 
 
         lastGpsData = data;
