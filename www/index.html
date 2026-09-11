@@ -131,51 +131,33 @@
     }
 
 
+    /* =========================================================
+       Karte wird im Zoom-Modus über 72% der gesamten Höhe
+       gelegt. Der untere Teil wird später durch die Werte überdeckt
+       ========================================================= */
 
+    #cockpitScreen.zoom-layout-test {
+      position: relative;
+    }
 
-/* =========================================================
-   ZOOM-LAYOUT TEST
-   Karte wird im Zoom-Modus über die gesamte Cockpit-Höhe
-   gelegt. Der weiße Bereich simuliert das spätere Cockpit.
-   ========================================================= */
+    #cockpitScreen.zoom-layout-test #mapWrapper {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 72%;
+      padding: 10px;
+      z-index: 1;
+    }
 
-#cockpitScreen.zoom-layout-test {
-  position: relative;
-}
-
-#cockpitScreen.zoom-layout-test #mapWrapper {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 72%;
-  padding: 10px;
-  z-index: 1;
-}
-
-#cockpitScreen.zoom-layout-test #bottomPanel,
-#cockpitScreen.zoom-layout-test #controlBar {
-  display: none;
-}
-
-#zoomTestOverlay {
-  display: none;
-}
-
-#cockpitScreen.zoom-layout-test #zoomTestOverlay {
-  display: block;
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: 48%;
-  height: 20%;
-  background: white;
-  z-index: 10;
-}
-
-
-
-
+    #cockpitScreen.zoom-layout-test #bottomPanel {
+      display: grid;
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 48%;
+      z-index: 10;
+    }
 
     .control-group {
       display: flex;
@@ -1006,9 +988,6 @@
 <div id="mapWrapper">
   <div id="map"></div>
 </div>
-
-
-<div id="zoomTestOverlay"></div>
 
 
 <section id="bottomPanel">
