@@ -1606,6 +1606,23 @@
         )
     );
 
+  if (zoomMode) {
+    map.dragging.disable();
+    map.touchZoom.disable();
+    map.doubleClickZoom.disable();
+    map.scrollWheelZoom.disable();
+    map.boxZoom.disable();
+    map.keyboard.disable();
+  } else {
+    map.dragging.enable();
+    map.touchZoom.enable();
+    map.doubleClickZoom.enable();
+    map.scrollWheelZoom.enable();
+    map.boxZoom.enable();
+    map.keyboard.enable();
+  }
+}
+
 
     let gpsMarker = null;
     let lastGpsData = null;
@@ -3057,6 +3074,8 @@
     "zoom-layout-test",
     mapView === "Zoom"
   );
+
+  updateMapInteraction();
 
   requestAnimationFrame(() => {
     map.invalidateSize(true);
