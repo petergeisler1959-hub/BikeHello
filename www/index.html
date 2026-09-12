@@ -186,7 +186,7 @@
     }
 
     #cockpitScreen.zoom-layout-test #btnRecalculateRoute {
-      top: calc(51.8% + 72px);
+      top: calc(51.8% + 73px);
       bottom: auto;
       left: 20px;
     }
@@ -1450,9 +1450,6 @@
     const btnToggle =
       document.getElementById("btnToggle");
 
-    const Screen =
-      registerPlugin("Screen");
-
     const routeInputPanel =
       document.getElementById("routeInputPanel");
 
@@ -1495,114 +1492,6 @@
     let selectedStart = null;
 
     let selectedTarget = null;
-
-    /* =========================================================
-       DISPLAY / KEEP SCREEN AWAKE
-       ========================================================= */
-
-    const SCREEN_WAKE_SPEED_KMH = 2;
-    const SCREEN_WAKE_GRACE_MS = 5 * 60 * 1000;
-
-    let screenWakeTimer = null;
-    let screenWakeGraceActive = false;
-    let screenIsKeptAwake = false;
-
-    async function setScreenKeepAwake(enabled) {
-
-      if (enabled === screenIsKeptAwake) {
-        return;
-      }
-
-      screenIsKeptAwake = enabled;
-
-      try {
-        await Screen.setKeepScreenOn({
-          enabled: enabled
-        });
-      } catch (_) {
-        /* Browser-Vorschau ohne natives ScreenPlugin */
-      }
-    }
-
-    function cancelScreenWakeTimer() {
-
-      if (screenWakeTimer) {
-
-        clearTimeout(
-          screenWakeTimer
-        );
-
-        screenWakeTimer = null;
-      }
-
-      screenWakeGraceActive = false;
-    }
-
-    function updateScreenWakeLogic(speedKmh) {
-
-      /*
-         Nur im aktiven Ride-Modus
-         darf der Bildschirm wach bleiben.
-      */
-
-      if (
-        operatingStatus !== "Ride" ||
-        !routeAvailable
-      ) {
-
-        cancelScreenWakeTimer();
-
-        setScreenKeepAwake(false);
-
-        return;
-      }
-
-      /*
-          Bewegung ab 2 km/h:
-          Bildchirm dauerhaft wach.
-          Einen eventuell laufenden
-          5-Minuten-Nachlauf abbrechen.
-      */
-
-      if (
-        speedKmh >= SCREEN_WAKE_SPEED_KMH
-      ) {
-
-        cancelScreenWakeTimer();
-
-        setScreenKeepAwake(true);
-
-        return;
-      }
-
-      /*
-         Unter 2 km/h:
-         Nur dann einen 5-Minuten-Nachlauf
-         starten, wenn der Bildschirm vorher
-         durch die Fahrt wachgehalten wurde.
-      */
-
-      if (
-        screenIsKeptAwake &&
-        !screenWakeGraceActive
-      ) {
-
-        screenWakeGraceActive = true;
-
-        screenWakeTimer =
-          setTimeout(
-            () => {
-
-              screenWakeTimer = null;
-              screenWakeGraceActive = false;
-
-              setScreenKeepAwake(false);
-
-            },
-            SCREEN_WAKE_GRACE_MS
-          );
-      }
-    }
 
 
     /* =========================================================
@@ -3228,10 +3117,6 @@
 
       resetRouteSelection();
 
-      cancelScreenWakeTimer();
-
-      setScreenKeepAwake(false);
-
 
       updateUI();
 
@@ -3254,12 +3139,6 @@
           operatingStatus === "Break"
             ? "Ride"
             : "Break";
-
-        updateScreenWakeLogic(
-          lastGpsData
-            ? (Number(lastGpsData.speed) || 0) * 3.6
-            : 0
-        );
 
         updateUI();
       }
@@ -3327,8 +3206,6 @@
           const speedKmh =
             (Number(data.speed) || 0) *
             3.6;
-
-          updateScreenWakeLogic(speedKmh);
 
 
           if (!gpsMarker) {

@@ -19,10 +19,23 @@ public class ScreenPlugin: CAPPlugin, CAPBridgedPlugin {
 
         NotificationCenter.default.addObserver(
             self,
+            selector: #selector(appWillEnterForeground),
+            name: UIApplication.willEnterForegroundNotification,
+            object: nil
+        )
+
+        NotificationCenter.default.addObserver(
+            self,
             selector: #selector(appDidEnterBackground),
             name: UIApplication.didEnterBackgroundNotification,
             object: nil
         )
+
+        // BikeHello startet im Vordergrund:
+        // Bildschirm sofort wach halten.
+        DispatchQueue.main.async {
+            UIApplication.shared.isIdleTimerDisabled = true
+        }
     }
 
     deinit {
@@ -31,12 +44,15 @@ public class ScreenPlugin: CAPPlugin, CAPBridgedPlugin {
 
     @objc func setKeepScreenOn(_ call: CAPPluginCall) {
 
-        let enabled =
-            call.getBool("enabled") ?? false
+        // Diese Methode bleibt für die Kompatibilität
+        // mit dem JavaScript-Plugin erhalten.
+        call.resolve()
+    }
+
+    @objc private func appWillEnterForeground() {
 
         DispatchQueue.main.async {
-            UIApplication.shared.isIdleTimerDisabled = enabled
-            call.resolve()
+            UIApplication.shared.isIdleTimerDisabled = true
         }
     }
 
