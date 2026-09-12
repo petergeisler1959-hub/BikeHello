@@ -1025,7 +1025,7 @@
       type="button"
       /*hidden*/
     >
-      Route neu berechnen
+      Route: ?
     </button>
   </div>
 
@@ -1594,6 +1594,103 @@
         iconSize: [24,24],
         iconAnchor: [12,24]
        });
+
+
+function getDistanceToRoute(lat, lon) {
+
+  if (!testRouteLine) {
+    return null;
+  }
+
+  const routePoints =
+    testRouteLine.getLatLngs();
+
+  if (
+    !routePoints ||
+    routePoints.length < 2
+  ) {
+    return null;
+  }
+
+  const gpsPoint =
+    L.latLng(lat, lon);
+
+  let minDistance = Infinity;
+
+  for (
+    let i = 0;
+    i < routePoints.length - 1;
+    i++
+  ) {
+
+    const a =
+      routePoints[i];
+
+    const b =
+      routePoints[i + 1];
+
+    const segmentDistance =
+      distancePointToSegment(
+        gpsPoint,
+        a,
+        b
+      );
+
+    if (segmentDistance < minDistance) {
+      minDistance = segmentDistance;
+    }
+  }
+
+  return isFinite(minDistance)
+    ? minDistance
+    : null;
+}
+
+
+function distancePointToSegment(
+  point,
+  a,
+  b
+) {
+
+  const ax = a.lng;
+  const ay = a.lat;
+
+  const bx = b.lng;
+  const by = b.lat;
+
+  const px = point.lng;
+  const py = point.lat;
+
+  const dx = bx - ax;
+  const dy = by - ay;
+
+  if (dx === 0 && dy === 0) {
+    return point.distanceTo(a);
+  }
+
+  const t =
+    Math.max(
+      0,
+      Math.min(
+        1,
+        (
+          (px - ax) * dx +
+          (py - ay) * dy
+        ) /
+        (dx * dx + dy * dy)
+      )
+    );
+
+  const nearest =
+    L.latLng(
+      ay + t * dy,
+      ax + t * dx
+    );
+
+  return point.distanceTo(nearest);
+}
+
 
 
     /* =========================================================
@@ -3206,6 +3303,26 @@
           const speedKmh =
             (Number(data.speed) || 0) *
             3.6;
+
+const routeDistance =
+  getDistanceToRoute(
+    data.lat,
+    data.lon
+  );
+
+const routeButton =
+  document.getElementById(
+    "btnRecalculateRoute"
+  );
+
+if (routeButton) {
+
+  routeButton.textContent =
+    routeDistance === null
+      ? "Route: ?"
+      : `Route: ${Math.round(routeDistance)} m`;
+
+}
 
 
           if (!gpsMarker) {
