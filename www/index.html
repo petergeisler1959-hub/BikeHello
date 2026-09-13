@@ -1487,6 +1487,11 @@
     const Undo =
       registerPlugin("Undo");
 
+    const routeButton =
+      document.getElementById(
+        "btnRecalculateRoute"
+      );
+
 
     /* =========================================================
        ZUSTAND
@@ -2428,6 +2433,29 @@ setInterval(
 );
 
 
+if (routeButton) {
+
+  routeButton.addEventListener(
+    "click",
+    async () => {
+
+      try {
+
+        await Undo.clearUndo();
+
+      } catch (_) {
+
+        console.log("clearUndo failed");
+
+      }
+
+      updateUndoDiagnosis();
+    }
+  );
+
+}
+
+
     function increaseRequestCount() {
 
       routeSearchCount++;
@@ -3320,6 +3348,9 @@ setInterval(
     updateUI();
 
 
+
+
+
     /* =========================================================
        GPS
        ========================================================= */
@@ -3362,10 +3393,6 @@ const routeDistance =
     data.lon
   );
 
-const routeButton =
-  document.getElementById(
-    "btnRecalculateRoute"
-  );
 
 if (routeButton) {
 
