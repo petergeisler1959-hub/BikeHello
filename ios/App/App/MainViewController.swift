@@ -6,5 +6,6 @@ class MainViewController: CAPBridgeViewController {
         bridge?.registerPluginInstance(MagnetometerPlugin())
         bridge?.registerPluginInstance(GPSPlugin())
         bridge?.registerPluginInstance(ScreenPlugin())
+        bridge?.registerPluginInstance(UndoPlugin())
     }
 }
