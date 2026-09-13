@@ -1096,6 +1096,16 @@
       <span class="sensor-value">54 km</span>
     </div>
 
+    <div class="sensor-item">
+      <span class="sensor-label">Undo | Redo | GPS</span>
+      <span
+        class="sensor-value"
+        id="diagnosisValue"
+      >
+        - | -
+      </span>
+    </div>
+
   </div>
 
 </section>
@@ -1473,6 +1483,9 @@
 
     const routeCalculateButton =
       document.getElementById("routeCalculateButton");
+
+    const Undo =
+      registerPlugin("Undo");
 
 
     /* =========================================================
@@ -2374,6 +2387,45 @@ function distancePointToSegment(
 
 
     loadSearchCount();
+
+    /* =========================================================
+   DIAGNOSE
+   ========================================================= */
+
+const diagnosisValue =
+  document.getElementById(
+    "diagnosisValue"
+  );
+
+
+async function updateUndoDiagnosis() {
+
+  try {
+
+    const state =
+      await Undo.getUndoState();
+
+    diagnosisValue.textContent =
+      `${state.canUndo ? "True" : "False"} | ` +
+      `${state.canRedo ? "True" : "False"}`;
+
+  } catch (_) {
+
+    diagnosisValue.textContent =
+      "Error | Error";
+
+  }
+
+}
+
+
+updateUndoDiagnosis();
+
+
+setInterval(
+  updateUndoDiagnosis,
+  1000
+);
 
 
     function increaseRequestCount() {
