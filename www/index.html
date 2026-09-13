@@ -2447,9 +2447,12 @@ if (routeButton) {
 
         alert("clearUndo() ausgeführt");
 
-      } catch (_) {
+      } catch (error) {
 
-        alert("clearUndo() FEHLER");
+        alert(
+          "clearUndo FEHLER:\n" +
+          String(error)
+        );
 
       }
 
