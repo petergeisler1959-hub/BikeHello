@@ -2439,13 +2439,17 @@ if (routeButton) {
     "click",
     async () => {
 
+      alert("CLICK angekommen");
+
       try {
 
         await Undo.clearUndo();
 
+        alert("clearUndo() ausgeführt");
+
       } catch (_) {
 
-        console.log("clearUndo failed");
+        alert("clearUndo() FEHLER");
 
       }
 
