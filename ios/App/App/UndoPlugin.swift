@@ -11,8 +11,27 @@ public class UndoPlugin: CAPPlugin, CAPBridgedPlugin {
         CAPPluginMethod(
             name: "getUndoState",
             returnType: CAPPluginReturnPromise
+        ),
+        CAPPluginMethod(
+            name: "clearUndo",
+            returnType: CAPPluginReturnNone
         )
     ]
+
+    @objc func clearUndo(_ call: CAPPluginCall) {
+
+        guard let webView = bridge?.webView else {
+            call.reject("WebView nicht verfügbar")
+            return
+        }
+
+        DispatchQueue.main.async {
+
+            webView.undoManager?.removeAllActions()
+
+            call.resolve()
+        }
+    }
 
     @objc func getUndoState(_ call: CAPPluginCall) {
 
