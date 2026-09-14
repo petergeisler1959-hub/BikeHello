@@ -1490,6 +1490,12 @@
 
     let routeAvailable = false;
 
+    let streetRoute = null;
+
+    let natureRoute = null;
+
+    let activeRouteType = "street";
+
     let operatingStatus = "Break";
 
     let mapView = "Zoom";
@@ -2717,254 +2723,310 @@ if (routeButton) {
     }
 
 
-    async function calculateGraphHopperRoute() {
+async function calculateGraphHopperRoute() {
 
-      if (
-        !selectedStart ||
-        !selectedTarget
-      ) {
-        return;
-      }
-
-
-      if (
-        !GRAPHHOPPER_API_KEY ||
-        GRAPHHOPPER_API_KEY === "YOUR_GRAPHHOPPER_API_KEY"
-      ) {
-        return;
-      }
+  if (
+    !selectedStart ||
+    !selectedTarget
+  ) {
+    return;
+  }
 
 
-      /* ---------------------------------------------------------
-         Button während der Berechnung sperren
-         --------------------------------------------------------- */
-
-      routeCalculateButton.disabled = true;
-
-      routeCalculateButton.textContent =
-        "ROUTE WIRD BERECHNET …";
+  if (
+    !GRAPHHOPPER_API_KEY ||
+    GRAPHHOPPER_API_KEY === "YOUR_GRAPHHOPPER_API_KEY"
+  ) {
+    return;
+  }
 
 
-      /* ---------------------------------------------------------
-         Alte Route entfernen
-         --------------------------------------------------------- */
+  /* ---------------------------------------------------------
+     Button während der Berechnung sperren
+     --------------------------------------------------------- */
 
-      if (testRouteLine) {
+  routeCalculateButton.disabled = true;
 
-        map.removeLayer(
-          testRouteLine
-        );
-
-        testRouteLine = null;
-
-      }
+  routeCalculateButton.textContent =
+    "ROUTEN WERDEN BERECHNET …";
 
 
-      /* ---------------------------------------------------------
-         GraphHopper Routing URL
-         --------------------------------------------------------- */
+  /* ---------------------------------------------------------
+     Alte Route entfernen
+     --------------------------------------------------------- */
+
+  if (testRouteLine) {
+
+    map.removeLayer(
+      testRouteLine
+    );
+
+    testRouteLine = null;
+
+  }
+
+
+  /*
+     Alte gespeicherte Routen ebenfalls verwerfen.
+     Erst wenn beide neuen Routen erfolgreich berechnet
+     wurden, werden sie wieder gesetzt.
+  */
+
+  streetRoute = null;
+  natureRoute = null;
+
+  activeRouteType = "street";
+
+
+  try {
+
+    /* =========================================================
+       HILFSFUNKTION FÜR EINE GRAPHHOPPER-ROUTE
+       ========================================================= */
+
+    async function requestRoute(profile) {
 
       const url =
         "https://graphhopper.com/api/1/route" +
         `?point=${selectedStart.lat},${selectedStart.lon}` +
         `&point=${selectedTarget.lat},${selectedTarget.lon}` +
-        `&profile=foot` +
+        `&profile=${profile}` +
         `&locale=de` +
         `&points_encoded=false` +
         `&instructions=false` +
         `&key=${encodeURIComponent(GRAPHHOPPER_API_KEY)}`;
-
-      /*
-      const url =
-        "https://graphhopper.com/api/1/route" +
-        `?point=${selectedStart.lat},${selectedStart.lon}` +
-        `&point=${selectedTarget.lat},${selectedTarget.lon}` +
-        `&profile=bike` +
-        `&locale=de` +
-        `&points_encoded=false` +
-        `&instructions=false` +
-        `&key=${encodeURIComponent(GRAPHHOPPER_API_KEY)}`;
-       */
 
 
       /* Jeder tatsächliche GraphHopper-Request zählt als 1 Request. */
       increaseRequestCount();
 
 
-      try {
-
-        const response =
-          await fetch(url);
+      const response =
+        await fetch(url);
 
 
-        if (!response.ok) {
+      if (!response.ok) {
 
-          const errorText =
-            await response.text();
+        const errorText =
+          await response.text();
 
-          throw new Error(
-            `HTTP ${response.status}: ${errorText}`
-          );
+        throw new Error(
+          `${profile}: HTTP ${response.status}: ${errorText}`
+        );
 
+      }
+
+
+      const data =
+        await response.json();
+
+
+      if (
+        !data.paths ||
+        !data.paths.length
+      ) {
+
+        throw new Error(
+          `${profile}: GraphHopper hat keine Route geliefert.`
+        );
+
+      }
+
+
+      const path =
+        data.paths[0];
+
+
+      /* ---------------------------------------------------------
+         ROUTENGEOMETRIE
+         --------------------------------------------------------- */
+
+      const coordinates =
+        path.points?.coordinates;
+
+
+      if (
+        !Array.isArray(coordinates) ||
+        coordinates.length < 2
+      ) {
+
+        throw new Error(
+          `${profile}: Keine gültige Routengeometrie erhalten.`
+        );
+
+      }
+
+
+      /*
+         GraphHopper liefert:
+         [longitude, latitude]
+
+         Leaflet benötigt:
+         [latitude, longitude]
+      */
+
+      const routeLatLngs =
+        coordinates.map(
+          ([lon, lat]) =>
+            [lat, lon]
+        );
+
+
+      return {
+
+        points: routeLatLngs,
+
+        distance:
+          Number(path.distance)
+
+      };
+
+    }
+
+
+    /* =========================================================
+       1. STREET-ROUTE
+       ========================================================= */
+
+    routeCalculateButton.textContent =
+      "STREET-ROUTE …";
+
+
+    streetRoute =
+      await requestRoute("bike");
+
+
+    /* =========================================================
+       2. NATURE-ROUTE
+       ========================================================= */
+
+    routeCalculateButton.textContent =
+      "NATURE-ROUTE …";
+
+
+    natureRoute =
+      await requestRoute("foot");
+
+
+    /* =========================================================
+       BEIDE ROUTEN ERFOLGREICH
+       ========================================================= */
+
+    console.log(
+      "Street Route:",
+      streetRoute.points.length,
+      "Punkte,",
+      streetRoute.distance,
+      "m"
+    );
+
+    console.log(
+      "Nature Route:",
+      natureRoute.points.length,
+      "Punkte,",
+      natureRoute.distance,
+      "m"
+    );
+
+
+    /* ---------------------------------------------------------
+       STREET ALS STANDARD AKTIVIEREN
+       --------------------------------------------------------- */
+
+    activeRouteType =
+      "street";
+
+
+    const activeRoute =
+      streetRoute;
+
+
+    testRouteLine =
+      L.polyline(
+        activeRoute.points,
+        {
+          color: "#2f6fed",
+          weight: 6,
+          opacity: 0.9
         }
+      ).addTo(map);
 
 
-        const data =
-          await response.json();
+    /* ---------------------------------------------------------
+       START- UND ZIELMARKER
+       --------------------------------------------------------- */
+
+    if (routeStartMarker) {
+
+      map.removeLayer(
+        routeStartMarker
+      );
+
+      routeStartMarker = null;
+
+    }
 
 
-        if (
-          !data.paths ||
-          !data.paths.length
-        ) {
+    if (routeTargetMarker) {
 
-          throw new Error(
-            "GraphHopper hat keine Route geliefert."
-          );
+      map.removeLayer(
+        routeTargetMarker
+      );
 
+      routeTargetMarker = null;
+
+    }
+
+
+    routeStartMarker =
+      L.marker(
+        [
+          selectedStart.lat,
+          selectedStart.lon
+        ],
+        {
+          icon: routeStartIcon,
+          zIndexOffset: 900
         }
+      ).addTo(map);
 
 
-        const path =
-          data.paths[0];
-
-
-        /* ---------------------------------------------------------
-           ROUTENGEOMETRIE
-           --------------------------------------------------------- */
-
-        const coordinates =
-          path.points?.coordinates;
-
-
-        if (
-          !Array.isArray(coordinates) ||
-          coordinates.length < 2
-        ) {
-
-          throw new Error(
-            "Keine gültige Routengeometrie erhalten."
-          );
-
+    routeTargetMarker =
+      L.marker(
+        [
+          selectedTarget.lat,
+          selectedTarget.lon
+        ],
+        {
+          icon: routeTargetIcon,
+          zIndexOffset: 900
         }
+      ).addTo(map);
 
 
-        /*
-           GraphHopper liefert:
-           [longitude, latitude]
+    /* ---------------------------------------------------------
+       DISTANZ DER AKTIVEN ROUTE
+       --------------------------------------------------------- */
 
-           Leaflet benötigt:
-           [latitude, longitude]
-        */
-
-        const routeLatLngs =
-          coordinates.map(
-            ([lon, lat]) =>
-              [lat, lon]
-          );
+    const distanceKm =
+      activeRoute.distance / 1000;
 
 
-        testRouteLine =
-           L.polyline(
-            routeLatLngs,
-            {
-              color: "#2f6fed",
-              weight: 6,
-              opacity: 0.9
-            }
-          ).addTo(map);
+    document.getElementById(
+      "vDistLeft"
+    ).textContent =
+      distanceKm.toFixed(1);
 
 
-        /* ---------------------------------------------------------
-           START- UND ZIELMARKER
-           --------------------------------------------------------- */
-
-        if (routeStartMarker) {
-
-          map.removeLayer(
-            routeStartMarker
-          );
-
-          routeStartMarker = null;
-
-        }
+    document.getElementById(
+      "vDistTotal"
+    ).textContent =
+      `(${distanceKm.toFixed(1)})`;
 
 
-        if (routeTargetMarker) {
-
-          map.removeLayer(
-            routeTargetMarker
-          );
-
-          routeTargetMarker = null;
-
-        }
-
-
-        routeStartMarker =
-          L.marker(
-            [
-              selectedStart.lat,
-              selectedStart.lon
-            ],
-            {
-              icon: routeStartIcon,
-              zIndexOffset: 900
-            }
-          ).addTo(map);
-
-
-        routeTargetMarker =
-          L.marker(
-            [
-              selectedTarget.lat,
-              selectedTarget.lon
-            ],
-            {
-              icon: routeTargetIcon,
-              zIndexOffset: 900
-            }
-          ).addTo(map);
-
-
-        /* ---------------------------------------------------------
-           ECHTE DISTANZ UND FAHRZEIT
-           --------------------------------------------------------- */
-
-        const distanceKm =
-          Number(path.distance) / 1000;
-
-
-        const timeMinutes =
-          Number(path.time) / 60000;
-
-
-        document.getElementById(
-          "vDistLeft"
-        ).textContent =
-          distanceKm.toFixed(1);
-
-
-        document.getElementById(
-          "vDistTotal"
-        ).textContent =
-          `(${distanceKm.toFixed(1)})`;
-
-
-        document.getElementById(
-          "vTimeLeft"
-        ).textContent =
-          formatRouteTime(
-            timeMinutes
-          );
-
-
-        document.getElementById(
-          "vTimeTotal"
-        ).textContent =
-          `(${formatRouteTime(
-            timeMinutes
-        )})`;
+    /*
+       Fahr-/Gehzeit wird hier bewusst nicht mehr verwendet.
+    */
 
 
     /* ---------------------------------------------------------
@@ -2983,6 +3045,7 @@ if (routeButton) {
        --------------------------------------------------------- */
 
     routeInput.disabled = true;
+
     routeInput.blur();
 
 
@@ -3036,29 +3099,46 @@ if (routeButton) {
     updateUI();
 
 
-    } catch (error) {
+  } catch (error) {
 
-      console.error(
-        "GraphHopper Routing:",
-        error
-      );
-
-      alert(
-        "GraphHopper Routing:\n" +
-        String(error)
-      );
+    console.error(
+      "GraphHopper Routing:",
+      error
+    );
 
 
     /*
-       Falls die Berechnung fehlschlägt,
-       bleibt die bisherige Route inaktiv.
+       Falls eine der beiden Berechnungen fehlschlägt,
+       verwenden wir keine unvollständige Routenauswahl.
     */
+
+    streetRoute = null;
+    natureRoute = null;
 
     routeAvailable = false;
 
+    activeRouteType = "street";
+
+
+    if (testRouteLine) {
+
+      map.removeLayer(
+        testRouteLine
+      );
+
+      testRouteLine = null;
+
+    }
+
+
+    alert(
+      "GraphHopper Routing:\n" +
+      String(error)
+    );
+
 
     routeCalculateButton.textContent =
-      "ROUTE NICHT MÖGLICH";
+      "ROUTEN NICHT MÖGLICH";
 
 
     setTimeout(
@@ -3077,7 +3157,6 @@ if (routeButton) {
   routeCalculateButton.disabled = false;
 
 }
-
 
     /* =========================================================
        ROUTE BERECHNEN BUTTON
@@ -3309,9 +3388,76 @@ if (routeButton) {
     );
 
 
+    btnRouteProfile.addEventListener(
+      "click",
+      () => {
+
+        if (
+          !streetRoute ||
+          !natureRoute
+        ) {
+          return;
+        }
+
+        activeRouteType =
+          activeRouteType === "street"
+            ? "nature"
+            : "street";
+
+        const activeRoute =
+          activeRouteType === "street"
+            ? streetRoute
+            : natureRoute;
+
+        if (testRouteLine) {
+          map.removeLayer(
+            testRouteLine
+          );
+
+          testRouteLine = null;
+        }
+
+        testRouteLine =
+          L.polyline(
+            activeRoute.points,
+            {
+              color: "#2f6fed",
+              weight: 6,
+              opacity: 0.9
+            }
+          ).addTo(map);
+
+        const distanceKm =
+          activeRoute.distance / 1000;
+
+        document.getElementById(
+          "vDistLeft"
+        ).textContent =
+          distanceKm.toFixed(1);
+
+        document.getElementById(
+          "vDistTotal"
+        ).textContent =
+          `(${distanceKm.toFixed(1)})`;
+
+        document.getElementById(
+          "iconRouteProfile"
+        ).textContent =
+          activeRouteType === "street"
+            ? "🛣️"
+            : "🌲";
+
+        requestAnimationFrame(
+          () => {
+            map.invalidateSize(true);
+          }
+        );
+
+      }
+    );
+
+
     updateUI();
-
-
 
 
 
