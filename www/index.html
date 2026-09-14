@@ -1627,6 +1627,7 @@ function getDistanceToRoute(lat, lon) {
     L.latLng(lat, lon);
 
   let minDistance = Infinity;
+  let nearestPointIndex = 0;
 
   for (
     let i = 0;
@@ -1648,15 +1649,31 @@ function getDistanceToRoute(lat, lon) {
       );
 
     if (segmentDistance < minDistance) {
-      minDistance = segmentDistance;
+
+      minDistance =
+        segmentDistance;
+
+      /*
+         Wir merken uns zunächst
+         den Startpunkt des nächstgelegenen
+         Routensegments.
+      */
+
+      nearestPointIndex = i;
+
     }
   }
 
-  return isFinite(minDistance)
-    ? minDistance
-    : null;
-}
+  if (!isFinite(minDistance)) {
+    return null;
+  }
 
+  return {
+    index: nearestPointIndex,
+    distance: minDistance,
+    totalPoints: routePoints.length
+  };
+}
 
 function distancePointToSegment(
   point,
@@ -3509,7 +3526,7 @@ if (routeButton) {
   routeButton.textContent =
     routeDistance === null
       ? "Route: ?"
-      : `Route: ${Math.round(routeDistance)} m`;
+      : `#${routeDistance.index + 1} → ${Math.round(routeDistance.distance)} m`;
 
 }
 
