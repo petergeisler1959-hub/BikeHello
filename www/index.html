@@ -2781,11 +2781,23 @@ if (routeButton) {
         "https://graphhopper.com/api/1/route" +
         `?point=${selectedStart.lat},${selectedStart.lon}` +
         `&point=${selectedTarget.lat},${selectedTarget.lon}` +
+        `&profile=mtb` +
+        `&locale=de` +
+        `&points_encoded=false` +
+        `&instructions=false` +
+        `&key=${encodeURIComponent(GRAPHHOPPER_API_KEY)}`;
+
+      /*
+      const url =
+        "https://graphhopper.com/api/1/route" +
+        `?point=${selectedStart.lat},${selectedStart.lon}` +
+        `&point=${selectedTarget.lat},${selectedTarget.lon}` +
         `&profile=bike` +
         `&locale=de` +
         `&points_encoded=false` +
         `&instructions=false` +
         `&key=${encodeURIComponent(GRAPHHOPPER_API_KEY)}`;
+       */
 
 
       /* Jeder tatsächliche GraphHopper-Request zählt als 1 Request. */
