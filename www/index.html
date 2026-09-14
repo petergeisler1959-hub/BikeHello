@@ -2404,73 +2404,17 @@ function distancePointToSegment(
     loadSearchCount();
 
     /* =========================================================
-   DIAGNOSE
-   ========================================================= */
+       DIAGNOSE
+       ========================================================= */
 
-const diagnosisValue =
-  document.getElementById(
-    "diagnosisValue"
-  );
+    const diagnosisValue =
+      document.getElementById(
+        "diagnosisValue"
+      );
 
-
-async function updateUndoDiagnosis() {
-
-  try {
-
-    const state =
-      await Undo.getUndoState();
 
     diagnosisValue.textContent =
-      `${state.canUndo ? "True" : "False"} | ` +
-      `${state.canRedo ? "True" : "False"}`;
-
-  } catch (_) {
-
-    diagnosisValue.textContent =
-      "Error | Error";
-
-  }
-
-}
-
-
-updateUndoDiagnosis();
-
-
-setInterval(
-  updateUndoDiagnosis,
-  1000
-);
-
-
-if (routeButton) {
-
-  routeButton.addEventListener(
-    "click",
-    async () => {
-
-      /*alert("CLICK angekommen");*/
-
-      try {
-
-        await Undo.clearUndo();
-
-        /*alert("clearUndo() ausgeführt");*/
-
-      } catch (error) {
-
-        alert(
-          "clearUndo FEHLER:\n" +
-          String(error)
-        );
-
-      }
-
-      updateUndoDiagnosis();
-    }
-  );
-
-}
+      "0 → 0 | 0";
 
 
     function increaseRequestCount() {
@@ -3514,11 +3458,19 @@ async function calculateGraphHopperRoute() {
             (Number(data.speed) || 0) *
             3.6;
 
+
 const routeDistance =
   getDistanceToRoute(
     data.lat,
     data.lon
   );
+
+if (diagnosisValue && routeDistance) {
+
+  diagnosisValue.textContent =
+    `0 → 0 | ${routeDistance.totalPoints.toLocaleString("de-DE")}`;
+
+}
 
 
 if (routeButton) {
