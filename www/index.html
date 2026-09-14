@@ -2439,13 +2439,13 @@ if (routeButton) {
     "click",
     async () => {
 
-      alert("CLICK angekommen");
+      /*alert("CLICK angekommen");*/
 
       try {
 
         await Undo.clearUndo();
 
-        alert("clearUndo() ausgeführt");
+        /*alert("clearUndo() ausgeführt");*/
 
       } catch (error) {
 
@@ -3054,6 +3054,11 @@ if (routeButton) {
       console.error(
         "GraphHopper Routing:",
         error
+      );
+
+      alert(
+        "GraphHopper Routing:\n" +
+        String(error)
       );
 
 
