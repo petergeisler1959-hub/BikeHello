@@ -1089,7 +1089,7 @@
     </div>
 
     <div class="sensor-item">
-      <span class="sensor-label">Undo | Redo | GPS</span>
+      <span class="sensor-label">Diagnose</span>
       <span
         class="sensor-value"
         id="diagnosisValue"
@@ -2415,6 +2415,37 @@ function distancePointToSegment(
 
     diagnosisValue.textContent =
       "0 → 0 | 0";
+
+/* =========================================================
+   UNDO / REDO HINTERGRUND-BEREINIGUNG
+   ========================================================= */
+
+async function cleanUndoState() {
+
+  try {
+
+    const state =
+      await Undo.getUndoState();
+
+    if (
+      state.canUndo ||
+      state.canRedo
+    ) {
+
+      await Undo.clearUndo();
+
+    }
+
+  } catch (_) {
+    // Undo-Fehler hier bewusst ignorieren.
+  }
+
+}
+
+setInterval(
+  cleanUndoState,
+  500
+);
 
 
     function increaseRequestCount() {
