@@ -1488,6 +1488,8 @@
 
     let routeSearchCount = 0;
 
+    let routeWindowCenter = 1;
+
     let routeAvailable = false;
 
     let streetRoute = null;
@@ -1674,6 +1676,98 @@ function getDistanceToRoute(lat, lon) {
     totalPoints: routePoints.length
   };
 }
+
+
+function getDistanceToRouteWindow(
+  lat,
+  lon
+) {
+
+  if (!testRouteLine) {
+    return null;
+  }
+
+  const routePoints =
+    testRouteLine.getLatLngs();
+
+  if (
+    !routePoints ||
+    routePoints.length < 2
+  ) {
+    return null;
+  }
+
+  const gpsPoint =
+    L.latLng(lat, lon);
+
+  const centerIndex =
+    Math.max(
+      0,
+      Math.min(
+        routePoints.length - 1,
+        routeWindowCenter - 1
+      )
+    );
+
+  const startIndex =
+    Math.max(
+      0,
+      centerIndex - 10
+    );
+
+  const endIndex =
+    Math.min(
+      routePoints.length - 1,
+      centerIndex + 10
+    );
+
+  let minDistance = Infinity;
+  let nearestPointIndex = startIndex;
+
+  for (
+    let i = startIndex;
+    i < endIndex;
+    i++
+  ) {
+
+    const a =
+      routePoints[i];
+
+    const b =
+      routePoints[i + 1];
+
+    const segmentDistance =
+      distancePointToSegment(
+        gpsPoint,
+        a,
+        b
+      );
+
+    if (
+      segmentDistance <
+      minDistance
+    ) {
+
+      minDistance =
+        segmentDistance;
+
+      nearestPointIndex = i;
+    }
+  }
+
+  if (!isFinite(minDistance)) {
+    return null;
+  }
+
+  return {
+    index: nearestPointIndex,
+    distance: minDistance,
+    startIndex: startIndex,
+    endIndex: endIndex,
+    totalPoints: routePoints.length
+  };
+}
+
 
 function distancePointToSegment(
   point,
@@ -3496,20 +3590,58 @@ const routeDistance =
     data.lon
   );
 
-if (diagnosisValue && routeDistance) {
+const routeWindowDistance =
+  getDistanceToRouteWindow(
+    data.lat,
+    data.lon
+  );
+
+
+if (
+  diagnosisValue &&
+  routeDistance &&
+  routeWindowDistance
+) {
+
+  const actualPoint =
+    routeDistance.index + 1;
+
+  const windowStart =
+    routeWindowDistance.startIndex + 1;
+
+  const windowEnd =
+    routeWindowDistance.endIndex + 1;
+
+  const insideWindow =
+    actualPoint >= windowStart &&
+    actualPoint <= windowEnd;
+
 
   diagnosisValue.textContent =
-    `0 → 0 | ${routeDistance.totalPoints.toLocaleString("de-DE")}`;
+    `${windowStart} → ${windowEnd} | ` +
+    `${routeDistance.totalPoints.toLocaleString("de-DE")}`;
 
-}
+
+  if (routeButton) {
+
+    routeButton.textContent =
+      `#${actualPoint} → ` +
+      `${Math.round(routeDistance.distance)} m`;
+
+    routeButton.style.background =
+      insideWindow
+        ? "#2f6fed"
+        : "#d9534f";
+
+  }
 
 
-if (routeButton) {
+  if (insideWindow) {
 
-  routeButton.textContent =
-    routeDistance === null
-      ? "Route: ?"
-      : `#${routeDistance.index + 1} → ${Math.round(routeDistance.distance)} m`;
+    routeWindowCenter =
+      actualPoint;
+
+  }
 
 }
 
