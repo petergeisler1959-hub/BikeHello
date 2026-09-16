@@ -217,6 +217,12 @@
       font-weight: 700;
     }
 
+    #routeProfileIconImage {
+      width: 24px;
+      height: 24px;
+      display: block;
+    }
+
     .button.disabled {
       opacity: .35;
       filter: grayscale(1);
@@ -1139,12 +1145,13 @@
       type="button"
     >
 
-      <span
-        id="iconRouteProfile"
-        class="status-bike"
-      >
-        🛣️
-      </span>
+<span id="iconRouteProfile">
+  <img
+    id="routeProfileIconImage"
+    src="icons/road.svg"
+    alt=""
+  >
+</span>
 
     </button>
 
@@ -3590,11 +3597,11 @@ if (insideWindow) {
           `(${distanceKm.toFixed(1)})`;
 
         document.getElementById(
-          "iconRouteProfile"
-        ).textContent =
+          "routeProfileIconImage"
+        ).src =
           activeRouteType === "street"
-            ? "🛣️"
-            : "🌲";
+            ? "icons/road.svg"
+            : "icons/trees.svg";
 
         requestAnimationFrame(
           () => {
