@@ -2532,7 +2532,7 @@ function distancePointToSegment(
 
 
     diagnosisValue.textContent =
-      "0 → 0 | 0";
+      "0-0 | 0";
 
 /* =========================================================
    UNDO / REDO HINTERGRUND-BEREINIGUNG
@@ -3132,7 +3132,7 @@ const insideWindow =
 
 
 diagnosisValue.textContent =
-  `${windowStart} → ${windowEnd} | ` +
+  `${windowStart}-${windowEnd} | ` +
   `${(routeDistance.totalPoints - 1).toLocaleString("de-DE")}`;
 
 
@@ -3686,6 +3686,16 @@ const totalTimeMinutes =
   averageSpeed *
   60;
 
+document.getElementById(
+  "vDistLeft"
+).textContent =
+  (remainingDistance / 1000).toFixed(1);
+
+document.getElementById(
+  "vDistTotal"
+).textContent =
+  `(${(totalDistance / 1000).toFixed(1)})`;
+
 const remainingTimeMinutes =
   remainingDistance /
   1000 /
@@ -3741,7 +3751,7 @@ document.getElementById(
 
 
   diagnosisValue.textContent =
-    `${windowStart} → ${windowEnd} | ` +
+    `${windowStart}-${windowEnd} | ` +
     `${(routeDistance.totalPoints - 1).toLocaleString("de-DE")}`;
 
 
