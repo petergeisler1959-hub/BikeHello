@@ -3118,52 +3118,53 @@ async function calculateGraphHopperRoute() {
 
 
     /* ---------------------------------------------------------
-       DISTANZ und Zeit DER AKTIVEN ROUTE
-       --------------------------------------------------------- */
 
-    const totalDistanceKm =
-      totalDistance / 1000;
 
-    const remainingDistanceKm =
-      remainingDistance / 1000;
+const windowStart =
+  routeWindowDistance.startIndex + 1;
 
-    document.getElementById(
-      "vDistLeft"
-    ).textContent =
-      remainingDistanceKm.toFixed(1);
+const windowEnd =
+  routeWindowDistance.endIndex + 1;
 
-    document.getElementById(
-      "vDistTotal"
-    ).textContent =
-      `(${totalDistanceKm.toFixed(1)})`;
+const insideWindow =
+  actualPoint >= windowStart &&
+  actualPoint <= windowEnd;
 
-    function formatTime(
-      totalMinutes
-    ) {
 
-      const hours =
-        Math.floor(
-          totalMinutes / 60
-        );
+diagnosisValue.textContent =
+  `${windowStart} → ${windowEnd} | ` +
+  `${(routeDistance.totalPoints - 1).toLocaleString("de-DE")}`;
 
-      const minutes =
-        Math.round(
-          totalMinutes % 60
-        );
 
-      return (
-        hours +
-        ":" +
-        String(minutes).padStart(2, "0")
-      );
-    }
+if (routeButton) {
 
-    document.getElementById(
-      "vTimeLeft"
-    ).textContent =
-      formatTime(
-        remainingTimeMinutes
-      );
+  routeButton.textContent =
+    `#${actualPoint} → ` +
+    `${Math.round(routeDistance.distance)} m`;
+
+  routeButton.style.background =
+    insideWindow
+      ? "#2f6fed"
+      : "#d9534f";
+
+}
+
+
+if (insideWindow) {
+
+  if (activeRouteType === "street") {
+
+    streetRouteWindowCenter =
+      actualPoint;
+
+  } else {
+
+    natureRouteWindowCenter =
+      actualPoint;
+
+  }
+
+}
 
     document.getElementById(
       "vTimeTotal"
