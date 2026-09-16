@@ -1676,7 +1676,54 @@ function getDistanceToRoute(lat, lon) {
     index: nearestPointIndex,
     distance: minDistance,
     totalPoints: routePoints.length
+    totalDistance:
+      activeRouteType === "street"
+        ? streetRoute.distance
+        : natureRoute.distance
   };
+}
+
+function getRemainingRouteDistance(
+  actualPoint
+) {
+
+  if (!testRouteLine) {
+    return null;
+  }
+
+  const routePoints =
+    testRouteLine.getLatLngs();
+
+  if (
+    !routePoints ||
+    routePoints.length < 2
+  ) {
+    return null;
+  }
+
+  if (
+    actualPoint < 0 ||
+    actualPoint >= routePoints.length
+  ) {
+    return null;
+  }
+
+  let remainingDistance = 0;
+
+  for (
+    let i = actualPoint;
+    i < routePoints.length - 1;
+    i++
+  ) {
+
+    remainingDistance +=
+      routePoints[i].distanceTo(
+        routePoints[i + 1]
+      );
+
+  }
+
+  return remainingDistance;
 }
 
 
@@ -3071,34 +3118,64 @@ async function calculateGraphHopperRoute() {
 
 
     /* ---------------------------------------------------------
-       DISTANZ DER AKTIVEN ROUTE
+       DISTANZ und Zeit DER AKTIVEN ROUTE
        --------------------------------------------------------- */
 
-    const distanceKm =
-      activeRoute.distance / 1000;
+    const totalDistanceKm =
+      totalDistance / 1000;
 
+    const remainingDistanceKm =
+      remainingDistance / 1000;
 
     document.getElementById(
       "vDistLeft"
     ).textContent =
-      distanceKm.toFixed(1);
-
+      remainingDistanceKm.toFixed(1);
 
     document.getElementById(
       "vDistTotal"
     ).textContent =
-      `(${distanceKm.toFixed(1)})`;
+      `(${totalDistanceKm.toFixed(1)})`;
+
+    function formatTime(
+      totalMinutes
+    ) {
+
+      const hours =
+        Math.floor(
+          totalMinutes / 60
+        );
+
+      const minutes =
+        Math.round(
+          totalMinutes % 60
+        );
+
+      return (
+        hours +
+        ":" +
+        String(minutes).padStart(2, "0")
+      );
+    }
+
+    document.getElementById(
+      "vTimeLeft"
+    ).textContent =
+      formatTime(
+        remainingTimeMinutes
+      );
+
+    document.getElementById(
+      "vTimeTotal"
+    ).textContent =
+      `(${formatTime(
+        totalTimeMinutes
+      )})`;
 
 
-    /*
-       Fahr-/Gehzeit wird hier bewusst nicht mehr verwendet.
-    */
-
-
-    /* ---------------------------------------------------------
-       ROUTE AKTIVIEREN
-       --------------------------------------------------------- */
-
+/* ---------------------------------------------------------
+   ROUTE AKTIVIEREN
+   --------------------------------------------------------- */
     routeAvailable = true;
 
     operatingStatus = "Break";
@@ -3591,6 +3668,29 @@ if (
   const actualPoint =
     routeDistance.index;
 
+const totalDistance =
+  routeDistance.totalDistance;
+
+const remainingDistance =
+  getRemainingRouteDistance(
+    actualPoint
+  );
+
+const averageSpeed =
+  19;
+
+const totalTimeMinutes =
+  totalDistance /
+  1000 /
+  averageSpeed *
+  60;
+
+const remainingTimeMinutes =
+  remainingDistance /
+  1000 /
+  averageSpeed *
+  60;
+
   const windowStart =
     routeWindowDistance.startIndex + 1;
 
@@ -3604,7 +3704,7 @@ if (
 
   diagnosisValue.textContent =
     `${windowStart} → ${windowEnd} | ` +
-    `${routeDistance.totalPoints.toLocaleString("de-DE")}`;
+    `${(routeDistance.totalPoints - 1).toLocaleString("de-DE")}`;
 
 
   if (routeButton) {
