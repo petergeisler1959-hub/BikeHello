@@ -3692,6 +3692,43 @@ const remainingTimeMinutes =
   averageSpeed *
   60;
 
+function formatTime(
+  totalMinutes
+) {
+
+  const hours =
+    Math.floor(
+      totalMinutes / 60
+    );
+
+  const minutes =
+    Math.round(
+      totalMinutes % 60
+    );
+
+  return (
+    hours +
+    ":" +
+    String(minutes).padStart(2, "0")
+  );
+}
+
+
+document.getElementById(
+  "vTimeLeft"
+).textContent =
+  formatTime(
+    remainingTimeMinutes
+  );
+
+document.getElementById(
+  "vTimeTotal"
+).textContent =
+  `(${formatTime(
+    totalTimeMinutes
+  )})`;
+
+
   const windowStart =
     routeWindowDistance.startIndex;
 
