@@ -1488,7 +1488,9 @@
 
     let routeSearchCount = 0;
 
-    let routeWindowCenter = 1;
+    let streetRouteWindowCenter = 1;
+
+    let natureRouteWindowCenter = 1;
 
     let routeAvailable = false;
 
@@ -1697,8 +1699,16 @@ function getDistanceToRouteWindow(
     return null;
   }
 
-  const gpsPoint =
-    L.latLng(lat, lon);
+
+  /* ---------------------------------------------------------
+     Eigenes Suchfenster für Straße und Natur
+     --------------------------------------------------------- */
+
+  const routeWindowCenter =
+    activeRouteType === "street"
+      ? streetRouteWindowCenter
+      : natureRouteWindowCenter;
+
 
   const centerIndex =
     Math.max(
@@ -1709,63 +1719,30 @@ function getDistanceToRouteWindow(
       )
     );
 
+
+  /* ---------------------------------------------------------
+     Testfenster: -30 ... +100 Punkte
+     --------------------------------------------------------- */
+
   const startIndex =
     Math.max(
       0,
-      centerIndex - 10
+      centerIndex - 30
     );
 
   const endIndex =
     Math.min(
       routePoints.length - 1,
-      centerIndex + 10
+      centerIndex + 100
     );
 
-  let minDistance = Infinity;
-  let nearestPointIndex = startIndex;
-
-  for (
-    let i = startIndex;
-    i < endIndex;
-    i++
-  ) {
-
-    const a =
-      routePoints[i];
-
-    const b =
-      routePoints[i + 1];
-
-    const segmentDistance =
-      distancePointToSegment(
-        gpsPoint,
-        a,
-        b
-      );
-
-    if (
-      segmentDistance <
-      minDistance
-    ) {
-
-      minDistance =
-        segmentDistance;
-
-      nearestPointIndex = i;
-    }
-  }
-
-  if (!isFinite(minDistance)) {
-    return null;
-  }
 
   return {
-    index: nearestPointIndex,
-    distance: minDistance,
     startIndex: startIndex,
     endIndex: endIndex,
     totalPoints: routePoints.length
   };
+
 }
 
 
@@ -2834,7 +2811,7 @@ async function calculateGraphHopperRoute() {
   routeCalculateButton.disabled = true;
 
   routeCalculateButton.textContent =
-    "ROUTEN WERDEN BERECHNET …";
+    "ROUTEN BERECHNEN läuft";
 
 
   /* ---------------------------------------------------------
@@ -2862,6 +2839,9 @@ async function calculateGraphHopperRoute() {
   natureRoute = null;
 
   activeRouteType = "street";
+
+  streetRouteWindowCenter = 1;
+  natureRouteWindowCenter = 1;
 
 
   try {
@@ -2975,7 +2955,7 @@ async function calculateGraphHopperRoute() {
        ========================================================= */
 
     routeCalculateButton.textContent =
-      "STREET-ROUTE …";
+      "ROUTEN BERECHNEN";
 
 
     streetRoute =
@@ -2987,7 +2967,7 @@ async function calculateGraphHopperRoute() {
        ========================================================= */
 
     routeCalculateButton.textContent =
-      "NATURE-ROUTE …";
+      "ROUTEN BERECHNEN";
 
 
     natureRoute =
@@ -3224,14 +3204,14 @@ async function calculateGraphHopperRoute() {
 
 
     routeCalculateButton.textContent =
-      "ROUTEN NICHT MÖGLICH";
+      "ROUTEN BERECHNEN nicht möglich";
 
 
     setTimeout(
       () => {
 
         routeCalculateButton.textContent =
-          "ROUTE BERECHNEN";
+          "ROUTEN BERECHNEN";
 
       },
       2500
@@ -3441,6 +3421,11 @@ async function calculateGraphHopperRoute() {
 
       operatingStatus = "Break";
 
+      streetRouteWindowCenter = 1;
+      natureRouteWindowCenter = 1;
+
+      streetRoute = null;
+      natureRoute = null;
 
       resetRouteSelection();
 
@@ -3604,7 +3589,7 @@ if (
 ) {
 
   const actualPoint =
-    routeDistance.index + 1;
+    routeDistance.index;
 
   const windowStart =
     routeWindowDistance.startIndex + 1;
@@ -3638,8 +3623,17 @@ if (
 
   if (insideWindow) {
 
-    routeWindowCenter =
-      actualPoint;
+    if (activeRouteType === "street") {
+
+      streetRouteWindowCenter =
+        actualPoint;
+
+    } else {
+
+      natureRouteWindowCenter =
+        actualPoint;
+
+    }
 
   }
 
