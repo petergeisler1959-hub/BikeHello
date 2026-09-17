@@ -1144,6 +1144,7 @@
       id="btnRouteProfile"
       class="button"
       type="button"
+      disabled
     >
 
 <span id="iconRouteProfile">
@@ -3028,6 +3029,7 @@ async function calculateGraphHopperRoute() {
     natureRoute =
       await requestRoute("foot");
 
+    btnRouteProfile.classList.remove("disabled");
 
     /* =========================================================
        BEIDE ROUTEN ERFOLGREICH
@@ -3512,6 +3514,8 @@ if (insideWindow) {
 
       streetRoute = null;
       natureRoute = null;
+
+      btnRouteProfile.classList.add("disabled");
 
       resetRouteSelection();
 
