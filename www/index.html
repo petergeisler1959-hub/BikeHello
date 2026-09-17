@@ -1456,6 +1456,8 @@
     const btnRouteProfile =
       document.getElementById("btnRouteProfile");
 
+    btnRouteProfile.classList.add("disabled");
+
     const routeInputPanel =
       document.getElementById("routeInputPanel");
 
@@ -3564,6 +3566,8 @@ if (insideWindow) {
           activeRouteType === "street"
             ? "nature"
             : "street";
+
+        alert("ROUTE TYPE: " + activeRouteType);
 
         const activeRoute =
           activeRouteType === "street"
