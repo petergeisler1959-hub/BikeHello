@@ -1421,12 +1421,6 @@
     const btnRouteSearch =
       document.getElementById("btnRouteSearch");
 
-    const btnMyLocation =
-      document.getElementById("btnMyLocation");
-
-    const routeSearchCountElement =
-      document.getElementById("routeSearchCount");
-
     const routeCalculateButton =
       document.getElementById("routeCalculateButton");
 
@@ -2266,11 +2260,6 @@ function distancePointToSegment(
       );
 
 
-      btnMyLocation.classList.add(
-        "is-visible"
-      );
-
-
       routeInput.scrollIntoView({
         block: "center",
         behavior: "smooth"
@@ -2301,75 +2290,6 @@ function distancePointToSegment(
 
 
     /* =========================================================
-       MEIN STANDORT
-       ========================================================= */
-
-    btnMyLocation.addEventListener(
-      "click",
-      () => {
-
-        if (
-          setMyLocationAsPoint(
-            activeRoutePoint
-          )
-        ) {
-
-          if (
-            activeRoutePoint === "start" &&
-            !selectedTarget
-          ) {
-
-            setMyLocationAsPoint(
-              "target"
-            );
-
-          }
-
-
-          if (
-            activeRoutePoint === "target" &&
-            !selectedStart
-          ) {
-
-            setMyLocationAsPoint(
-              "start"
-            );
-
-          }
-
-
-          routeInputPanel.classList.remove(
-            "is-open"
-          );
-
-
-          routeCandidates.classList.remove(
-            "is-visible"
-          );
-
-
-          btnMyLocation.classList.remove(
-            "is-visible"
-          );
-
-
-          btnRouteSearch.classList.remove(
-            "is-visible"
-          );
-
-
-          routeInput.blur();
-
-
-          activeRoutePoint = null;
-
-        }
-
-      }
-    );
-
-
-    /* =========================================================
        NEW
        ========================================================= */
 
@@ -2391,38 +2311,6 @@ function distancePointToSegment(
       .addEventListener(
         "click",
         closeRoutePage
-      );
-
-
-    /* =========================================================
-       ROUTENLISTE
-       ========================================================= */
-
-    document
-      .getElementById("btnRouteList")
-      .addEventListener(
-        "click",
-        () => {
-
-          routeInputPanel.classList.remove(
-            "is-open"
-          );
-
-          routeCandidates.classList.remove(
-            "is-visible"
-          );
-
-          btnRouteSearch.classList.remove(
-            "is-visible"
-          );
-
-          btnMyLocation.classList.remove(
-            "is-visible"
-          );
-
-          routeInput.blur();
-
-        }
       );
 
 
@@ -2466,9 +2354,6 @@ function distancePointToSegment(
         String(routeSearchCount)
       );
 
-
-      routeSearchCountElement.textContent =
-        `(${routeSearchCount + 1})`;
 
     }
 
@@ -2529,10 +2414,6 @@ setInterval(
         "bikehello_route_search_count",
         String(routeSearchCount)
       );
-
-
-      routeSearchCountElement.textContent =
-        `(${routeSearchCount + 1})`;
 
     }
 
@@ -2631,7 +2512,6 @@ setInterval(
       routeCandidates.classList.add("is-visible");
 
       btnRouteSearch.classList.remove("is-visible");
-      btnMyLocation.classList.remove("is-visible");
 
       try {
         const response = await fetch(url);
@@ -3153,11 +3033,6 @@ if (insideWindow) {
 
 
     btnRouteSearch.classList.remove(
-      "is-visible"
-    );
-
-
-    btnMyLocation.classList.remove(
       "is-visible"
     );
 
