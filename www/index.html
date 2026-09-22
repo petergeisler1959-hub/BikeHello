@@ -681,8 +681,7 @@
        SEARCH / MEIN STANDORT BUTTON
        ========================================================= */
 
-    #btnRouteSearch,
-    #btnMyLocation {
+    #btnRouteSearch {
       display: none;
 
       flex: none;
@@ -712,18 +711,6 @@
       white-space: nowrap;
     }
 
-    #btnMyLocation {
-      width: 110px;
-    }
-
-    #btnMyLocation.is-visible {
-      display: flex;
-
-      align-items: center;
-      justify-content: center;
-
-      text-align: center;
-    }
 
     #btnRouteSearch.is-visible {
       display: flex;
@@ -734,11 +721,6 @@
       gap: 2px;
 
       font-size: 17px;
-    }
-
-    #routeSearchCount {
-      white-space: nowrap;
-      display: inline-block;
     }
 
 
@@ -1337,19 +1319,10 @@
 
 
       <button
-        id="btnMyLocation"
-        type="button"
-      >
-        MEIN<br>STANDORT
-      </button>
-
-
-      <button
         id="btnRouteSearch"
         type="button"
       >
         🔎
-        <span id="routeSearchCount">(1)</span>
       </button>
 
     </div>
@@ -2178,11 +2151,6 @@ function distancePointToSegment(
       );
 
 
-      btnMyLocation.classList.remove(
-        "is-visible"
-      );
-
-
       document
         .getElementById("routeStartPoint")
         .classList.remove(
@@ -2581,15 +2549,9 @@ setInterval(
           routeInput.value.trim().length;
 
 
-        btnMyLocation.classList.toggle(
-          "is-visible",
-          length === 0
-        );
-
-
         btnRouteSearch.classList.toggle(
           "is-visible",
-          length >= 10
+          length >= 8
         );
 
       }
