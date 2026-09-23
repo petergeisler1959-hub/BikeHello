@@ -880,21 +880,120 @@
       font-weight: 700;
     }
 
+
     /* =========================================================
-       CANCEL
+       ORT SPEICHERN – DIALOG
        ========================================================= */
 
-    /*
-    #btnRouteCancel {
+    .save-place-dialog {
+      display: none;
 
-      border-color: #999;
+      position: fixed;
+      inset: 0;
 
-      background: #fff;
+      z-index: 1000;
 
-      color: #333;
+      align-items: center;
+      justify-content: center;
 
+      padding: 20px;
+
+      background: rgba(0, 0, 0, 0.45);
     }
-    */
+
+
+    .save-place-dialog-content {
+      width: 100%;
+      max-width: 500px;
+
+      padding: 24px;
+
+      background: #ffffff;
+      border-radius: 14px;
+
+      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.30);
+
+      box-sizing: border-box;
+    }
+
+
+    .save-place-dialog-content h2 {
+      margin: 0 0 22px;
+
+      text-align: center;
+
+      font-size: 22px;
+    }
+
+
+    .save-place-dialog-content label {
+      display: block;
+
+      margin: 0 0 6px;
+
+      font-size: 16px;
+      font-weight: 700;
+    }
+
+
+    .save-place-dialog-content input {
+      display: block;
+
+      width: 100%;
+      box-sizing: border-box;
+
+      min-height: 46px;
+
+      margin: 0 0 16px;
+      padding: 0 12px;
+
+      border: 1px solid rgba(0, 0, 0, 0.30);
+      border-radius: 8px;
+
+      background: #ffffff;
+
+      font-size: 17px;
+    }
+
+
+    .save-place-dialog-content input:disabled {
+      background: #eeeeee;
+      color: #666666;
+    }
+
+
+    .save-place-dialog-actions {
+      display: flex;
+
+      justify-content: space-between;
+
+      gap: 12px;
+
+      margin-top: 8px;
+    }
+
+
+    .save-place-dialog-actions button {
+      flex: 1;
+
+      min-height: 48px;
+
+      padding: 0 14px;
+
+      border: 1px solid rgba(0, 0, 0, 0.25);
+      border-radius: 9px;
+
+      font-size: 17px;
+      font-weight: 700;
+
+      cursor: pointer;
+    }
+
+
+    #btnSavePlaceConfirm:disabled {
+      opacity: 0.45;
+      cursor: default;
+    }
 
 
     /* =========================================================
@@ -1350,30 +1449,101 @@
   </button>
 
 
-</div>
+  </div>
 
 
-<!-- =======================================================
-     BOTTOM BUTTONS
-     ======================================================= -->
+  <!-- =======================================================
+       BOTTOM BUTTONS
+       ======================================================= -->
 
-<footer class="route-page-actions">
+  <footer class="route-page-actions">
 
-  <button
-    id="btnRouteCancel"
-    type="button"
+    <button
+      id="btnRouteCancel"
+      type="button"
+    >
+      CANCEL
+    </button>
+
+    <button
+      id="btnSaveCurrentLocation"
+      type="button"
+    >
+      💾 STANDORT
+    </button>
+
+  </footer>
+
+
+  <!-- =======================================================
+       ORT SPEICHERN
+       ======================================================= -->
+
+  <div
+    id="savePlaceDialog"
+    class="save-place-dialog"
   >
-    CANCEL
-  </button>
 
-  <button
-    id="btnSaveCurrentLocation"
-    type="button"
-  >
-    💾 STANDORT
-  </button>
+    <div class="save-place-dialog-content">
 
-</footer>
+      <h2>ORT SPEICHERN</h2>
+
+
+      <label for="savePlaceOwnName">
+        Eigener Ortsname
+      </label>
+
+      <input
+        id="savePlaceOwnName"
+        type="text"
+        autocomplete="off"
+      >
+
+
+      <label for="savePlaceDescription">
+        Bezeichnung
+      </label>
+
+      <input
+        id="savePlaceDescription"
+        type="text"
+        autocomplete="off"
+      >
+
+
+      <label for="savePlaceAddress">
+        Adresse
+      </label>
+
+      <input
+        id="savePlaceAddress"
+        type="text"
+        disabled
+      >
+
+
+      <div class="save-place-dialog-actions">
+
+        <button
+          id="btnSavePlaceCancel"
+          type="button"
+        >
+          ABBRECHEN
+        </button>
+
+        <button
+          id="btnSavePlaceConfirm"
+          type="button"
+          disabled
+        >
+          SPEICHERN
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
 
   </main>
 
@@ -2309,6 +2479,7 @@ function distancePointToSegment(
     );
 
 
+
     /* =========================================================
        CANCEL
        ========================================================= */
@@ -2319,6 +2490,48 @@ function distancePointToSegment(
         "click",
         closeRoutePage
       );
+
+
+    /* =========================================================
+       ORT SPEICHERN – DIALOG
+       ========================================================= */
+
+    const savePlaceDialog =
+      document.getElementById("savePlaceDialog");
+
+    const btnSaveCurrentLocation =
+      document.getElementById("btnSaveCurrentLocation");
+
+    const btnSavePlaceCancel =
+      document.getElementById("btnSavePlaceCancel");
+
+
+    if (btnSaveCurrentLocation) {
+
+      btnSaveCurrentLocation.addEventListener(
+        "click",
+        () => {
+
+          savePlaceDialog.style.display = "flex";
+
+        }
+      );
+
+    }
+
+
+    if (btnSavePlaceCancel) {
+
+      btnSavePlaceCancel.addEventListener(
+        "click",
+        () => {
+
+          savePlaceDialog.style.display = "none";
+
+        }
+      );
+
+    }
 
 
     /* =========================================================
