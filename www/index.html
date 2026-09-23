@@ -742,7 +742,9 @@
     }
 
     .route-candidate {
-      display: block;
+      display: flex;
+
+      align-items: center;
 
       width: 100%;
 
@@ -761,9 +763,7 @@
       box-shadow:
         0 2px 5px rgba(0,0,0,.08);
 
-      cursor: pointer;
-
-      text-align: left;
+      box-sizing: border-box;
     }
 
     .route-candidate-name {
@@ -902,7 +902,7 @@
     }
 
     .save-place-dialog.keyboard-open {
-      transform: translateY(-40px);
+      transform: translateY(-50px);
     }
 
 
@@ -1512,6 +1512,7 @@
         id="savePlaceDescription"
         type="text"
         autocomplete="off"
+        placeholder="optional"
       >
 
 
@@ -2419,8 +2420,8 @@ function distancePointToSegment(
 
       routeInputTitle.textContent =
         point === "start"
-          ? "START suchen"
-          : "ZIEL suchen";
+          ? "Neuen START suchen"
+          : "Neues ZIEL suchen";
 
 
       routeInput.value = "";
@@ -2840,18 +2841,34 @@ setInterval(
               const address = formatCandidateAddress(hit);
 
               return `
-                <button
+                <div
                   class="route-candidate"
-                  type="button"
                   data-index="${index}"
                 >
-                  <span class="route-candidate-name">
-                    ${name}
-                  </span>
-                  <span class="route-candidate-address">
-                    ${address}
-                  </span>
-                </button>
+
+                  <button
+                    class="route-candidate-select"
+                    type="button"
+                  >
+                    <span class="route-candidate-name">
+                      ${name}
+                    </span>
+
+                    <span class="route-candidate-address">
+                      ${address}
+                    </span>
+                  </button>
+
+
+                  <button
+                    class="route-candidate-save"
+                    type="button"
+                    aria-label="Ort speichern"
+                  >
+                   💾
+                  </button>
+
+                </div>
               `;
             })
             .join("");
