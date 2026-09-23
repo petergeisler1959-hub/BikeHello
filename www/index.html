@@ -2606,6 +2606,10 @@ function distancePointToSegment(
         "click",
         () => {
 
+      savePlaceAddress.classList.remove(
+        "has-value"
+      );
+
           savePlaceDialog.style.display = "flex";
 
         }
@@ -3002,6 +3006,8 @@ setInterval(
 
               savePlaceAddress.value =
                 formatCandidateAddress(selected);
+
+              savePlaceAddress.classList.add("has-value");
 
               updateSavePlaceButton();
 
