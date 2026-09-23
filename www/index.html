@@ -2579,6 +2579,39 @@ function distancePointToSegment(
 
     }
 
+    /* =========================================================
+       ORT SPEICHERN – TASTATURPOSITION
+       ========================================================= */
+
+    if (window.visualViewport) {
+
+      function updateSavePlaceKeyboardPosition() {
+
+        const keyboardOpen =
+          window.visualViewport.height <
+          window.innerHeight - 100;
+
+        savePlaceDialog.classList.toggle(
+          "keyboard-open",
+          keyboardOpen
+        );
+
+      }
+
+
+      window.visualViewport.addEventListener(
+        "resize",
+        updateSavePlaceKeyboardPosition
+      );
+
+
+      window.visualViewport.addEventListener(
+        "scroll",
+        updateSavePlaceKeyboardPosition
+      );
+
+    }
+
 
 
     /* =========================================================
