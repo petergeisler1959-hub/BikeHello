@@ -2973,6 +2973,43 @@ setInterval(
           });
         });
 
+        routeCandidates
+          .querySelectorAll(".route-candidate-save")
+          .forEach(button => {
+            button.addEventListener("click", () => {
+
+              const candidate =
+                button.closest(".route-candidate");
+
+              if (!candidate) {
+                return;
+              }
+
+              const index =
+                Number(candidate.dataset.index);
+
+              const selected =
+                candidates[index];
+
+              if (!selected || !selected.point) {
+                return;
+              }
+
+              savePlaceOwnName.value = "";
+
+              savePlaceDescription.value =
+                selected.name || "";
+
+              savePlaceAddress.value =
+                formatCandidateAddress(selected);
+
+              updateSavePlaceButton();
+
+              savePlaceDialog.style.display = "flex";
+
+            });
+          });
+
       } catch (error) {
         console.error("GraphHopper Geocoding:", error);
 
