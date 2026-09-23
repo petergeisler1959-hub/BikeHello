@@ -2505,6 +2505,48 @@ function distancePointToSegment(
     const btnSavePlaceCancel =
       document.getElementById("btnSavePlaceCancel");
 
+    const savePlaceOwnName =
+      document.getElementById("savePlaceOwnName");
+
+    const savePlaceDescription =
+      document.getElementById("savePlaceDescription");
+
+    const btnSavePlaceConfirm =
+      document.getElementById("btnSavePlaceConfirm");
+
+
+    /* =========================================================
+       SPEICHERN-BUTTON AKTIVIEREN
+       ========================================================= */
+
+    function updateSavePlaceButton() {
+
+      const hasOwnName =
+        savePlaceOwnName.value.trim().length > 0;
+
+      const hasDescription =
+        savePlaceDescription.value.trim().length > 0;
+
+      btnSavePlaceConfirm.disabled =
+        !(hasOwnName || hasDescription);
+
+    }
+
+
+    savePlaceOwnName.addEventListener(
+      "input",
+      updateSavePlaceButton
+    );
+
+
+    savePlaceDescription.addEventListener(
+      "input",
+      updateSavePlaceButton
+    );
+
+
+    updateSavePlaceButton();
+
 
     if (btnSaveCurrentLocation) {
 
@@ -2532,6 +2574,7 @@ function distancePointToSegment(
       );
 
     }
+
 
 
     /* =========================================================
