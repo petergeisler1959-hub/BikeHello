@@ -2546,8 +2546,15 @@ function distancePointToSegment(
       .getElementById("btnRouteCancel")
       .addEventListener(
         "click",
-        closeRoutePage
-      );
+        () => {
+
+          btnSaveCurrentLocation.style.display =
+            "";
+
+          closeRoutePage();
+
+        }
+       );
 
 
     /* =========================================================
