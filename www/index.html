@@ -1012,6 +1012,14 @@
       color: #666666;
     }
 
+    .save-place-dialog-content input:disabled.has-value {
+      background: #ffffff;
+      color: #333333;
+      opacity: 1;
+
+      -webkit-text-fill-color: #333333;
+    }
+
 
     .save-place-dialog-actions {
       display: flex;
@@ -2461,6 +2469,10 @@ function distancePointToSegment(
     function openPoint(point) {
 
       activeRoutePoint = point;
+
+      btnSaveCurrentLocation.classList.remove(
+        "is-visible"
+      );
 
       routeInput.disabled = false;
 
