@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html lang="de">
 <head>
@@ -157,8 +157,8 @@
 
 
     /* =========================================================
-       Karte wird im Zoom-Modus über 72% der gesamten Höhe
-       gelegt. Der untere Teil wird später durch die Werte überdeckt
+       Karte wird im Zoom-Modus Ã¼ber 72% der gesamten HÃ¶he
+       gelegt. Der untere Teil wird spÃ¤ter durch die Werte Ã¼berdeckt
        ========================================================= */
 
     #cockpitScreen.zoom-layout-test {
@@ -291,7 +291,7 @@
       background: #3aaa35;
     }
 
-    /* Marker in den großen START-/ZIEL-Kreisen */
+    /* Marker in den groÃŸen START-/ZIEL-Kreisen */
     .route-point-circle .route-cockpit-marker {
       width: 30px;
       height: 30px;
@@ -929,7 +929,7 @@
 
 
     /* =========================================================
-       ORT SPEICHERN – DIALOG
+       ORT SPEICHERN â€“ DIALOG
        ========================================================= */
 
     .save-place-dialog {
@@ -1512,7 +1512,7 @@
         id="btnRouteSearch"
         type="button"
       >
-        🔎
+        ðŸ”Ž
       </button>
 
     </div>
@@ -1559,7 +1559,7 @@
       id="btnSaveCurrentLocation"
       type="button"
     >
-      💾 STANDORT
+      ðŸ’¾ STANDORT
     </button>
 
   </footer>
@@ -1751,7 +1751,7 @@
       "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
       {
         maxZoom: 19,
-        attribution: "© OpenStreetMap"
+        attribution: "Â© OpenStreetMap"
       }
     ).addTo(map);
 
@@ -1879,8 +1879,8 @@ function getDistanceToRoute(lat, lon) {
         segmentDistance;
 
       /*
-         Wir merken uns zunächst
-         den Startpunkt des nächstgelegenen
+         Wir merken uns zunÃ¤chst
+         den Startpunkt des nÃ¤chstgelegenen
          Routensegments.
       */
 
@@ -1969,7 +1969,7 @@ function getDistanceToRouteWindow(
 
 
   /* ---------------------------------------------------------
-     Eigenes Suchfenster für Straße und Natur
+     Eigenes Suchfenster fÃ¼r StraÃŸe und Natur
      --------------------------------------------------------- */
 
   const routeWindowCenter =
@@ -2201,7 +2201,7 @@ function distancePointToSegment(
 
 
     /* =========================================================
-       AUSGEWÄHLTE PUNKTE DARSTELLEN
+       AUSGEWÃ„HLTE PUNKTE DARSTELLEN
        ========================================================= */
 
     function updateSelectedInfo() {
@@ -2494,7 +2494,7 @@ function distancePointToSegment(
 
 
     /* =========================================================
-       START / ZIEL ÖFFNEN
+       START / ZIEL Ã–FFNEN
        ========================================================= */
 
     function openPoint(point) {
@@ -2518,6 +2518,9 @@ function distancePointToSegment(
       routeInputPanel.classList.add(
         "is-open"
       );
+
+
+      showSavedPlaces();
 
 
       routeCandidates.classList.remove(
@@ -2589,7 +2592,7 @@ function distancePointToSegment(
 
 
     /* =========================================================
-       ORT SPEICHERN – DIALOG
+       ORT SPEICHERN â€“ DIALOG
        ========================================================= */
 
     const savePlaceDialog =
@@ -2656,6 +2659,72 @@ function distancePointToSegment(
         JSON.stringify(places)
       );
 
+    }
+
+
+    /* =========================================================
+       ORTE-SPEICHER ANZEIGEN
+       ========================================================= */
+
+    function showSavedPlaces() {
+
+      const places =
+        loadSavedPlaces();
+
+      if (places.length === 0) {
+
+        routeCandidates.innerHTML = `
+          <div class="route-candidate">
+            <span class="route-candidate-name">
+              Keine gespeicherten Orte
+            </span>
+          </div>
+        `;
+
+        routeCandidates.classList.add(
+          "is-visible"
+        );
+
+        return;
+      }
+
+      routeCandidates.innerHTML =
+        places
+          .map((place, index) => {
+
+            const name =
+              place.ownName ||
+              place.description ||
+              "Unbenannter Ort";
+
+            const address =
+              place.address || "";
+
+            return `
+              <div
+                class="route-candidate"
+                data-place-index="${index}"
+              >
+                <button
+                  class="route-candidate-select"
+                  type="button"
+                >
+                  <span class="route-candidate-name">
+                    ${name}
+                  </span>
+
+                  <span class="route-candidate-address">
+                    ${address}
+                  </span>
+                </button>
+              </div>
+            `;
+          })
+          .join("");
+
+      routeCandidates.classList.add(
+        "is-visible"
+      );
     }
 
 
@@ -2748,7 +2817,7 @@ function distancePointToSegment(
     }
 
     /* =========================================================
-       ORT SPEICHERN – SPEICHERN
+       ORT SPEICHERN â€“ SPEICHERN
        ========================================================= */
 
     if (btnSavePlaceConfirm) {
@@ -2827,7 +2896,7 @@ function distancePointToSegment(
 
 
     /* =========================================================
-       ORT SPEICHERN – TASTATURPOSITION
+       ORT SPEICHERN â€“ TASTATURPOSITION
        ========================================================= */
 
     if (window.visualViewport) {
@@ -2862,7 +2931,7 @@ function distancePointToSegment(
 
 
     /* =========================================================
-       REQUESTZÄHLER
+       REQUESTZÃ„HLER
        ========================================================= */
 
     function getTodayKey() {
@@ -2992,7 +3061,7 @@ setInterval(
 
     /*
        API-Key hier eintragen.
-       Der Key wird später nicht erneut im Chat ausgegeben.
+       Der Key wird spÃ¤ter nicht erneut im Chat ausgegeben.
     */
     const GRAPHHOPPER_API_KEY = "433044ea-af81-4461-ba34-e174c2d9535a";
 
@@ -3048,12 +3117,12 @@ setInterval(
         `?q=${encodeURIComponent(query)}` +
         `&locale=de&limit=5&key=${encodeURIComponent(GRAPHHOPPER_API_KEY)}`;
 
-      /* Jeder tatsächliche GraphHopper-Request zählt als 1 interner Request. */
+      /* Jeder tatsÃ¤chliche GraphHopper-Request zÃ¤hlt als 1 interner Request. */
       increaseRequestCount();
 
       routeCandidates.innerHTML = `
         <div class="route-candidate">
-          <span class="route-candidate-name">Suche läuft …</span>
+          <span class="route-candidate-name">Suche lÃ¤uft â€¦</span>
         </div>
       `;
       routeCandidates.classList.add("is-visible");
@@ -3074,7 +3143,7 @@ setInterval(
           routeCandidates.innerHTML = `
             <div class="route-candidate">
               <span class="route-candidate-name">Keine Treffer</span>
-              <span class="route-candidate-address">Bitte Suchbegriff prüfen.</span>
+              <span class="route-candidate-address">Bitte Suchbegriff prÃ¼fen.</span>
             </div>
           `;
           return;
@@ -3111,7 +3180,7 @@ setInterval(
                     type="button"
                     aria-label="Ort speichern"
                   >
-                   💾
+                   ðŸ’¾
                   </button>
 
                 </div>
@@ -3216,7 +3285,7 @@ setInterval(
 
         routeCandidates.innerHTML = `
           <div class="route-candidate">
-            <span class="route-candidate-name">Suche nicht möglich</span>
+            <span class="route-candidate-name">Suche nicht mÃ¶glich</span>
             <span class="route-candidate-address">GraphHopper konnte nicht erreicht werden.</span>
           </div>
         `;
@@ -3294,13 +3363,13 @@ async function calculateGraphHopperRoute() {
 
 
   /* ---------------------------------------------------------
-     Button während der Berechnung sperren
+     Button wÃ¤hrend der Berechnung sperren
      --------------------------------------------------------- */
 
   routeCalculateButton.disabled = true;
 
   routeCalculateButton.textContent =
-    "ROUTEN BERECHNEN läuft";
+    "ROUTEN BERECHNEN lÃ¤uft";
 
 
   /* ---------------------------------------------------------
@@ -3336,7 +3405,7 @@ async function calculateGraphHopperRoute() {
   try {
 
     /* =========================================================
-       HILFSFUNKTION FÜR EINE GRAPHHOPPER-ROUTE
+       HILFSFUNKTION FÃœR EINE GRAPHHOPPER-ROUTE
        ========================================================= */
 
     async function requestRoute(profile) {
@@ -3352,7 +3421,7 @@ async function calculateGraphHopperRoute() {
         `&key=${encodeURIComponent(GRAPHHOPPER_API_KEY)}`;
 
 
-      /* Jeder tatsächliche GraphHopper-Request zählt als 1 Request. */
+      /* Jeder tatsÃ¤chliche GraphHopper-Request zÃ¤hlt als 1 Request. */
       increaseRequestCount();
 
 
@@ -3406,7 +3475,7 @@ async function calculateGraphHopperRoute() {
       ) {
 
         throw new Error(
-          `${profile}: Keine gültige Routengeometrie erhalten.`
+          `${profile}: Keine gÃ¼ltige Routengeometrie erhalten.`
         );
 
       }
@@ -3416,7 +3485,7 @@ async function calculateGraphHopperRoute() {
          GraphHopper liefert:
          [longitude, latitude]
 
-         Leaflet benötigt:
+         Leaflet benÃ¶tigt:
          [latitude, longitude]
       */
 
@@ -3582,7 +3651,7 @@ diagnosisValue.textContent =
 if (routeButton) {
 
   routeButton.textContent =
-    `#${actualPoint} → ` +
+    `#${actualPoint} â†’ ` +
     `${Math.round(routeDistance.distance)} m`;
 
   routeButton.style.background =
@@ -3690,8 +3759,8 @@ if (insideWindow) {
 
 
     /*
-       Falls eine der beiden Berechnungen fehlschlägt,
-       verwenden wir keine unvollständige Routenauswahl.
+       Falls eine der beiden Berechnungen fehlschlÃ¤gt,
+       verwenden wir keine unvollstÃ¤ndige Routenauswahl.
     */
 
     streetRoute = null;
@@ -3720,7 +3789,7 @@ if (insideWindow) {
 
 
     routeCalculateButton.textContent =
-      "ROUTEN BERECHNEN nicht möglich";
+      "ROUTEN BERECHNEN nicht mÃ¶glich";
 
 
     setTimeout(
@@ -4198,7 +4267,7 @@ document.getElementById(
   if (routeButton) {
 
     routeButton.textContent =
-      `#${actualPoint} → ` +
+      `#${actualPoint} â†’ ` +
       `${Math.round(routeDistance.distance)} m`;
 
     routeButton.style.background =
@@ -4355,3 +4424,5 @@ if (
 
 </body>
 </html>
+
+
