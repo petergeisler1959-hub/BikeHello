@@ -2579,6 +2579,54 @@ function distancePointToSegment(
     const btnSavePlaceConfirm =
       document.getElementById("btnSavePlaceConfirm");
 
+    /* =========================================================
+       ORTE-SPEICHER
+       ========================================================= */
+
+    let pendingSavePlace = null;
+
+
+    function loadSavedPlaces() {
+
+      try {
+
+        const stored =
+          localStorage.getItem("bikeHelloPlaces");
+
+        if (!stored) {
+          return [];
+        }
+
+        const places =
+          JSON.parse(stored);
+
+        return Array.isArray(places)
+          ? places
+          : [];
+
+      } catch (error) {
+
+        console.error(
+          "Orte-Speicher konnte nicht gelesen werden:",
+          error
+        );
+
+        return [];
+
+      }
+
+    }
+
+
+    function saveSavedPlaces(places) {
+
+      localStorage.setItem(
+        "bikeHelloPlaces",
+        JSON.stringify(places)
+      );
+
+    }
+
 
     /* =========================================================
        SPEICHERN-BUTTON AKTIVIEREN
@@ -2619,9 +2667,33 @@ function distancePointToSegment(
         "click",
         () => {
 
-      savePlaceAddress.classList.remove(
-        "has-value"
-      );
+          if (!lastGpsData) {
+            return;
+          }
+
+
+          pendingSavePlace = {
+
+            lat: lastGpsData.lat,
+
+            lon: lastGpsData.lon
+
+          };
+
+
+          savePlaceOwnName.value = "";
+
+          savePlaceDescription.value = "";
+
+          savePlaceAddress.value = "";
+
+          savePlaceAddress.classList.remove(
+            "has-value"
+          );
+
+
+          updateSavePlaceButton();
+
 
           savePlaceDialog.style.display = "flex";
 
@@ -2643,6 +2715,69 @@ function distancePointToSegment(
       );
 
     }
+
+    /* =========================================================
+       ORT SPEICHERN – SPEICHERN
+       ========================================================= */
+
+    if (btnSavePlaceConfirm) {
+
+      btnSavePlaceConfirm.addEventListener(
+        "click",
+        () => {
+
+          if (!pendingSavePlace) {
+            return;
+          }
+
+
+          const places =
+            loadSavedPlaces();
+
+
+          const newPlace = {
+
+            ownName:
+              savePlaceOwnName.value.trim(),
+
+            description:
+              savePlaceDescription.value.trim(),
+
+            address:
+              savePlaceAddress.value.trim(),
+
+            lat:
+              pendingSavePlace.lat,
+
+            lon:
+              pendingSavePlace.lon,
+
+            createdAt:
+              Date.now(),
+
+            lastUsed:
+              Date.now(),
+
+            useCount:
+              0
+
+          };
+
+
+          places.push(newPlace);
+
+
+          saveSavedPlaces(places);
+
+
+          savePlaceDialog.style.display =
+            "none";
+
+        }
+      );
+
+    }
+
 
     /* =========================================================
        ORT SPEICHERN – TASTATURPOSITION
