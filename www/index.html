@@ -1127,6 +1127,37 @@
 
     }
 
+    /* =========================================================
+       SPEICHER-HINWEIS
+       ========================================================= */
+
+    .save-place-toast {
+      display: none;
+
+      position: fixed;
+
+      left: 50%;
+      bottom: 90px;
+
+      transform: translateX(-50%);
+
+      z-index: 1100;
+
+      padding: 12px 20px;
+
+      border-radius: 10px;
+
+      background: rgba(0, 0, 0, 0.82);
+      color: #ffffff;
+
+      font-size: 16px;
+      font-weight: 700;
+
+      white-space: nowrap;
+
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.25);
+    }
+
   </style>
 
 </head>
@@ -2773,6 +2804,22 @@ function distancePointToSegment(
           savePlaceDialog.style.display =
             "none";
 
+
+          const savePlaceToast =
+            document.getElementById("savePlaceToast");
+
+          savePlaceToast.style.display = "block";
+
+
+          setTimeout(
+            () => {
+
+              savePlaceToast.style.display =
+                "none";
+
+            },
+            1500
+          );
         }
       );
 
@@ -4291,6 +4338,18 @@ if (
       /* Browser-Vorschau ohne Capacitor */
 
     }
+
+    <!-- =======================================================
+         SPEICHER-HINWEIS
+         ======================================================= -->
+
+    <div
+      id="savePlaceToast"
+      class="save-place-toast"
+    >
+      Standort gespeichert
+    </div>
+
 
   </script>
 
