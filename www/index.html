@@ -2403,11 +2403,6 @@ function distancePointToSegment(
       );
 
 
-      routeCandidates.classList.remove(
-        "is-visible"
-      );
-
-
       btnRouteSearch.classList.remove(
         "is-visible"
       );
@@ -2521,11 +2516,6 @@ function distancePointToSegment(
 
 
       showSavedPlaces();
-
-
-      routeCandidates.classList.remove(
-        "is-visible"
-      );
 
 
       btnRouteSearch.classList.remove(
@@ -2767,9 +2757,7 @@ function distancePointToSegment(
         "click",
         () => {
 
-          if (!lastGpsData) {
-            return;
-          }
+          if (!lastGpsData) { alert("KEINE GPS-DATEN"); return; }
 
 
           pendingSavePlace = {
@@ -3825,9 +3813,7 @@ if (insideWindow) {
 
     function updateMapDisplay() {
 
-      if (!lastGpsData) {
-        return;
-      }
+      if (!lastGpsData) { alert("KEINE GPS-DATEN"); return; }
 
 
       const position = [
@@ -4424,5 +4410,7 @@ if (
 
 </body>
 </html>
+
+
 
 
