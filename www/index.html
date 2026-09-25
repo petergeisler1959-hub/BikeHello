@@ -2504,8 +2504,6 @@ function distancePointToSegment(
 
       activeRoutePoint = point;
 
-      btnSaveCurrentLocation.style.display = "none";
-
       routeInput.disabled = false;
 
 
@@ -2579,9 +2577,6 @@ function distancePointToSegment(
       .addEventListener(
         "click",
         () => {
-
-          btnSaveCurrentLocation.style.display =
-            "";
 
           closeRoutePage();
 
