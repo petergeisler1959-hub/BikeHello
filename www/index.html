@@ -2691,17 +2691,33 @@ function distancePointToSegment(
             const address =
               place.address || "";
 
+            const descriptionIsInAddress =
+              description &&
+              address &&
+              address
+                .toLowerCase()
+                .includes(
+                  description.toLowerCase()
+                );
+
             let firstLine = "";
             let secondLine = "";
 
             if (ownName) {
               firstLine = ownName;
-              secondLine = description;
+
+              secondLine =
+                description &&
+                !descriptionIsInAddress
+                  ? description
+                  : "";
             } else {
               firstLine =
-                description ||
-                address ||
-                "Unbenannter Ort";
+                description &&
+                !descriptionIsInAddress
+                  ? description
+                  : address ||
+                    "Unbenannter Ort";
             }
 
             const createdDate =
@@ -2925,6 +2941,53 @@ function distancePointToSegment(
           });
 
         });
+
+
+        routeCandidates
+          .querySelectorAll(".route-place-delete")
+          .forEach(button => {
+
+            button.addEventListener("click", () => {
+
+              const index =
+                Number(
+                  button.dataset.placeIndex
+                );
+
+              const places =
+                loadSavedPlaces();
+
+              const place =
+                places[index];
+
+              if (!place) {
+                return;
+              }
+
+              const placeName =
+                place.ownName ||
+                place.description ||
+                place.address ||
+                "Unbenannter Ort";
+
+              const confirmed =
+                window.confirm(
+                  `Ort "${placeName}" wirklich löschen?`
+                );
+
+              if (!confirmed) {
+                return;
+              }
+
+              places.splice(index, 1);
+
+              saveSavedPlaces(places);
+
+              showSavedPlaces();
+
+            });
+
+          });
 
     }
 
