@@ -1054,6 +1054,15 @@
       cursor: default;
     }
 
+    .saved-places-heading {
+      width: 100%;
+      margin-bottom: 8px;
+      color: #555;
+      font-size: 15px;
+      font-weight: 600;
+      text-align: left;
+    }
+
 
     /* =========================================================
        MINI MAP MARKER
@@ -2679,6 +2688,10 @@ function distancePointToSegment(
       }
 
       routeCandidates.innerHTML =
+        <div class="saved-places-heading">
+          Gespeicherte Orte
+        </div>
+      ` +
         places
           .map((place, index) => {
 
@@ -3524,6 +3537,11 @@ setInterval(
               if (!selected || !selected.point) {
                 return;
               }
+
+              pendingSavePlace = {
+                lat: selected.point.lat,
+                lon: selected.point.lng
+              };
 
               savePlaceOwnName.value = "";
 
