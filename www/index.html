@@ -2682,31 +2682,117 @@ function distancePointToSegment(
         places
           .map((place, index) => {
 
-            const name =
-              place.ownName ||
-              place.description ||
-              "Unbenannter Ort";
+            const ownName =
+              place.ownName || "";
+
+            const description =
+              place.description || "";
 
             const address =
               place.address || "";
+
+            let title = "";
+
+            if (ownName && description) {
+
+              title =
+                `${ownName} &#x00B7; ${description}`;
+
+            } else {
+
+              title =
+                ownName ||
+                description ||
+                address ||
+                "Unbenannter Ort";
+            }
+
+            const createdDate =
+              place.createdAt
+                ? new Date(
+                    place.createdAt
+                  ).toLocaleDateString(
+                    "de-DE"
+                  )
+                : "";
+
+            const usageCount =
+              Number.isFinite(
+                place.useCount
+              )
+                ? place.useCount
+                : 0;
+
+            const meta =
+              createdDate
+                ? `Erstellt: ${createdDate} &#x2192; Nutzungen: ${usageCount}`
+                : `Nutzungen: ${usageCount}`;
 
             return `
               <div
                 class="route-candidate"
                 data-place-index="${index}"
               >
+
                 <button
                   class="route-candidate-select"
                   type="button"
                 >
-                  <span class="route-candidate-name">
-                    ${name}
+
+                  <span
+                    class="route-candidate-name"
+                  >
+                    ${title}
                   </span>
 
-                  <span class="route-candidate-address">
-                    ${address}
+                  ${
+                    address &&
+                    (
+                      ownName ||
+                      description
+                    )
+                      ? `
+                        <span
+                          class="route-candidate-address"
+                        >
+                          ${address}
+                        </span>
+                      `
+                      : ""
+                  }
+
+                  <span
+                    class="route-candidate-address"
+                  >
+                    ${meta}
                   </span>
+
                 </button>
+
+                <div
+                  class="route-place-actions"
+                >
+
+                  <button
+                    class="route-place-edit"
+                    type="button"
+                    data-place-index="${index}"
+                    aria-label="Ort bearbeiten"
+                  >
+                    &#x270F;&#xFE0F;
+                  </button>
+
+                  <button
+                    class="route-place-delete"
+                    type="button"
+                    data-place-index="${index}"
+                    aria-label="Ort l&#x00F6;schen"
+                  >
+                    &#x1F5D1;&#xFE0F;
+                  </button>
+
+                </div>
+
               </div>
             `;
           })
@@ -2715,6 +2801,126 @@ function distancePointToSegment(
       routeCandidates.classList.add(
         "is-visible"
       );
+
+      attachSavedPlaceHandlers();
+
+    }
+
+
+    /* =========================================================
+       GESPEICHERTEN ORT AUSWÄHLEN
+       ========================================================= */
+
+    function attachSavedPlaceHandlers() {
+
+      routeCandidates
+        .querySelectorAll(".route-candidate-select")
+        .forEach(button => {
+
+          button.addEventListener("click", () => {
+
+            const candidate =
+              button.closest(".route-candidate");
+
+            if (!candidate) {
+              return;
+            }
+
+            const index =
+              Number(
+                candidate.dataset.placeIndex
+              );
+
+            const places =
+              loadSavedPlaces();
+
+            const place =
+              places[index];
+
+            if (!place) {
+              return;
+            }
+
+            const now =
+              Date.now();
+
+            place.lastUsed = now;
+
+            place.useCount =
+              Number.isFinite(
+                place.useCount
+              )
+                ? place.useCount + 1
+                : 1;
+
+            saveSavedPlaces(places);
+
+            const selectedData = {
+
+              name:
+                place.ownName ||
+                place.description ||
+                "Unbenannter Ort",
+
+              address:
+                place.address || "",
+
+              lat:
+                place.lat,
+
+              lon:
+                place.lon,
+
+              isMyLocation: false
+
+            };
+
+            if (
+              activeRoutePoint === "start"
+            ) {
+
+              selectedStart =
+                selectedData;
+
+              if (!selectedTarget) {
+                setMyLocationAsPoint(
+                  "target"
+                );
+              }
+
+            } else if (
+              activeRoutePoint === "target"
+            ) {
+
+              selectedTarget =
+                selectedData;
+
+              if (!selectedStart) {
+                setMyLocationAsPoint(
+                  "start"
+                );
+              }
+
+            }
+
+            updateSelectedInfo();
+
+            routeCandidates.classList.remove(
+              "is-visible"
+            );
+
+            routeInputPanel.classList.remove(
+              "is-open"
+            );
+
+            routeInput.blur();
+
+            activeRoutePoint = null;
+
+          });
+
+        });
+
     }
 
 
