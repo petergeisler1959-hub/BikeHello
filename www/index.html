@@ -2691,17 +2691,14 @@ function distancePointToSegment(
             const address =
               place.address || "";
 
-            let title = "";
+            let firstLine = "";
+            let secondLine = "";
 
-            if (ownName && description) {
-
-              title =
-                `${ownName} &#x00B7; ${description}`;
-
+            if (ownName) {
+              firstLine = ownName;
+              secondLine = description;
             } else {
-
-              title =
-                ownName ||
+              firstLine =
                 description ||
                 address ||
                 "Unbenannter Ort";
@@ -2742,15 +2739,23 @@ function distancePointToSegment(
                   <span
                     class="route-candidate-name"
                   >
-                    ${title}
+                    ${firstLine}
                   </span>
 
                   ${
-                    address &&
-                    (
-                      ownName ||
-                      description
-                    )
+                    secondLine
+                      ? `
+                        <span
+                          class="route-candidate-description"
+                        >
+                          ${secondLine}
+                        </span>
+                      `
+                      : ""
+                  }
+
+                  ${
+                    address
                       ? `
                         <span
                           class="route-candidate-address"
