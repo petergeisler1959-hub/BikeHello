@@ -2618,6 +2618,8 @@ function distancePointToSegment(
 
     let pendingSavePlace = null;
 
+    let editingPlaceIndex = null;
+
 
     function loadSavedPlaces() {
 
@@ -2955,6 +2957,62 @@ function distancePointToSegment(
           });
 
         });
+
+        routeCandidates
+          .querySelectorAll(".route-place-edit")
+          .forEach(button => {
+
+            button.addEventListener("click", () => {
+
+              const index =
+                Number(
+                  button.dataset.placeIndex
+                );
+
+              const places =
+                loadSavedPlaces();
+
+              const place =
+                places[index];
+
+              if (!place) {
+                return;
+              }
+
+              editingPlaceIndex = index;
+
+              pendingSavePlace = {
+                lat: place.lat,
+                lon: place.lon
+              };
+
+              savePlaceOwnName.value =
+                place.ownName || "";
+
+              savePlaceDescription.value =
+                place.description || "";
+
+              savePlaceAddress.value =
+                place.address || "";
+
+              if (place.address) {
+                savePlaceAddress.classList.add(
+                  "has-value"
+                );
+              } else {
+                savePlaceAddress.classList.remove(
+                  "has-value"
+                );
+              }
+
+              updateSavePlaceButton();
+
+              savePlaceDialog.style.display =
+                "flex";
+
+            });
+
+          });
 
 
         routeCandidates
