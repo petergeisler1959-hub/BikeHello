@@ -3005,6 +3005,8 @@ function distancePointToSegment(
                 );
               }
 
+              savePlaceAddress.disabled = true;
+
               updateSavePlaceButton();
 
               savePlaceDialog.style.display =
@@ -3115,6 +3117,8 @@ function distancePointToSegment(
           };
 
 
+          savePlaceAddress.disabled = false;
+
           savePlaceOwnName.value = "";
 
           savePlaceDescription.value = "";
@@ -3145,6 +3149,10 @@ function distancePointToSegment(
 
           savePlaceDialog.style.display = "none";
 
+          editingPlaceIndex = null;
+
+          savePlaceAddress.disabled = false;
+
         }
       );
 
@@ -3168,37 +3176,73 @@ function distancePointToSegment(
           const places =
             loadSavedPlaces();
 
+          if (
+            editingPlaceIndex !== null &&
+            places[editingPlaceIndex]
+          ) {
 
-          const newPlace = {
+            const oldPlace =
+              places[editingPlaceIndex];
 
-            ownName:
-              savePlaceOwnName.value.trim(),
+            const editedPlace = {
 
-            description:
-              savePlaceDescription.value.trim(),
+              ...oldPlace,
 
-            address:
-              savePlaceAddress.value.trim(),
+              ownName:
+                savePlaceOwnName.value.trim(),
 
-            lat:
-              pendingSavePlace.lat,
+              description:
+                savePlaceDescription.value.trim(),
 
-            lon:
-              pendingSavePlace.lon,
+              address:
+                oldPlace.address,
 
-            createdAt:
-              Date.now(),
+              lat:
+                oldPlace.lat,
 
-            lastUsed:
-              Date.now(),
+              lon:
+                oldPlace.lon
 
-            useCount:
-              0
+            };
 
-          };
+            places[editingPlaceIndex] =
+              editedPlace;
 
+          } else {
 
-          places.push(newPlace);
+            const newPlace = {
+
+              ownName:
+                savePlaceOwnName.value.trim(),
+
+              description:
+                savePlaceDescription.value.trim(),
+
+              address:
+                savePlaceAddress.value.trim(),
+
+              lat:
+                pendingSavePlace.lat,
+
+              lon:
+                pendingSavePlace.lon,
+
+              createdAt:
+                Date.now(),
+
+              lastUsed:
+                Date.now(),
+
+              useCount:
+                0
+
+            };
+
+            places.push(newPlace);
+
+          }
+
+          editingPlaceIndex = null;
 
 
           saveSavedPlaces(places);
@@ -3601,6 +3645,8 @@ setInterval(
                 lat: selected.point.lat,
                 lon: selected.point.lng
               };
+
+              savePlaceAddress.disabled = false;
 
               savePlaceOwnName.value = "";
 
