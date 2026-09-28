@@ -367,7 +367,6 @@
       flex: 1;
       min-height: 0;
 
-      display: flex;
       flex-direction: column;
     }
 
@@ -2956,32 +2955,26 @@ function distancePointToSegment(
               selectedStart =
                 selectedData;
 
-              if (!selectedTarget) {
-                setMyLocationAsPoint(
-                  "target"
-                );
-              }
-
-            } else if (
-              activeRoutePoint === "target"
-            ) {
+            } else {
 
               selectedTarget =
                 selectedData;
 
-              if (!selectedStart) {
-                setMyLocationAsPoint(
+              if (
+                !setMyLocationAsPoint(
                   "start"
-                );
+                )
+              ) {
+                return;
               }
 
             }
 
             updateSelectedInfo();
 
-            routeCandidates.classList.remove(
-              "is-visible"
-            );
+            document
+              .querySelector(".route-definition")
+              .style.display = "flex";
 
             routeInputPanel.classList.remove(
               "is-open"
