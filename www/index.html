@@ -1336,7 +1336,6 @@
       class="button"
       type="button"
     >
-      Ziele
     </button>
 
   </div>
@@ -2374,6 +2373,20 @@ function distancePointToSegment(
         "is-active"
       );
 
+      document
+        .querySelector(".route-definition")
+        .style.display = "none";
+
+      routeInputPanel.classList.remove(
+        "is-open"
+      );
+
+      routeCalculateButton.classList.remove(
+        "is-visible"
+      );
+
+      showSavedPlaces();
+
 
       updateSelectedInfo();
 
@@ -2686,7 +2699,7 @@ function distancePointToSegment(
       routeCandidates.innerHTML = 
       `
         <div class="saved-places-heading">
-          Gespeicherte Orte
+          Gespeicherte Ziele
         </div>
 
         <div class="saved-places-sort">
