@@ -2960,12 +2960,16 @@ function distancePointToSegment(
               selectedTarget =
                 selectedData;
 
-              if (
-                !setMyLocationAsPoint(
-                  "start"
-                )
-              ) {
-                return;
+              if (!selectedStart) {
+
+                if (
+                  !setMyLocationAsPoint(
+                    "start"
+                  )
+                ) {
+                  return;
+                }
+
               }
 
             }
