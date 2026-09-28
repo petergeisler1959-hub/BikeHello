@@ -3139,35 +3139,43 @@ function distancePointToSegment(
         "click",
         () => {
 
-          if (!lastGpsData) { return; }
+          activeRoutePoint = null;
 
+          document
+            .querySelector(".route-definition")
+            .style.display = "none";
 
-          pendingSavePlace = {
-
-            lat: lastGpsData.lat,
-
-            lon: lastGpsData.lon
-
-          };
-
-
-          savePlaceAddress.disabled = false;
-
-          savePlaceOwnName.value = "";
-
-          savePlaceDescription.value = "";
-
-          savePlaceAddress.value = "";
-
-          savePlaceAddress.classList.remove(
-            "has-value"
+          routeCandidates.classList.remove(
+            "is-visible"
           );
 
+          routeInputPanel.classList.add(
+            "is-open"
+          );
 
-          updateSavePlaceButton();
+          routeInput.disabled = false;
 
+          routeInputTitle.textContent =
+            "Neuen Ort suchen";
 
-          savePlaceDialog.style.display = "flex";
+          routeInput.value = "";
+
+          btnRouteSearch.classList.remove(
+            "is-visible"
+          );
+
+          btnMyLocation.classList.add(
+            "is-visible"
+          );
+
+          routeInput.scrollIntoView({
+            behavior: "smooth",
+            block: "center"
+          });
+
+          routeInput.focus({
+            preventScroll: true
+          });
 
         }
       );
