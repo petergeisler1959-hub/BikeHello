@@ -2534,36 +2534,36 @@ function distancePointToSegment(
 
       activeRoutePoint = point;
 
-      routeInput.disabled = false;
+      document
+        .querySelector(".route-definition")
+        .style.display = "none";
 
-
-      routeInputTitle.textContent =
-        point === "start"
-          ? "Neuen START suchen"
-          : "Neues ZIEL suchen";
-
-
-      routeInput.value = "";
-
-
-      routeInputPanel.classList.add(
+      routeInputPanel.classList.remove(
         "is-open"
       );
-
-
-      showSavedPlaces();
-
 
       btnRouteSearch.classList.remove(
         "is-visible"
       );
 
+      routeCandidates.classList.add(
+        "is-visible"
+      );
 
-      routeInput.scrollIntoView({
-        block: "center",
-        behavior: "smooth"
-      });
+      const heading =
+        routeCandidates
+          .querySelector(".saved-places-heading");
 
+      if (heading) {
+
+        heading.textContent =
+          point === "start"
+            ? "Gespeicherte Startpunkte"
+            : "Gespeicherte Ziele";
+
+      }
+
+      routeInput.blur();
 
     }
 
