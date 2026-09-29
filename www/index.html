@@ -2962,13 +2962,9 @@ function distancePointToSegment(
 
               if (!selectedStart) {
 
-                if (
-                  !setMyLocationAsPoint(
-                    "start"
-                  )
-                ) {
-                  return;
-                }
+                setMyLocationAsPoint(
+                  "start"
+                );
 
               }
 
