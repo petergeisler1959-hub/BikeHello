@@ -3635,25 +3635,44 @@ setInterval(
                 isMyLocation: false
               };
 
-              if (activeRoutePoint === "start") {
-                selectedStart = selectedData;
+              if (
+                activeRoutePoint === "start"
+              ) {
 
-                if (!selectedTarget) {
-                  setMyLocationAsPoint("target");
-                }
-              } else if (activeRoutePoint === "target") {
-                selectedTarget = selectedData;
+                selectedStart =
+                  selectedData;
+
+              } else {
+
+                selectedTarget =
+                  selectedData;
 
                 if (!selectedStart) {
-                  setMyLocationAsPoint("start");
+
+                  setMyLocationAsPoint(
+                    "start"
+                  );
+
                 }
+
               }
 
               updateSelectedInfo();
 
-              routeCandidates.classList.remove("is-visible");
-              routeInputPanel.classList.remove("is-open");
+              document
+                .querySelector(".route-definition")
+                .style.display = "flex";
+
+              routeCandidates.classList.remove(
+                "is-visible"
+              );
+
+              routeInputPanel.classList.remove(
+                "is-open"
+              );
+
               routeInput.blur();
+
               activeRoutePoint = null;
           });
         });
