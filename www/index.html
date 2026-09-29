@@ -1753,6 +1753,8 @@
 
     let selectedTarget = null;
 
+    let routeCalculateSuppressed = false;
+
 
     /* =========================================================
        HAUPTKARTE
@@ -2245,7 +2247,8 @@ function distancePointToSegment(
         "is-visible",
         Boolean(
           selectedStart &&
-          selectedTarget
+          selectedTarget &&
+          !routeCalculateSuppressed
         )
       );
 
@@ -3137,6 +3140,8 @@ function distancePointToSegment(
 
           activeRoutePoint = null;
 
+          routeCalculateSuppressed = true;
+
           document
             .querySelector(".route-definition")
             .style.display = "none";
@@ -3660,6 +3665,8 @@ setInterval(
                 }
 
               }
+
+              routeCalculateSuppressed = false;
 
               updateSelectedInfo();
 
