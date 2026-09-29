@@ -3228,7 +3228,7 @@ function distancePointToSegment(
 
           editingPlaceIndex = null;
 
-          savePlaceAddress.disabled = false;
+          savePlaceAddress.disabled = true;
 
         }
       );
@@ -3745,7 +3745,7 @@ setInterval(
                 lon: selected.point.lng
               };
 
-              savePlaceAddress.disabled = false;
+              savePlaceAddress.disabled = true;
 
               savePlaceOwnName.value = "";
 
