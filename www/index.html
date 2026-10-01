@@ -3026,7 +3026,6 @@ function distancePointToSegment(
 
             routeInput.blur();
 
-            activeRoutePoint = null;
 
           });
 
@@ -3178,8 +3177,6 @@ function distancePointToSegment(
       btnSaveCurrentLocation.addEventListener(
         "click",
         () => {
-
-          activeRoutePoint = null;
 
           routeCalculateSuppressed = true;
 
@@ -3725,7 +3722,6 @@ setInterval(
 
               routeInput.blur();
 
-              activeRoutePoint = null;
           });
         });
 
