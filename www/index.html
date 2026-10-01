@@ -3005,6 +3005,17 @@ function distancePointToSegment(
 
             updateSelectedInfo();
 
+            const heading =
+              routeCandidates
+                .querySelector(".saved-places-heading");
+
+            if (heading) {
+              heading.textContent =
+                activeRoutePoint === "start"
+                  ? "Gespeicherte Startpunkte"
+                  : "Gespeicherte Ziele";
+            }
+
             document
               .querySelector(".route-definition")
               .style.display = "flex";
