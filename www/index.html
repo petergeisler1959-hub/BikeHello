@@ -3243,6 +3243,8 @@ function distancePointToSegment(
        ORT SPEICHERN – SPEICHERN
        ========================================================= */
 
+    /*
+
     if (btnSavePlaceConfirm) {
 
       btnSavePlaceConfirm.addEventListener(
@@ -3353,6 +3355,161 @@ function distancePointToSegment(
       );
 
     }
+
+    */
+
+
+/* =========================================================
+   ORT SPEICHERN – GEMEINSAME SPEICHERLOGIK
+   ========================================================= */
+
+function savePlaceFromDialog() {
+
+  if (!pendingSavePlace) {
+    return null;
+  }
+
+
+  const places =
+    loadSavedPlaces();
+
+  let savedPlace;
+
+
+  /* ---------------------------------------------------------
+     BESTEHENDEN ORT BEARBEITEN
+     --------------------------------------------------------- */
+
+  if (
+    editingPlaceIndex !== null &&
+    places[editingPlaceIndex]
+  ) {
+
+    const oldPlace =
+      places[editingPlaceIndex];
+
+    savedPlace = {
+
+      ...oldPlace,
+
+      ownName:
+        savePlaceOwnName.value.trim(),
+
+      description:
+        savePlaceDescription.value.trim(),
+
+      address:
+        oldPlace.address,
+
+      lat:
+        oldPlace.lat,
+
+      lon:
+        oldPlace.lon
+
+    };
+
+    places[editingPlaceIndex] =
+      savedPlace;
+
+
+  /* ---------------------------------------------------------
+     NEUEN ORT ANLEGEN
+     --------------------------------------------------------- */
+
+  } else {
+
+    savedPlace = {
+
+      ownName:
+        savePlaceOwnName.value.trim(),
+
+      description:
+        savePlaceDescription.value.trim(),
+
+      address:
+        savePlaceAddress.value.trim(),
+
+      lat:
+        pendingSavePlace.lat,
+
+      lon:
+        pendingSavePlace.lon,
+
+      createdAt:
+        Date.now(),
+
+      lastUsed:
+        Date.now(),
+
+      useCount:
+        0
+
+    };
+
+    places.push(savedPlace);
+
+  }
+
+
+  saveSavedPlaces(places);
+
+  showSavedPlaces();
+
+  editingPlaceIndex = null;
+
+
+  return savedPlace;
+
+}
+
+
+/* =========================================================
+   ORT SPEICHERN – SPEICHERN
+   ========================================================= */
+
+if (btnSavePlaceConfirm) {
+
+  btnSavePlaceConfirm.addEventListener(
+    "click",
+    () => {
+
+      const savedPlace =
+        savePlaceFromDialog();
+
+      if (!savedPlace) {
+        return;
+      }
+
+
+      savePlaceDialog.style.display =
+        "none";
+
+
+      const savePlaceToast =
+        document.getElementById(
+          "savePlaceToast"
+        );
+
+      savePlaceToast.style.display =
+        "block";
+
+
+      setTimeout(
+        () => {
+
+          savePlaceToast.style.display =
+            "none";
+
+        },
+        1500
+      );
+
+    }
+  );
+
+}
+
 
 
     /* =========================================================
